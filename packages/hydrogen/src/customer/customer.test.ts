@@ -1,6 +1,10 @@
 import {describe, it, expect, vi, beforeEach, afterEach} from 'vitest';
 import type {HydrogenSession, HydrogenSessionData} from '../types';
-import {createCustomerAccountClient, getMaybeUILocales} from './customer';
+import {
+  createCustomerAccountClient,
+  getMaybeUILocales,
+  getMaybeLocale,
+} from './customer';
 import {BUYER_SESSION_KEY, CUSTOMER_ACCOUNT_SESSION_KEY} from './constants';
 import crypto from 'node:crypto';
 
@@ -44,6 +48,7 @@ function createFetchResponse<T>(data: T, options: {ok: boolean}) {
 }
 
 let session: HydrogenSession;
+const originalNodeEnv = process.env.NODE_ENV;
 
 const mockCustomerAccountSession: HydrogenSessionData['customerAccount'] = {
   accessToken: 'access_token',
@@ -62,7 +67,7 @@ const mockBuyerSession = {
 describe('customer', () => {
   beforeEach(() => {
     session = {
-      commit: vi.fn(() => new Promise((resolve) => resolve('cookie'))),
+      commit: vi.fn(() => Promise.resolve('cookie')),
       get: vi.fn(() => {
         return {...mockCustomerAccountSession, ...mockBuyerSession};
       }) as HydrogenSession['get'],
@@ -73,6 +78,7 @@ describe('customer', () => {
   });
 
   afterEach(() => {
+    process.env.NODE_ENV = originalNodeEnv;
     vi.clearAllMocks();
   });
 
@@ -118,6 +124,50 @@ describe('customer', () => {
         expect(params.get('nonce')).toBeTruthy();
         expect(params.get('code_challenge')).toBeTruthy();
         expect(params.get('code_challenge_method')).toBe('S256');
+      });
+
+      it('Throws guidance error in development when request origin is not a tunnel', async () => {
+        expect.assertions(3);
+        process.env.NODE_ENV = 'development';
+
+        const customer = createCustomerAccountClient({
+          session,
+          customerAccountId: 'customerAccountId',
+          shopId: '1',
+          request: new Request('https://localhost'),
+          waitUntil: vi.fn(),
+        });
+
+        try {
+          await customer.login();
+        } catch (error) {
+          const response = error as Response & {message?: string};
+
+          expect(response.status).toBe(400);
+          expect(response.message).toContain('--customer-account-push');
+          expect(response.message).toContain('.tryhydrogen.dev');
+        }
+      });
+
+      it('Redirects in development when request origin uses a tunnel host', async () => {
+        process.env.NODE_ENV = 'development';
+
+        const customer = createCustomerAccountClient({
+          session,
+          customerAccountId: 'customerAccountId',
+          shopId: '1',
+          request: new Request('https://my-shop.tryhydrogen.dev'),
+          waitUntil: vi.fn(),
+        });
+
+        const response = await customer.login();
+        const url = new URL(response.headers.get('location')!);
+
+        expect(response.status).toBe(302);
+        expect(url.origin).toBe('https://shopify.com');
+        expect(url.searchParams.get('redirect_uri')).toBe(
+          'https://my-shop.tryhydrogen.dev/account/authorize',
+        );
       });
 
       it('Redirects to the customer account api login url with authUrl as param', async () => {
@@ -171,7 +221,7 @@ describe('customer', () => {
       });
 
       describe('locales', () => {
-        it('Redirects to the customer account api login url with uiLocales as param (i18n in the constructor)', async () => {
+        it('Redirects to the customer account api login url with locale as param (language in the constructor)', async () => {
           const origin = 'https://something-good.com';
 
           const customer = createCustomerAccountClient({
@@ -186,10 +236,11 @@ describe('customer', () => {
           const response = await customer.login();
           const url = new URL(response.headers.get('location')!);
 
-          expect(url.searchParams.get('ui_locales')).toBe('fr');
+          expect(url.searchParams.get('locale')).toBe('fr');
+          expect(url.searchParams.get('ui_locales')).toBeNull();
         });
 
-        it('Redirects to the customer account api login url with uiLocales as param (uiLocales in the param)', async () => {
+        it('Redirects to the customer account api login url with locale as param (locale option)', async () => {
           const origin = 'https://something-good.com';
 
           const customer = createCustomerAccountClient({
@@ -201,14 +252,15 @@ describe('customer', () => {
           });
 
           const response = await customer.login({
-            uiLocales: 'FR',
+            locale: 'fr',
           });
           const url = new URL(response.headers.get('location')!);
 
-          expect(url.searchParams.get('ui_locales')).toBe('fr');
+          expect(url.searchParams.get('locale')).toBe('fr');
+          expect(url.searchParams.get('ui_locales')).toBeNull();
         });
 
-        it('Redirects to the customer account api login url with uiLocales as param (override)', async () => {
+        it('Redirects to the customer account api login url with locale as param (locale option overrides language)', async () => {
           const origin = 'https://something-good.com';
 
           const customer = createCustomerAccountClient({
@@ -221,12 +273,326 @@ describe('customer', () => {
           });
 
           const response = await customer.login({
+            locale: 'fr',
+          });
+          const url = new URL(response.headers.get('location')!);
+
+          expect(url.searchParams.get('locale')).toBe('fr');
+          expect(url.searchParams.get('ui_locales')).toBeNull();
+        });
+
+        it('Redirects to the customer account api login url with locale as param (uiLocales option, no language)', async () => {
+          const origin = 'https://something-good.com';
+
+          const customer = createCustomerAccountClient({
+            session,
+            customerAccountId: 'customerAccountId',
+            shopId: '1',
+            request: new Request(origin),
+            waitUntil: vi.fn(),
+          });
+
+          const response = await customer.login({
             uiLocales: 'FR',
           });
           const url = new URL(response.headers.get('location')!);
 
-          expect(url.searchParams.get('ui_locales')).toBe('fr');
+          expect(url.searchParams.get('locale')).toBe('fr');
         });
+
+        it('locale takes precedence over uiLocales when both are provided', async () => {
+          const origin = 'https://something-good.com';
+
+          const customer = createCustomerAccountClient({
+            session,
+            customerAccountId: 'customerAccountId',
+            shopId: '1',
+            request: new Request(origin),
+            waitUntil: vi.fn(),
+          });
+
+          const response = await customer.login({
+            locale: 'de',
+            uiLocales: 'FR',
+          });
+          const url = new URL(response.headers.get('location')!);
+
+          expect(url.searchParams.get('locale')).toBe('de');
+          expect(url.searchParams.get('ui_locales')).toBeNull();
+        });
+      });
+    });
+
+    describe('countryCode', () => {
+      it('Redirects to the customer account api login url with countryCode as param', async () => {
+        const origin = 'https://something-good.com';
+
+        const customer = createCustomerAccountClient({
+          session,
+          customerAccountId: 'customerAccountId',
+          shopId: '1',
+          request: new Request(origin),
+          waitUntil: vi.fn(),
+        });
+
+        const response = await customer.login({
+          countryCode: 'US',
+        });
+        const url = new URL(response.headers.get('location')!);
+
+        expect(url.searchParams.get('region_country')).toBe('US');
+      });
+
+      it('Includes both locale and countryCode when both are provided', async () => {
+        const origin = 'https://something-good.com';
+
+        const customer = createCustomerAccountClient({
+          session,
+          customerAccountId: 'customerAccountId',
+          shopId: '1',
+          request: new Request(origin),
+          waitUntil: vi.fn(),
+        });
+
+        const response = await customer.login({
+          uiLocales: 'FR',
+          countryCode: 'CA',
+        });
+        const url = new URL(response.headers.get('location')!);
+
+        expect(url.searchParams.get('locale')).toBe('fr');
+        expect(url.searchParams.get('region_country')).toBe('CA');
+      });
+
+      it('Does not include region_country param when countryCode is not provided', async () => {
+        const origin = 'https://something-good.com';
+
+        const customer = createCustomerAccountClient({
+          session,
+          customerAccountId: 'customerAccountId',
+          shopId: '1',
+          request: new Request(origin),
+          waitUntil: vi.fn(),
+        });
+
+        const response = await customer.login();
+        const url = new URL(response.headers.get('location')!);
+
+        expect(url.searchParams.get('region_country')).toBeNull();
+      });
+
+      it('Handles different country code formats', async () => {
+        const origin = 'https://something-good.com';
+
+        const customer = createCustomerAccountClient({
+          session,
+          customerAccountId: 'customerAccountId',
+          shopId: '1',
+          request: new Request(origin),
+          waitUntil: vi.fn(),
+        });
+
+        // Test with various country codes
+        const countryCodes = ['GB', 'JP', 'AU', 'DE'];
+
+        for (const code of countryCodes) {
+          const response = await customer.login({
+            countryCode: code as any,
+          });
+          const url = new URL(response.headers.get('location')!);
+          expect(url.searchParams.get('region_country')).toBe(code);
+        }
+      });
+    });
+
+    describe('acrValues', () => {
+      it('Redirects to the customer account api login url with acrValues as param', async () => {
+        const origin = 'https://something-good.com';
+
+        const customer = createCustomerAccountClient({
+          session,
+          customerAccountId: 'customerAccountId',
+          shopId: '1',
+          request: new Request(origin),
+          waitUntil: vi.fn(),
+        });
+
+        const response = await customer.login({
+          acrValues: 'provider:google',
+        });
+        const url = new URL(response.headers.get('location')!);
+
+        expect(url.searchParams.get('acr_values')).toBe('provider:google');
+      });
+
+      it('Does not include acr_values param when acrValues is not provided', async () => {
+        const origin = 'https://something-good.com';
+
+        const customer = createCustomerAccountClient({
+          session,
+          customerAccountId: 'customerAccountId',
+          shopId: '1',
+          request: new Request(origin),
+          waitUntil: vi.fn(),
+        });
+
+        const response = await customer.login();
+        const url = new URL(response.headers.get('location')!);
+
+        expect(url.searchParams.get('acr_values')).toBeNull();
+      });
+    });
+
+    describe('loginHint', () => {
+      it('Redirects to the customer account api login url with loginHint as param', async () => {
+        const origin = 'https://something-good.com';
+
+        const customer = createCustomerAccountClient({
+          session,
+          customerAccountId: 'customerAccountId',
+          shopId: '1',
+          request: new Request(origin),
+          waitUntil: vi.fn(),
+        });
+
+        const response = await customer.login({
+          loginHint: 'user@example.com',
+        });
+        const url = new URL(response.headers.get('location')!);
+
+        expect(url.searchParams.get('login_hint')).toBe('user@example.com');
+      });
+
+      it('Includes loginHint with other login options', async () => {
+        const origin = 'https://something-good.com';
+
+        const customer = createCustomerAccountClient({
+          session,
+          customerAccountId: 'customerAccountId',
+          shopId: '1',
+          request: new Request(origin),
+          waitUntil: vi.fn(),
+        });
+
+        const response = await customer.login({
+          uiLocales: 'FR',
+          countryCode: 'CA',
+          acrValues: 'provider:google',
+          loginHint: 'user@example.com',
+        });
+        const url = new URL(response.headers.get('location')!);
+
+        expect(url.searchParams.get('locale')).toBe('fr');
+        expect(url.searchParams.get('region_country')).toBe('CA');
+        expect(url.searchParams.get('acr_values')).toBe('provider:google');
+        expect(url.searchParams.get('login_hint')).toBe('user@example.com');
+      });
+
+      it('Does not include login_hint param when loginHint is not provided', async () => {
+        const origin = 'https://something-good.com';
+
+        const customer = createCustomerAccountClient({
+          session,
+          customerAccountId: 'customerAccountId',
+          shopId: '1',
+          request: new Request(origin),
+          waitUntil: vi.fn(),
+        });
+
+        const response = await customer.login();
+        const url = new URL(response.headers.get('location')!);
+
+        expect(url.searchParams.get('login_hint')).toBeNull();
+      });
+    });
+
+    describe('loginHintMode', () => {
+      it('Includes loginHintMode when loginHint is also provided', async () => {
+        const origin = 'https://something-good.com';
+
+        const customer = createCustomerAccountClient({
+          session,
+          customerAccountId: 'customerAccountId',
+          shopId: '1',
+          request: new Request(origin),
+          waitUntil: vi.fn(),
+        });
+
+        const response = await customer.login({
+          loginHint: 'user@example.com',
+          loginHintMode: 'submit',
+        });
+        const url = new URL(response.headers.get('location')!);
+
+        expect(url.searchParams.get('login_hint')).toBe('user@example.com');
+        expect(url.searchParams.get('login_hint_mode')).toBe('submit');
+      });
+
+      it('Does not include loginHintMode when loginHint is not provided', async () => {
+        const origin = 'https://something-good.com';
+
+        const customer = createCustomerAccountClient({
+          session,
+          customerAccountId: 'customerAccountId',
+          shopId: '1',
+          request: new Request(origin),
+          waitUntil: vi.fn(),
+        });
+
+        const response = await customer.login({
+          loginHintMode: 'submit',
+        });
+        const url = new URL(response.headers.get('location')!);
+
+        expect(url.searchParams.get('login_hint')).toBeNull();
+        expect(url.searchParams.get('login_hint_mode')).toBeNull();
+      });
+
+      it('Includes loginHintMode with other login options', async () => {
+        const origin = 'https://something-good.com';
+
+        const customer = createCustomerAccountClient({
+          session,
+          customerAccountId: 'customerAccountId',
+          shopId: '1',
+          request: new Request(origin),
+          waitUntil: vi.fn(),
+        });
+
+        const response = await customer.login({
+          uiLocales: 'FR',
+          countryCode: 'CA',
+          acrValues: 'provider:google',
+          loginHint: 'user@example.com',
+          loginHintMode: 'submit',
+        });
+        const url = new URL(response.headers.get('location')!);
+
+        expect(url.searchParams.get('locale')).toBe('fr');
+        expect(url.searchParams.get('region_country')).toBe('CA');
+        expect(url.searchParams.get('acr_values')).toBe('provider:google');
+        expect(url.searchParams.get('login_hint')).toBe('user@example.com');
+        expect(url.searchParams.get('login_hint_mode')).toBe('submit');
+      });
+
+      it('Does not include login_hint_mode param when loginHintMode is not provided', async () => {
+        const origin = 'https://something-good.com';
+
+        const customer = createCustomerAccountClient({
+          session,
+          customerAccountId: 'customerAccountId',
+          shopId: '1',
+          request: new Request(origin),
+          waitUntil: vi.fn(),
+        });
+
+        const response = await customer.login({
+          loginHint: 'user@example.com',
+        });
+        const url = new URL(response.headers.get('location')!);
+
+        expect(url.searchParams.get('login_hint')).toBe('user@example.com');
+        expect(url.searchParams.get('login_hint_mode')).toBeNull();
       });
     });
 
@@ -352,7 +718,7 @@ describe('customer', () => {
         it('Redirects to app origin when customer is not login by default', async () => {
           const origin = 'https://shop123.com';
           const mockSession: HydrogenSession = {
-            commit: vi.fn(() => new Promise((resolve) => resolve('cookie'))),
+            commit: vi.fn(() => Promise.resolve('cookie')),
             get: vi.fn(() => undefined) as HydrogenSession['get'],
             set: vi.fn(),
             unset: vi.fn(),
@@ -383,7 +749,7 @@ describe('customer', () => {
           const postLogoutRedirectUri = '/post-logout-landing-page';
 
           const mockSession: HydrogenSession = {
-            commit: vi.fn(() => new Promise((resolve) => resolve('cookie'))),
+            commit: vi.fn(() => Promise.resolve('cookie')),
             get: vi.fn(() => undefined) as HydrogenSession['get'],
             set: vi.fn(),
             unset: vi.fn(),
@@ -417,7 +783,7 @@ describe('customer', () => {
             'https://something-bad.com/post-logout-landing-page';
 
           const mockSession: HydrogenSession = {
-            commit: vi.fn(() => new Promise((resolve) => resolve('cookie'))),
+            commit: vi.fn(() => Promise.resolve('cookie')),
             get: vi.fn(() => undefined) as HydrogenSession['get'],
             set: vi.fn(),
             unset: vi.fn(),
@@ -746,7 +1112,7 @@ describe('customer', () => {
       it('Redirects to redirectPath on successful authorization and updates session', async () => {
         const redirectPath = '/account/orders';
         session = {
-          commit: vi.fn(() => new Promise((resolve) => resolve('cookie'))),
+          commit: vi.fn(() => Promise.resolve('cookie')),
           get: vi.fn(() => {
             return {...mockCustomerAccountSession, redirectPath};
           }) as HydrogenSession['get'],
@@ -936,6 +1302,31 @@ describe('customer', () => {
   });
 
   describe('handleAuthStatus()', async () => {
+    it('Throws guidance error in development when request origin is not a tunnel', async () => {
+      expect.assertions(3);
+      process.env.NODE_ENV = 'development';
+
+      const customer = createCustomerAccountClient({
+        session,
+        customerAccountId: 'customerAccountId',
+        shopId: '1',
+        request: new Request('https://localhost/account/orders'),
+        waitUntil: vi.fn(),
+      });
+
+      (session.get as any).mockReturnValueOnce(undefined);
+
+      try {
+        await customer.handleAuthStatus();
+      } catch (error) {
+        const response = error as Response & {message?: string};
+
+        expect(response.status).toBe(400);
+        expect(response.message).toContain('--customer-account-push');
+        expect(response.message).toContain('.tryhydrogen.dev');
+      }
+    });
+
     it('throw redirect to login path and current path as param if logged out', async () => {
       const customer = createCustomerAccountClient({
         session,
@@ -1234,5 +1625,211 @@ describe('getMaybeUILocales', () => {
       uiLocalesOverride: null,
     });
     expect(dutch).toBe('nl');
+  });
+});
+
+describe('getMaybeLocale', () => {
+  it('returns null if no language is provided', () => {
+    const locale = getMaybeLocale({
+      contextLanguage: null,
+      localeOverride: null,
+      uiLocalesOverride: null,
+    });
+    expect(locale).toBeNull();
+  });
+
+  it('returns lowercase for regular languages', () => {
+    expect(
+      getMaybeLocale({
+        contextLanguage: 'EN',
+        localeOverride: null,
+        uiLocalesOverride: null,
+      }),
+    ).toBe('en');
+    expect(
+      getMaybeLocale({
+        contextLanguage: 'FR',
+        localeOverride: null,
+        uiLocalesOverride: null,
+      }),
+    ).toBe('fr');
+    expect(
+      getMaybeLocale({
+        contextLanguage: 'DE',
+        localeOverride: null,
+        uiLocalesOverride: null,
+      }),
+    ).toBe('de');
+    expect(
+      getMaybeLocale({
+        contextLanguage: 'JA',
+        localeOverride: null,
+        uiLocalesOverride: null,
+      }),
+    ).toBe('ja');
+    expect(
+      getMaybeLocale({
+        contextLanguage: 'KO',
+        localeOverride: null,
+        uiLocalesOverride: null,
+      }),
+    ).toBe('ko');
+  });
+
+  it('returns language-country format for regional languages', () => {
+    expect(
+      getMaybeLocale({
+        contextLanguage: 'PT_BR',
+        localeOverride: null,
+        uiLocalesOverride: null,
+      }),
+    ).toBe('pt-BR');
+    expect(
+      getMaybeLocale({
+        contextLanguage: 'PT_PT',
+        localeOverride: null,
+        uiLocalesOverride: null,
+      }),
+    ).toBe('pt-PT');
+    expect(
+      getMaybeLocale({
+        contextLanguage: 'ZH_CN',
+        localeOverride: null,
+        uiLocalesOverride: null,
+      }),
+    ).toBe('zh-CN');
+    expect(
+      getMaybeLocale({
+        contextLanguage: 'ZH_TW',
+        localeOverride: null,
+        uiLocalesOverride: null,
+      }),
+    ).toBe('zh-TW');
+  });
+
+  it('uses localeOverride when provided (highest priority)', () => {
+    expect(
+      getMaybeLocale({
+        contextLanguage: 'EN',
+        localeOverride: 'fr',
+        uiLocalesOverride: 'DE',
+      }),
+    ).toBe('fr');
+    expect(
+      getMaybeLocale({
+        contextLanguage: 'EN',
+        localeOverride: 'zh-CN',
+        uiLocalesOverride: 'JA',
+      }),
+    ).toBe('zh-CN');
+  });
+
+  it('uses uiLocalesOverride when localeOverride is null (second priority)', () => {
+    expect(
+      getMaybeLocale({
+        contextLanguage: 'EN',
+        localeOverride: null,
+        uiLocalesOverride: 'FR',
+      }),
+    ).toBe('fr');
+    expect(
+      getMaybeLocale({
+        contextLanguage: 'EN',
+        localeOverride: null,
+        uiLocalesOverride: 'ZH_CN',
+      }),
+    ).toBe('zh-CN');
+  });
+
+  it('falls back to contextLanguage when both overrides are null', () => {
+    expect(
+      getMaybeLocale({
+        contextLanguage: 'DE',
+        localeOverride: null,
+        uiLocalesOverride: null,
+      }),
+    ).toBe('de');
+    expect(
+      getMaybeLocale({
+        contextLanguage: 'ZH_TW',
+        localeOverride: null,
+        uiLocalesOverride: null,
+      }),
+    ).toBe('zh-TW');
+  });
+
+  it('normalizes localeOverride format', () => {
+    // Uppercase to lowercase
+    expect(
+      getMaybeLocale({
+        contextLanguage: null,
+        localeOverride: 'FR',
+        uiLocalesOverride: null,
+      }),
+    ).toBe('fr');
+    expect(
+      getMaybeLocale({
+        contextLanguage: null,
+        localeOverride: 'EN',
+        uiLocalesOverride: null,
+      }),
+    ).toBe('en');
+    // Underscore to hyphen with proper casing
+    expect(
+      getMaybeLocale({
+        contextLanguage: null,
+        localeOverride: 'ZH_CN',
+        uiLocalesOverride: null,
+      }),
+    ).toBe('zh-CN');
+    expect(
+      getMaybeLocale({
+        contextLanguage: null,
+        localeOverride: 'PT_BR',
+        uiLocalesOverride: null,
+      }),
+    ).toBe('pt-BR');
+    // Already correct format stays the same
+    expect(
+      getMaybeLocale({
+        contextLanguage: null,
+        localeOverride: 'zh-CN',
+        uiLocalesOverride: null,
+      }),
+    ).toBe('zh-CN');
+    expect(
+      getMaybeLocale({
+        contextLanguage: null,
+        localeOverride: 'pt-BR',
+        uiLocalesOverride: null,
+      }),
+    ).toBe('pt-BR');
+  });
+
+  it('respects priority order: localeOverride > uiLocalesOverride > contextLanguage', () => {
+    // All three provided - localeOverride wins
+    expect(
+      getMaybeLocale({
+        contextLanguage: 'EN',
+        localeOverride: 'fr',
+        uiLocalesOverride: 'DE',
+      }),
+    ).toBe('fr');
+    // Only uiLocalesOverride and contextLanguage - uiLocalesOverride wins
+    expect(
+      getMaybeLocale({
+        contextLanguage: 'EN',
+        localeOverride: null,
+        uiLocalesOverride: 'DE',
+      }),
+    ).toBe('de');
+    // Only contextLanguage - contextLanguage is used
+    expect(
+      getMaybeLocale({
+        contextLanguage: 'EN',
+        localeOverride: null,
+        uiLocalesOverride: null,
+      }),
+    ).toBe('en');
   });
 });

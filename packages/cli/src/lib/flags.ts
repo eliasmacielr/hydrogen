@@ -25,13 +25,6 @@ export const commonFlags = {
       env: 'SHOPIFY_HYDROGEN_FLAG_PORT',
     }),
   },
-  legacyRuntime: {
-    'legacy-runtime': Flags.boolean({
-      description:
-        'Runs the app in a Node.js sandbox instead of an Oxygen worker.',
-      env: 'SHOPIFY_HYDROGEN_FLAG_LEGACY_RUNTIME',
-    }),
-  },
   force: {
     force: Flags.boolean({
       description:
@@ -149,14 +142,6 @@ Defaults to the '.env' located in your project path `--path`.",
       env: 'SHOPIFY_HYDROGEN_FLAG_INSPECTOR_PORT',
     }),
   },
-  diff: {
-    diff: Flags.boolean({
-      description:
-        "Applies the current files on top of Hydrogen's starter template in a temporary directory.",
-      required: false,
-      hidden: true,
-    }),
-  },
   entry: {
     entry: Flags.string({
       description: 'Entry file for the worker. Defaults to `./server`.',
@@ -179,10 +164,9 @@ Defaults to the '.env' located in your project path `--path`.",
     }),
   },
   customerAccountPush: {
-    'customer-account-push__unstable': Flags.boolean({
-      hidden: true,
+    'customer-account-push': Flags.boolean({
       description:
-        "Use tunneling for local development and push the tunneling domain to admin. Required to use Customer Account API's Oauth flow",
+        "Use tunneling for local development and push the tunneling domain to admin. Required to use Customer Account API's OAuth flow",
       required: false,
       env: 'SHOPIFY_HYDROGEN_FLAG_CUSTOMER_ACCOUNT_PUSH',
     }),
@@ -261,7 +245,7 @@ export function deprecated(name: string, {isBoolean = false} = {}) {
   return {
     ...customFlag(),
     type: (isBoolean ? 'boolean' : 'option') as unknown as 'option',
-  };
+  } as FlagProps;
 }
 
 export function overrideFlag<T extends Record<string, Record<string, any>>>(

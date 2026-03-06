@@ -27,12 +27,14 @@ import {
   getPackageManager,
   type PackageJson,
 } from '@shopify/cli-kit/node/node-package-manager';
+import {exec} from '@shopify/cli-kit/node/system';
 import {AbortError} from '@shopify/cli-kit/node/error';
 import {dirname, joinPath, resolvePath} from '@shopify/cli-kit/node/path';
 import {getCliCommand} from '../../lib/shell.js';
 import {commonFlags, flagsToCamelObject} from '../../lib/flags.js';
 import {getProjectPaths} from '../../lib/remix-config.js';
 import {hydrogenPackagesPath, isHydrogenMonorepo} from '../../lib/build.js';
+import {isCI} from '../../lib/is-ci.js';
 import {fetch} from '@shopify/cli-kit/node/http';
 
 type ReleaseItem = {
@@ -57,6 +59,8 @@ export type Release = {
   dependencies: Record<string, string>;
   devDependencies: Record<string, string>;
   dependenciesMeta?: Record<string, {required: boolean}>;
+  removeDependencies?: string[];
+  removeDevDependencies?: string[];
   features: Array<ReleaseItem>;
   fixes: Array<ReleaseItem>;
   hash: string;
@@ -122,6 +126,20 @@ export async function runUpgrade({
   version: targetVersion,
   force,
 }: UpgradeOptions) {
+  // --version=next is only available when running from monorepo, tests, or CI
+  if (targetVersion === 'next') {
+    const isInTests = process.env.SHOPIFY_UNIT_TEST === '1';
+    const isInCIEnvironment = isCI();
+    const runningFromMonorepo = await isRunningFromHydrogenMonorepo();
+
+    if (!runningFromMonorepo && !isInTests && !isInCIEnvironment) {
+      throw new AbortError(
+        '--version=next is only available when running from the Hydrogen monorepo',
+        'This feature is designed for internal development and testing of unreleased versions',
+      );
+    }
+  }
+
   if (!force) {
     await checkIsGitRepo(appPath);
 
@@ -131,6 +149,20 @@ export async function runUpgrade({
   const {currentVersion, currentDependencies} = await getHydrogenVersion({
     appPath,
   });
+
+  // Don't allow --version=next if project already uses next versions for key packages
+  if (targetVersion === 'next') {
+    const hasNextHydrogen = currentDependencies['@shopify/hydrogen'] === 'next';
+    const hasNextMiniOxygen =
+      currentDependencies['@shopify/mini-oxygen'] === 'next';
+
+    if (hasNextHydrogen || hasNextMiniOxygen) {
+      throw new AbortError(
+        'Project already uses next versions',
+        'Cannot upgrade to --version=next when @shopify/hydrogen or @shopify/mini-oxygen are already using "next" versions',
+      );
+    }
+  }
 
   const isPrerelease = semver.prerelease(currentVersion);
 
@@ -168,6 +200,7 @@ export async function runUpgrade({
       currentVersion,
       targetVersion,
       availableUpgrades,
+      currentDependencies,
     });
 
     // Get an aggregate list of features and fixes included in the upgrade versions range
@@ -181,6 +214,7 @@ export async function runUpgrade({
     confirmed = await displayConfirmation({
       cumulativeRelease,
       selectedRelease,
+      targetVersion,
     });
   } while (!confirmed);
 
@@ -192,10 +226,16 @@ export async function runUpgrade({
     selectedRelease,
   });
 
-  await upgradeNodeModules({appPath, selectedRelease, currentDependencies});
+  await upgradeNodeModules({
+    appPath,
+    selectedRelease,
+    currentDependencies,
+    targetVersion,
+  });
   await validateUpgrade({
     appPath,
     selectedRelease,
+    targetVersion,
   });
 
   const instrunctionsFilePath = await instrunctionsFilePathPromise;
@@ -207,6 +247,69 @@ export async function runUpgrade({
     instrunctionsFilePath,
     selectedRelease,
   });
+}
+
+/**
+ * Checks if the current execution context is within the Hydrogen monorepo
+ */
+export async function isRunningFromHydrogenMonorepo(): Promise<boolean> {
+  try {
+    const cwd = process.cwd();
+
+    // Look for monorepo indicators relative to current working directory
+    const potentialMonorepoRoots = [
+      cwd,
+      joinPath(cwd, '../'),
+      joinPath(cwd, '../../'),
+    ];
+
+    for (const root of potentialMonorepoRoots) {
+      try {
+        const templatesPath = joinPath(root, 'templates/skeleton');
+        const packagesPath = joinPath(root, 'packages/cli');
+
+        // Check if we can find monorepo structure
+        const hasTemplates = await isDirectory(templatesPath);
+        const hasPackages = await isDirectory(packagesPath);
+
+        if (hasTemplates && hasPackages) {
+          return true;
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Creates a next version release based on latest changelog entry
+ */
+function createNextRelease(latestRelease: Release): Release {
+  // Use latest release as base and override specific @shopify packages to "next"
+  const dependencies = {...latestRelease.dependencies};
+  const devDependencies = {...latestRelease.devDependencies};
+
+  // Override @shopify/hydrogen and @shopify/mini-oxygen to "next" if they exist
+  if (dependencies['@shopify/hydrogen']) {
+    dependencies['@shopify/hydrogen'] = 'next';
+  }
+  if (devDependencies['@shopify/mini-oxygen']) {
+    devDependencies['@shopify/mini-oxygen'] = 'next';
+  }
+
+  const nextRelease = {
+    ...latestRelease,
+    title: `${latestRelease.title} (next versions)`,
+    dependencies,
+    devDependencies,
+  };
+
+  return nextRelease;
 }
 
 /**
@@ -274,16 +377,36 @@ export async function getHydrogenVersion({appPath}: {appPath: string}) {
 export async function getChangelog(): Promise<ChangeLog> {
   if (CACHED_CHANGELOG) return CACHED_CHANGELOG;
 
-  // For local testing
+  // For local testing - force local changelog usage
   if (
-    isHydrogenMonorepo &&
-    hydrogenPackagesPath &&
-    process.env.FORCE_CHANGELOG_SOURCE !== 'remote'
+    process.env.FORCE_CHANGELOG_SOURCE === 'local' ||
+    (isHydrogenMonorepo &&
+      hydrogenPackagesPath &&
+      process.env.FORCE_CHANGELOG_SOURCE !== 'remote')
   ) {
     const require = createRequire(import.meta.url);
-    return require(
-      joinPath(dirname(hydrogenPackagesPath), 'docs', 'changelog.json'),
-    ) as ChangeLog;
+    const localChangelogPath =
+      isHydrogenMonorepo && hydrogenPackagesPath
+        ? joinPath(dirname(hydrogenPackagesPath), 'docs', 'changelog.json')
+        : joinPath(process.cwd(), 'docs', 'changelog.json');
+
+    try {
+      const changelog = require(localChangelogPath) as ChangeLog;
+      CACHED_CHANGELOG = changelog;
+      return changelog;
+    } catch (error) {
+      console.warn(
+        `Failed to load local changelog from ${localChangelogPath}:`,
+        (error as Error).message,
+      );
+      // Fall through to remote fetch if local fails and not explicitly forced
+      if (process.env.FORCE_CHANGELOG_SOURCE === 'local') {
+        throw new AbortError(
+          'Failed to load local changelog',
+          `Could not read changelog from ${localChangelogPath}`,
+        );
+      }
+    }
   }
 
   try {
@@ -407,17 +530,21 @@ export async function getSelectedRelease({
   targetVersion,
   availableUpgrades,
   currentVersion,
+  currentDependencies,
 }: {
   targetVersion?: string;
   availableUpgrades: Array<Release>;
   currentVersion: string;
+  currentDependencies: Record<string, string>;
 }) {
   const targetRelease = targetVersion
-    ? availableUpgrades.find(
-        (release) =>
-          getAbsoluteVersion(release.version) ===
-          getAbsoluteVersion(targetVersion),
-      )
+    ? targetVersion === 'next'
+      ? createNextRelease(availableUpgrades[0]!)
+      : availableUpgrades.find(
+          (release) =>
+            getAbsoluteVersion(release.version) ===
+            getAbsoluteVersion(targetVersion),
+        )
     : undefined;
 
   return (
@@ -443,6 +570,14 @@ export function getCummulativeRelease({
 
   if (!availableUpgrades?.length) {
     return {features: [], fixes: []};
+  }
+
+  // For synthetic next releases, return features/fixes directly
+  if (selectedRelease.dependencies?.['@shopify/hydrogen'] === 'next') {
+    return {
+      features: selectedRelease.features || [],
+      fixes: selectedRelease.fixes || [],
+    };
   }
 
   const upgradingReleases = availableUpgrades.filter((release) => {
@@ -478,9 +613,11 @@ export function getCummulativeRelease({
 export function displayConfirmation({
   cumulativeRelease,
   selectedRelease,
+  targetVersion,
 }: {
   cumulativeRelease: CumulativeRelease;
   selectedRelease: Release;
+  targetVersion?: string;
 }) {
   const {features, fixes} = cumulativeRelease;
   if (features.length || fixes.length) {
@@ -512,6 +649,11 @@ export function displayConfirmation({
     });
   }
 
+  // Skip confirmation for next version upgrades
+  if (targetVersion === 'next') {
+    return true;
+  }
+
   return renderConfirmationPrompt({
     message: `Are you sure you want to upgrade to ${selectedRelease.version}?`,
     cancellationMessage: `No, choose another version`,
@@ -526,6 +668,29 @@ function isRemixDependency([name]: [string, string]) {
   return false;
 }
 
+function isReactRouterDependency([name]: [string, string]) {
+  if (name.includes('react-router')) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Gets the appropriate version for a package, transforming @shopify packages to "next" when needed
+ */
+export function getPackageVersion(
+  packageName: string,
+  version: string,
+  targetVersion?: string,
+): string {
+  const shouldUseNext =
+    targetVersion === 'next' &&
+    (packageName === '@shopify/hydrogen' ||
+      packageName === '@shopify/mini-oxygen');
+
+  return shouldUseNext ? 'next' : getAbsoluteVersion(version);
+}
+
 /**
  * Checks if a dependency should be included in the upgrade command
  */
@@ -533,10 +698,12 @@ function maybeIncludeDependency({
   currentDependencies,
   dependency: [name, version],
   selectedRelease,
+  targetVersion,
 }: {
   dependency: [string, string];
   currentDependencies: Record<string, string>;
   selectedRelease: Release;
+  targetVersion?: string;
 }) {
   const existingDependencyVersion = currentDependencies[name];
 
@@ -545,9 +712,15 @@ function maybeIncludeDependency({
   // Remix dependencies are handled later
   if (isRemixPackage) return false;
 
-  const isNextVersion = existingDependencyVersion === 'next';
+  const isReactRouterPackage = isReactRouterDependency([name, version]);
 
-  if (isNextVersion) return false;
+  // React Router dependencies are handled later
+  if (isReactRouterPackage) return false;
+
+  const isNextVersion = existingDependencyVersion === 'next';
+  const allowNextVersions = targetVersion === 'next';
+
+  if (isNextVersion && !allowNextVersions) return false;
 
   // Handle required/conditional dependenciesMeta deps
   const depMeta = selectedRelease.dependenciesMeta?.[name];
@@ -562,6 +735,14 @@ function maybeIncludeDependency({
 
   // Dep meta is required...
   if (!existingDependencyVersion) return true;
+
+  // For --version=next, always upgrade @shopify packages to get latest snapshots
+  if (
+    targetVersion === 'next' &&
+    (name === '@shopify/hydrogen' || name === '@shopify/mini-oxygen')
+  ) {
+    return true;
+  }
 
   const isOlderVersion = semver.lt(
     getAbsoluteVersion(existingDependencyVersion),
@@ -579,9 +760,11 @@ function maybeIncludeDependency({
 export function buildUpgradeCommandArgs({
   selectedRelease,
   currentDependencies,
+  targetVersion,
 }: {
   selectedRelease: Release;
   currentDependencies: Record<string, string>;
+  targetVersion?: string;
 }) {
   const args: string[] = [];
 
@@ -591,9 +774,17 @@ export function buildUpgradeCommandArgs({
       currentDependencies,
       dependency,
       selectedRelease,
+      targetVersion,
     });
     if (!shouldUpgradeDep) continue;
-    args.push(`${dependency[0]}@${getAbsoluteVersion(dependency[1])}`);
+
+    args.push(
+      `${dependency[0]}@${getPackageVersion(
+        dependency[0],
+        dependency[1],
+        targetVersion,
+      )}`,
+    );
   }
 
   // upgrade devDependencies
@@ -602,9 +793,17 @@ export function buildUpgradeCommandArgs({
       currentDependencies,
       dependency,
       selectedRelease,
+      targetVersion,
     });
     if (!shouldUpgradeDep) continue;
-    args.push(`${dependency[0]}@${getAbsoluteVersion(dependency[1])}`);
+
+    args.push(
+      `${dependency[0]}@${getPackageVersion(
+        dependency[0],
+        dependency[1],
+        targetVersion,
+      )}`,
+    );
   }
 
   // Maybe upgrade Remix dependencies
@@ -627,6 +826,34 @@ export function buildUpgradeCommandArgs({
     }
   }
 
+  // Maybe upgrade React Router dependencies
+  const currentReactRouter = Object.entries(currentDependencies).find(
+    isReactRouterDependency,
+  );
+  const selectedReactRouter = Object.entries(selectedRelease.dependencies).find(
+    isReactRouterDependency,
+  );
+
+  if (selectedReactRouter) {
+    // If upgrading to a version with React Router dependencies, add them
+    // This handles both upgrades and migrations (e.g., from Remix to React Router)
+    const shouldUpgradeReactRouter =
+      !currentReactRouter ||
+      semver.lt(
+        getAbsoluteVersion(currentReactRouter[1]),
+        getAbsoluteVersion(selectedReactRouter[1]),
+      );
+
+    if (shouldUpgradeReactRouter) {
+      args.push(
+        ...appendReactRouterDependencies({
+          currentDependencies,
+          selectedReactRouter,
+        }),
+      );
+    }
+  }
+
   return args;
 }
 
@@ -637,29 +864,88 @@ export async function upgradeNodeModules({
   appPath,
   selectedRelease,
   currentDependencies,
+  targetVersion,
 }: {
   appPath: string;
   selectedRelease: Release;
   currentDependencies: Record<string, string>;
+  targetVersion?: string;
 }) {
-  await renderTasks(
-    [
-      {
-        title: `Upgrading dependencies`,
-        task: async () => {
-          await installNodeModules({
-            directory: appPath,
-            packageManager: await getPackageManager(appPath),
-            args: buildUpgradeCommandArgs({
-              selectedRelease,
-              currentDependencies,
-            }),
-          });
-        },
+  const tasks: Array<{title: string; task: () => Promise<void>}> = [];
+
+  // Remove deprecated dependencies first if specified
+  const depsToRemove = [
+    ...(selectedRelease.removeDependencies || []),
+    ...(selectedRelease.removeDevDependencies || []),
+  ].filter((dep) => dep in currentDependencies);
+
+  if (depsToRemove.length > 0) {
+    tasks.push({
+      title: `Removing deprecated dependencies`,
+      task: async () => {
+        await uninstallNodeModules({
+          directory: appPath,
+          packageManager: await getPackageManager(appPath),
+          args: depsToRemove,
+        });
       },
-    ],
-    {},
-  );
+    });
+  }
+
+  // Then install/upgrade dependencies
+  const upgradeArgs = buildUpgradeCommandArgs({
+    selectedRelease,
+    currentDependencies,
+    targetVersion,
+  });
+
+  if (upgradeArgs.length > 0) {
+    tasks.push({
+      title: `Upgrading dependencies`,
+      task: async () => {
+        await installNodeModules({
+          directory: appPath,
+          packageManager: await getPackageManager(appPath),
+          args: upgradeArgs,
+        });
+      },
+    });
+  }
+
+  if (tasks.length > 0) {
+    await renderTasks(tasks, {});
+  }
+}
+
+/**
+ * Uninstalls the specified dependencies
+ */
+async function uninstallNodeModules({
+  directory,
+  packageManager,
+  args,
+}: {
+  directory: string;
+  packageManager: 'npm' | 'yarn' | 'pnpm' | 'unknown' | 'bun';
+  args: string[];
+}) {
+  if (args.length === 0) return;
+
+  const command =
+    packageManager === 'npm'
+      ? 'uninstall'
+      : packageManager === 'yarn'
+        ? 'remove'
+        : packageManager === 'pnpm'
+          ? 'remove'
+          : packageManager === 'bun'
+            ? 'remove'
+            : 'uninstall'; // fallback to npm for 'unknown'
+
+  const actualPackageManager =
+    packageManager === 'unknown' ? 'npm' : packageManager;
+
+  await exec(actualPackageManager, [command, ...args], {cwd: directory});
 }
 
 /**
@@ -684,9 +970,49 @@ function appendRemixDependencies({
 }
 
 /**
+ * Appends the current react-router dependencies to the upgrade command
+ */
+function appendReactRouterDependencies({
+  currentDependencies,
+  selectedReactRouter,
+}: {
+  currentDependencies: Record<string, string>;
+  selectedReactRouter: [string, string];
+}) {
+  const command: string[] = [];
+  const targetVersion = getAbsoluteVersion(selectedReactRouter[1]);
+
+  // Standard React Router packages that should be kept in sync
+  const reactRouterPackages = [
+    'react-router',
+    'react-router-dom',
+    '@react-router/dev',
+    '@react-router/fs-routes',
+  ];
+
+  // Always install/upgrade all React Router packages to ensure consistency
+  for (const packageName of reactRouterPackages) {
+    command.push(`${packageName}@${targetVersion}`);
+  }
+
+  return command;
+}
+
+/**
  * Gets the absolute version from a pinned or unpinned version
  */
 export function getAbsoluteVersion(version: string) {
+  // Return next versions unchanged
+  if (version === 'next') {
+    return 'next';
+  }
+
+  // Extract snapshot versions
+  const snapshotMatch = version.match(/^[\^~]?0\.0\.0-next-([a-f0-9]+)-(\d+)$/);
+  if (snapshotMatch) {
+    return version.replace(/^[\^~]?/, ''); // Return without range prefix
+  }
+
   const result = semver.minVersion(version);
   if (!result) {
     throw new AbortError(`Invalid version: ${version}`);
@@ -828,12 +1154,14 @@ async function displayUpgradeSummary({
  * Validate if a h2 upgrade was successful by comparing the previous and current
  * @shopify/hydrogen versions
  */
-async function validateUpgrade({
+export async function validateUpgrade({
   appPath,
   selectedRelease,
+  targetVersion,
 }: {
   appPath: string;
   selectedRelease: Release;
+  targetVersion?: string;
 }) {
   const dependencies = await getDependencies(joinPath(appPath, 'package.json'));
 
@@ -844,6 +1172,19 @@ async function validateUpgrade({
   }
 
   const updatedPinnedVersion = getAbsoluteVersion(updatedVersion);
+
+  // Accept snapshot versions for next targets
+  const isSnapshotVersion = updatedPinnedVersion.match(
+    /^0\.0\.0-next-[a-f0-9]+-\d+$/,
+  );
+  const targetIsNext =
+    selectedRelease.dependencies?.['@shopify/hydrogen'] === 'next';
+
+  // Bypass version validation for --version=next when release uses next versions
+  // Prevents false failures when upgrading stable versions to snapshot versions
+  if (targetVersion === 'next' && targetIsNext) {
+    return;
+  }
 
   if (updatedPinnedVersion !== selectedRelease.version) {
     throw new AbortError(
@@ -912,7 +1253,7 @@ async function generateUpgradeInstructionsFile({
     .filter((fixes) => fixes.steps)
     .map(generateStepMd);
 
-  if (!featuresMd.length && !fixesMd.length) {
+  if (!featuresMd.length && !fixesMd.length && !breakingChangesMd.length) {
     renderInfo({
       headline: `No upgrade instructions generated`,
       body: `There are no additional upgrade instructions for this version.`,
@@ -988,6 +1329,15 @@ export async function displayDevUpgradeNotice({
       appPath,
     });
 
+    /** We notify and exit early if the project is using the workspace protocol for @shopify/hydrogen */
+    if (currentVersion.startsWith('workspace:')) {
+      renderInfo({
+        headline: 'Using monorepo @shopify/hydrogen dependency',
+        body: 'This project uses the workspace protocol for @shopify/hydrogen, so upgrade notices are skipped during local monorepo development.',
+      });
+      return;
+    }
+
     const isPrerelease = semver.prerelease(currentVersion);
 
     if (isPrerelease || /^[a-z]+$/i.test(currentVersion)) {
@@ -1028,11 +1378,23 @@ export async function displayDevUpgradeNotice({
             getAbsoluteVersion(release.version) === pinnedCurrentVersion,
         );
 
-    const relevantReleases = changelog.releases.slice(0, currentReleaseIndex);
+    let relevantReleases: Release[];
+    if (currentReleaseIndex === -1) {
+      // Current version not found in changelog. Use semver to find releases newer than current.
+      const insertionIndex = changelog.releases.findIndex((release) =>
+        semver.lte(getAbsoluteVersion(release.version), pinnedCurrentVersion),
+      );
 
-    // By reversing the releases array, we give priority to older releases
-    // for the same version. Older releases (the first one of a version) probably
-    // have more information than a newer release that only changes dependencies.
+      relevantReleases =
+        insertionIndex === -1
+          ? changelog.releases
+          : changelog.releases.slice(0, insertionIndex);
+    } else {
+      relevantReleases = changelog.releases.slice(0, currentReleaseIndex);
+    }
+
+    // First, reverse so that during deduplication (reduce), older releases of the same version are kept.
+    // Then, reverse again after deduplication to restore chronological order for display (newest version at the top).
     const nextReleases = Object.values(
       [...relevantReleases].reverse().reduce(
         (acc, release) => {
@@ -1041,7 +1403,9 @@ export async function displayDevUpgradeNotice({
         },
         {} as Record<string, string>,
       ),
-    ).slice(0, 5);
+    )
+      .reverse()
+      .slice(0, 5);
 
     let headline =
       Object.keys(uniqueAvailableUpgrades).length > 1

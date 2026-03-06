@@ -50,7 +50,30 @@ import type {
 } from './types';
 import {createCustomerAccountHelper, URL_TYPE} from './customer-account-helper';
 import {warnOnce} from '../utils/warning';
-import {LanguageCode} from '@shopify/hydrogen-react/storefront-api-types';
+import {LanguageCode} from '@shopify/hydrogen-react/customer-account-api-types';
+
+const HYDROGEN_TUNNEL_DOMAIN_SUFFIX = '.tryhydrogen.dev';
+
+function throwIfNotTunnelled(hostname: string) {
+  if (process.env.NODE_ENV === 'development') {
+    // Keep this suffix in sync with the domain used by --customer-account-push.
+    if (!hostname.endsWith(HYDROGEN_TUNNEL_DOMAIN_SUFFIX)) {
+      throw new Response(
+        [
+          'Customer Account API OAuth requires a Hydrogen tunnel in local development.',
+          'Run the development server with the `--customer-account-push` flag,',
+          `then open the tunnel URL shown in your terminal (\`https://*${HYDROGEN_TUNNEL_DOMAIN_SUFFIX}\`) instead of localhost.`,
+        ].join('\n\n'),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'text/plain; charset=utf-8',
+          },
+        },
+      );
+    }
+  }
+}
 
 function defaultAuthStatusHandler(
   request: CrossRuntimeRequest,
@@ -58,7 +81,8 @@ function defaultAuthStatusHandler(
 ) {
   if (!request.url) return defaultLoginUrl;
 
-  const {pathname} = new URL(request.url);
+  const {hostname, pathname} = new URL(request.url);
+  throwIfNotTunnelled(hostname);
 
   /**
    * Remix (single-fetch) request objects have different url
@@ -294,6 +318,7 @@ export function createCustomerAccountClient({
     mutation: Parameters<CustomerAccount['mutate']>[0],
     options?: Parameters<CustomerAccount['mutate']>[1],
   ) {
+    throwIfNotTunnelled(requestUrl.hostname);
     ifInvalidCredentialThrowError();
 
     mutation = minifyQuery(mutation);
@@ -309,6 +334,7 @@ export function createCustomerAccountClient({
     query: Parameters<CustomerAccount['query']>[0],
     options?: Parameters<CustomerAccount['query']>[1],
   ) {
+    throwIfNotTunnelled(requestUrl.hostname);
     ifInvalidCredentialThrowError();
 
     query = minifyQuery(query);
@@ -338,8 +364,11 @@ export function createCustomerAccountClient({
   }
 
   return {
+    i18n: {language: language ?? ('EN' as LanguageCode)},
     login: async (options?: LoginOptions) => {
+      throwIfNotTunnelled(requestUrl.hostname);
       ifInvalidCredentialThrowError();
+
       const loginUrl = new URL(getCustomerAccountUrl(URL_TYPE.AUTH));
 
       const state = generateState();
@@ -356,12 +385,33 @@ export function createCustomerAccountClient({
       loginUrl.searchParams.append('state', state);
       loginUrl.searchParams.append('nonce', nonce);
 
-      const uiLocales = getMaybeUILocales({
+      const locale = getMaybeLocale({
         contextLanguage: language ?? null,
+        localeOverride: options?.locale ?? null,
         uiLocalesOverride: options?.uiLocales ?? null,
       });
-      if (uiLocales != null) {
-        loginUrl.searchParams.append('ui_locales', uiLocales);
+
+      if (locale != null) {
+        loginUrl.searchParams.append('locale', locale);
+      }
+
+      if (options?.countryCode) {
+        loginUrl.searchParams.append('region_country', options.countryCode);
+      }
+
+      if (options?.acrValues) {
+        loginUrl.searchParams.append('acr_values', options.acrValues);
+      }
+
+      if (options?.loginHint) {
+        loginUrl.searchParams.append('login_hint', options.loginHint);
+
+        if (options?.loginHintMode) {
+          loginUrl.searchParams.append(
+            'login_hint_mode',
+            options.loginHintMode,
+          );
+        }
       }
 
       const verifier = generateCodeVerifier();
@@ -385,6 +435,7 @@ export function createCustomerAccountClient({
     },
 
     logout: async (options?: LogoutOptions) => {
+      throwIfNotTunnelled(requestUrl.hostname);
       ifInvalidCredentialThrowError();
 
       const idToken = session.get(CUSTOMER_ACCOUNT_SESSION_KEY)?.idToken;
@@ -431,6 +482,7 @@ export function createCustomerAccountClient({
     mutate: mutate as CustomerAccount['mutate'],
     query: query as CustomerAccount['query'],
     authorize: async () => {
+      throwIfNotTunnelled(requestUrl.hostname);
       ifInvalidCredentialThrowError();
 
       const code = requestUrl.searchParams.get('code');
@@ -596,7 +648,7 @@ function createIfInvalidCredentialThrowError(
       const publicMessage =
         process.env.NODE_ENV === 'production'
           ? 'Internal Server Error'
-          : 'You do not have the valid credential to use Customer Account API (/account).';
+          : 'You do not have valid credentials to use Customer Account API (/account).';
 
       throw new Response(publicMessage, {status: 500});
     }
@@ -645,4 +697,52 @@ const regionalLanguageOverrides: Partial<Record<LanguageCode, LanguageCode>> = {
 
 function maybeEnforceRegionalVariant(language: LanguageCode): LanguageCode {
   return regionalLanguageOverrides[language] ?? language;
+}
+
+/**
+ * This function returns a locale string for the login URL.
+ * Supported locales: en, fr, cs, da, de, el, es, fi, hi, hr, hu, id, it, ja, ko, lt, ms, nb, nl, pl,
+ * pt-BR, pt-PT, ro, ru, sk, sl, sv, th, tr, vi, zh-CN, zh-TW
+ *
+ * Priority order: localeOverride > uiLocalesOverride > contextLanguage
+ * If none are provided, returns null.
+ */
+export function getMaybeLocale(params: {
+  contextLanguage: LanguageCode | null;
+  localeOverride: string | null;
+  uiLocalesOverride: LanguageCode | null;
+}): string | null {
+  // localeOverride takes highest precedence
+  if (params.localeOverride != null) {
+    return toLocaleString(params.localeOverride);
+  }
+
+  // uiLocalesOverride takes second precedence
+  if (params.uiLocalesOverride != null) {
+    return toLocaleString(params.uiLocalesOverride);
+  }
+
+  // contextLanguage is the fallback
+  if (params.contextLanguage != null) {
+    return toLocaleString(params.contextLanguage);
+  }
+
+  return null;
+}
+
+function toLocaleString(language: string): string {
+  // Convert to lowercase and replace underscore with hyphen
+  // e.g., PT_BR -> pt-br, ZH_CN -> zh-cn, EN -> en, pt-BR -> pt-br
+  const base = language.toLowerCase().replaceAll('_', '-');
+  const tokens = base.split('-');
+  const langToken = tokens[0];
+  const regionToken = tokens[1];
+
+  if (regionToken) {
+    // Has region: PT_BR -> pt-BR, zh-cn -> zh-CN, pt-BR -> pt-BR, etc.
+    return `${langToken}-${regionToken.toUpperCase()}`;
+  }
+
+  // No region: EN -> en, FR -> fr, DE -> de
+  return langToken;
 }

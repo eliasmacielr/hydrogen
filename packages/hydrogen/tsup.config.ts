@@ -62,6 +62,20 @@ export default defineConfig([
       );
 
       console.log('\n', 'Customer API types copied from hydrogen-react', '\n');
+
+      // Copy React Router augmentation types with corrected import path
+      const reactRouterSource = await fs.readFile('react-router.d.ts', 'utf-8');
+      const reactRouterDist = reactRouterSource.replace(
+        './src/index',
+        './production/index',
+      );
+      await fs.writeFile(
+        path.resolve(outDir, 'react-router.d.ts'),
+        reactRouterDist,
+        'utf-8',
+      );
+
+      console.log('\n', 'React Router augmentation types copied', '\n');
     },
   },
   {
@@ -80,6 +94,15 @@ export default defineConfig([
   {
     entry: ['src/dev/**/*.ts', '!src/dev/**/*.test.ts'],
     outDir: 'dist/dev',
+    format: 'esm',
+    minify: false,
+    bundle: true,
+    sourcemap: false,
+    dts: true,
+  },
+  {
+    entry: ['src/oxygen/**/*.ts', '!src/oxygen/**/*.test.ts'],
+    outDir: 'dist/oxygen',
     format: 'esm',
     minify: false,
     bundle: true,
@@ -106,7 +129,33 @@ export default defineConfig([
         {recursive: true},
       );
 
+      // Copy the Chrome DevTools route TypeScript file for React Router
+      await fs.cp(
+        'src/vite/virtual-routes/routes/[.]well-known.appspecific.com[.]chrome[.]devtools[.]json.tsx',
+        `${outDir}/vite/virtual-routes/routes/[.]well-known.appspecific.com[.]chrome[.]devtools[.]json.tsx`,
+      );
+
       console.log('\n', 'Copied virtual route assets to build directory', '\n');
     },
+  },
+  {
+    entry: ['src/react-router-preset.ts'],
+    outDir: 'dist/production',
+    format: 'esm',
+    minify: true,
+    bundle: true,
+    sourcemap: false,
+    dts: true,
+    external: ['@react-router/dev/config'],
+  },
+  {
+    entry: ['src/react-router-preset.ts'],
+    outDir: 'dist/development',
+    format: 'esm',
+    minify: false,
+    bundle: true,
+    sourcemap: true,
+    dts: true,
+    external: ['@react-router/dev/config'],
   },
 ]);

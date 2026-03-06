@@ -1,11 +1,302 @@
 # skeleton
 
+## 2026.1.1
+
+### Patch Changes
+
+- Added a notice with relevant information on how to link a store in case there is no store linked yet ([#3448](https://github.com/Shopify/hydrogen/pull/3448)) by [@fredericoo](https://github.com/fredericoo)
+
+- Fixed an issue where users without addresses could not add the first one ([#3456](https://github.com/Shopify/hydrogen/pull/3456)) by [@fredericoo](https://github.com/fredericoo)
+
+- Updated dependencies [[`ff93a1daf2207e52e1f8331f9ff2ccd1f9b7fed6`](https://github.com/Shopify/hydrogen/commit/ff93a1daf2207e52e1f8331f9ff2ccd1f9b7fed6)]:
+  - @shopify/hydrogen@2026.1.1
+
+## 2026.1.0
+
+### Major Changes
+
+- Updated to Storefront API 2026-01 and Customer Account API 2026-01. ([#3434](https://github.com/Shopify/hydrogen/pull/3434)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  This is a quarterly API version update aligned with Shopify's API release schedule.
+
+  **Action Required**: The `cartDiscountCodesUpdate` mutation now requires the `discountCodes` argument. If you have custom cart discount code logic, verify your mutations include this field.
+
+  Review the changelogs for other changes that may affect your storefront:
+  - [Storefront API 2026-01 changelog](https://shopify.dev/changelog?filter=api&api_version=2026-01&api_type=storefront-graphql)
+  - [Customer Account API 2026-01 changelog](https://shopify.dev/changelog?filter=api&api_version=2026-01&api_type=customer-account-graphql)
+
+### Patch Changes
+
+- Updated dependencies [[`d46c8864aea059cac7dda4871a565f76a04b1495`](https://github.com/Shopify/hydrogen/commit/d46c8864aea059cac7dda4871a565f76a04b1495)]:
+  - @shopify/hydrogen@2026.0.0
+
+## 2025.10.1
+
+### Major Changes
+
+- Update Storefront API and Customer Account API to version 2025-10 ([#3430](https://github.com/Shopify/hydrogen/pull/3430)) by [@kdaviduik](https://github.com/kdaviduik)
+
+### Patch Changes
+
+- Add support for Bun's text-based lockfile (`bun.lock`) introduced in Bun 1.2, and npm's shrinkwrap lockfile (`npm-shrinkwrap.json`), as alternatives to their respective primary lockfiles (`bun.lockb` and `package-lock.json`). ([#3430](https://github.com/Shopify/hydrogen/pull/3430)) by [@kdaviduik](https://github.com/kdaviduik)
+
+- Add `cartGiftCardCodesAdd` mutation ([#3430](https://github.com/Shopify/hydrogen/pull/3430)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  ## New Feature: cartGiftCardCodesAdd
+
+  The skeleton template has been updated to use the new `cartGiftCardCodesAdd` mutation:
+  - Removed `UpdateGiftCardForm` component from `CartSummary.tsx`
+  - Added `AddGiftCardForm` component using `CartForm.ACTIONS.GiftCardCodesAdd`
+
+  If you customized the gift card form in your project, you may want to migrate to the new `Add` action for simpler code.
+
+  ## Usage
+
+  ```typescript
+  import {CartForm} from '@shopify/hydrogen';
+
+  <CartForm action={CartForm.ACTIONS.GiftCardCodesAdd} inputs={{giftCardCodes: ['CODE1', 'CODE2']}}>
+    <button>Add Gift Cards</button>
+  </CartForm>
+  ```
+
+  Or with createCartHandler:
+
+  ```typescript
+  const cart = createCartHandler({storefront, getCartId, setCartId});
+  await cart.addGiftCardCodes(['SUMMER2025', 'WELCOME10']);
+  ```
+
+- Add support for nested cart line items (warranties, gift wrapping, etc.) ([#3430](https://github.com/Shopify/hydrogen/pull/3430)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  Storefront API 2025-10 introduces `parentRelationship` on cart line items, enabling parent-child relationships for add-ons. This update displays nested line items in the cart.
+
+  ### Changes
+  - Updates GraphQL fragments to include `parentRelationship` and `lineComponents` fields
+  - Updates `CartMain` and `CartLineItem` to render child line items with visual hierarchy
+
+  ### Note
+
+  This update focuses on **displaying** nested line items. To add both a product and its child (e.g., warranty) in a single action:
+
+  ```tsx
+  <AddToCartButton
+    lines={[
+      {merchandiseId: 'gid://shopify/ProductVariant/laptop-456', quantity: 1},
+      {
+        merchandiseId: 'gid://shopify/ProductVariant/warranty-123',
+        quantity: 1,
+        parent: {merchandiseId: 'gid://shopify/ProductVariant/laptop-456'},
+      },
+    ]}
+  >
+    Add to Cart with Warranty
+  </AddToCartButton>
+  ```
+
+- Updated dependencies [[`722915130410086bc7af22215ba57ee77aa14156`](https://github.com/Shopify/hydrogen/commit/722915130410086bc7af22215ba57ee77aa14156)]:
+  - @shopify/hydrogen@2025.10.1
+
+## 2025.10.0
+
+### Patch Changes
+
+- Updated dependencies [[`cd653456fbd1e7e1ab1f6fecff04c89a74b6cad9`](https://github.com/Shopify/hydrogen/commit/cd653456fbd1e7e1ab1f6fecff04c89a74b6cad9), [`24d26ad94e90ab0a859c274838f7f31e75a7808c`](https://github.com/Shopify/hydrogen/commit/24d26ad94e90ab0a859c274838f7f31e75a7808c), [`13a6f8987ea20d33a30a9c0329d7c11528b892ea`](https://github.com/Shopify/hydrogen/commit/13a6f8987ea20d33a30a9c0329d7c11528b892ea), [`403c1f5b6e266c3dfad30f7cfed229e3304570b0`](https://github.com/Shopify/hydrogen/commit/403c1f5b6e266c3dfad30f7cfed229e3304570b0), [`38f8a79625838a9cd4520b20c0db2e5d331f7d26`](https://github.com/Shopify/hydrogen/commit/38f8a79625838a9cd4520b20c0db2e5d331f7d26)]:
+  - @shopify/hydrogen@2026.0.0
+
+## 2025.7.3
+
+### Patch Changes
+
+- Support OAuth parameters via URL query strings in skeleton login route ([#3391](https://github.com/Shopify/hydrogen/pull/3391)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  The skeleton template's login route (`account_.login.tsx`) now reads OAuth parameters from the URL and forwards them to `customerAccount.login()`. This enables deep linking to the login page with pre-configured authentication options.
+
+  ### Supported Query Parameters
+
+  | Query Parameter   | Description                                                                        |
+  | ----------------- | ---------------------------------------------------------------------------------- |
+  | `acr_values`      | Direct users to a specific login method (e.g., `provider:google` for social login) |
+  | `login_hint`      | Pre-fill the email address field                                                   |
+  | `login_hint_mode` | When set to `submit` with `login_hint`, auto-submits the login form                |
+  | `locale`          | Display the login page in a specific language (e.g., `fr`, `zh-CN`)                |
+
+  ### Usage Examples
+
+  ```
+  /account/login?login_hint=user@example.com
+  /account/login?login_hint=user@example.com&login_hint_mode=submit
+  /account/login?acr_values=provider:google
+  /account/login?locale=fr
+  ```
+
+- Updated dependencies [[`7c077f5f21a595c0355873ac8073b716dfeaf4d0`](https://github.com/Shopify/hydrogen/commit/7c077f5f21a595c0355873ac8073b716dfeaf4d0), [`7c077f5f21a595c0355873ac8073b716dfeaf4d0`](https://github.com/Shopify/hydrogen/commit/7c077f5f21a595c0355873ac8073b716dfeaf4d0), [`7c077f5f21a595c0355873ac8073b716dfeaf4d0`](https://github.com/Shopify/hydrogen/commit/7c077f5f21a595c0355873ac8073b716dfeaf4d0)]:
+  - @shopify/hydrogen@2025.8.0
+
+## 2025.7.2
+
+### Patch Changes
+
+- Updated dependencies [[`6d22e45d29e89a7a8dddfe3c06459d89e4590483`](https://github.com/Shopify/hydrogen/commit/6d22e45d29e89a7a8dddfe3c06459d89e4590483), [`702f966c8e60eba7434363c9012f12bed92a8e4d`](https://github.com/Shopify/hydrogen/commit/702f966c8e60eba7434363c9012f12bed92a8e4d)]:
+  - @shopify/hydrogen@2025.7.2
+
+## 2025.7.1
+
+### Patch Changes
+
+- Update React Router to 7.12.0 with stabilized future flags ([#3346](https://github.com/Shopify/hydrogen/pull/3346)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  This release uses React Router's newly stabilized future flags (`v8_splitRouteModules`, `v8_middleware`) instead of their unstable counterparts
+
+- Moved server build in `server.ts` from a dynamic import to a static import to speed up first rendering during local development (2s => 200ms). ([#3331](https://github.com/Shopify/hydrogen/pull/3331)) by [@frandiox](https://github.com/frandiox)
+
+  ```diff
+  // server.ts
+
+  +import * as serverBuild from 'virtual:react-router/server-build';
+
+        const handleRequest = createRequestHandler({
+  -        build: await import('virtual:react-router/server-build'),
+  +        build: serverBuild,
+  ```
+
+  Updated ESLint config to allow `virtual:` imports:
+
+  ```diff
+  // eslint.config.js
+
+  rules: {
+  +      'import/no-unresolved': ['error', {ignore: ['^virtual:']}],
+  ```
+
+- Updated dependencies [[`264e13349168f17cc1f096c84135d13d38cfc8df`](https://github.com/Shopify/hydrogen/commit/264e13349168f17cc1f096c84135d13d38cfc8df), [`6d5e3d371e7e02e15be17029a0f34daae53a978e`](https://github.com/Shopify/hydrogen/commit/6d5e3d371e7e02e15be17029a0f34daae53a978e), [`ee00f1025867c40d5f67fa89d4ffb215bf280e8f`](https://github.com/Shopify/hydrogen/commit/ee00f1025867c40d5f67fa89d4ffb215bf280e8f), [`5a38948133766e358c5f357f52562f6fdcfe7969`](https://github.com/Shopify/hydrogen/commit/5a38948133766e358c5f357f52562f6fdcfe7969), [`264e13349168f17cc1f096c84135d13d38cfc8df`](https://github.com/Shopify/hydrogen/commit/264e13349168f17cc1f096c84135d13d38cfc8df)]:
+  - @shopify/hydrogen@2025.7.1
+
+## 2025.7.0
+
+### Major Changes
+
+- Update Storefront API and Customer Account API to version 2025-07 ([#3082](https://github.com/Shopify/hydrogen/pull/3082)) by [@juanpprieto](https://github.com/juanpprieto)
+
+  This update includes:
+  - Updated API version constants to 2025-07
+  - Regenerated GraphQL types for both Storefront and Customer Account APIs
+  - Updated all hardcoded API version references in documentation and tests
+  - Regenerated skeleton template types
+  - Updated skeleton's @shopify/cli dependency to ~3.83.3
+
+  Breaking changes may occur due to API schema changes between versions.
+
+### Patch Changes
+
+- Fix defer/streaming in development & preview ([#3039](https://github.com/Shopify/hydrogen/pull/3039)) by [@kdaviduik](https://github.com/kdaviduik)
+
+- Upgrade Miniflare from v2 to v4 in mini-oxygen package. ([#3039](https://github.com/Shopify/hydrogen/pull/3039)) by [@kdaviduik](https://github.com/kdaviduik)
+  - Internal MiniOxygen API has been refactored to work with Miniflare v4's new architecture.
+  - Simplified MiniOxygen class - no longer extends MiniflareCore.
+  - Updated global fetch handling to use Miniflare v4's `outboundService` API.
+  - Fixed test infrastructure to use project-relative temporary directories.
+  - Added support for Oxygen compatibility parameters (`compatibilityDate`, `compatibilityFlags`).
+  - Removed dependency on multiple `@miniflare/*` packages in favor of the consolidated `miniflare` package.
+
+- Update and pin react-router to 7.9.2 for 2025.7.0 ([#3138](https://github.com/Shopify/hydrogen/pull/3138)) by [@juanpprieto](https://github.com/juanpprieto)
+
+- Add TypeScript ESLint rules for promise handling to prevent Cloudflare Workers errors ([#3146](https://github.com/Shopify/hydrogen/pull/3146)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  Added `@typescript-eslint/no-floating-promises` and `@typescript-eslint/no-misused-promises` rules to help prevent "The script will never generate a response" errors when deploying to Oxygen/Cloudflare Workers. These rules ensure promises are properly handled with await, return, or void operators, as recommended by [Cloudflare's error documentation](https://developers.cloudflare.com/workers/observability/errors/#the-script-will-never-generate-a-response-errors).
+
+- Fixed React Context error that occurred during client-side hydration when using Content Security Policy (CSP) with nonces. The error "Cannot read properties of null (reading 'useContext')" was caused by the `NonceProvider` being present during server-side rendering but missing during client hydration. ([#3082](https://github.com/Shopify/hydrogen/pull/3082)) by [@juanpprieto](https://github.com/juanpprieto)
+
+  #### Changes for Existing Projects
+
+  If you have customized your `app/entry.client.tsx` file, you may need to wrap your app with the `NonceProvider` during hydration to avoid this error:
+
+  ```diff
+  // app/entry.client.tsx
+  import {HydratedRouter} from 'react-router/dom';
+  import {startTransition, StrictMode} from 'react';
+  import {hydrateRoot} from 'react-dom/client';
+  + import {NonceProvider} from '@shopify/hydrogen';
+
+  if (!window.location.origin.includes('webcache.googleusercontent.com')) {
+    startTransition(() => {
+  +   // Extract nonce from existing script tags
+  +   const existingNonce = document
+  +     .querySelector<HTMLScriptElement>('script[nonce]')
+  +     ?.nonce;
+  +
+      hydrateRoot(
+        document,
+        <StrictMode>
+  -       <HydratedRouter />
+  +       <NonceProvider value={existingNonce}>
+  +         <HydratedRouter />
+  +       </NonceProvider>
+        </StrictMode>,
+      );
+    });
+  }
+  ```
+
+  This ensures the React Context tree matches between server and client rendering, preventing hydration mismatches.
+
+  #### Package Changes
+  - **@shopify/hydrogen**: Exported `NonceProvider` from the main package to allow client-side usage and simplified Vite configuration to improve React Context stability during development
+  - **skeleton**: Updated the template's `entry.client.tsx` to include the `NonceProvider` wrapper during hydration
+
+- Add `fulfillmentStatus` to CAAPI order query and route ([#3039](https://github.com/Shopify/hydrogen/pull/3039)) by [@kdaviduik](https://github.com/kdaviduik)
+
+- Add GraphQL @defer directive support to storefront client ([#3039](https://github.com/Shopify/hydrogen/pull/3039)) by [@kdaviduik](https://github.com/kdaviduik)
+
+- Unpin react-router and react-router-dom versions in the skeleton template ([#3039](https://github.com/Shopify/hydrogen/pull/3039)) by [@kdaviduik](https://github.com/kdaviduik)
+
+- Add `@inContext` language support to Customer Account API mutations ([#3039](https://github.com/Shopify/hydrogen/pull/3039)) by [@kdaviduik](https://github.com/kdaviduik)
+
+- Add order filtering support to the skeleton /account/orders route for Customer Account API flow ([#3125](https://github.com/Shopify/hydrogen/pull/3125)) by [@juanpprieto](https://github.com/juanpprieto)
+
+- Updated dependencies [[`6d067665562223ce2865f1c14be54b0b50258bd4`](https://github.com/Shopify/hydrogen/commit/6d067665562223ce2865f1c14be54b0b50258bd4), [`d57782a1ae3fa0017836d6010fb6ac5ab5d25965`](https://github.com/Shopify/hydrogen/commit/d57782a1ae3fa0017836d6010fb6ac5ab5d25965), [`48cbd450699a29a5667bee7174f3856430508ecc`](https://github.com/Shopify/hydrogen/commit/48cbd450699a29a5667bee7174f3856430508ecc), [`6d067665562223ce2865f1c14be54b0b50258bd4`](https://github.com/Shopify/hydrogen/commit/6d067665562223ce2865f1c14be54b0b50258bd4), [`0b4f01c9aa0e09332140a6a4e3114949873fb0f9`](https://github.com/Shopify/hydrogen/commit/0b4f01c9aa0e09332140a6a4e3114949873fb0f9), [`0d165ff280692411712176427bcd7e0df43b56fe`](https://github.com/Shopify/hydrogen/commit/0d165ff280692411712176427bcd7e0df43b56fe), [`ae7bedc89c1968b4a035f421b5ee6908f6376b1b`](https://github.com/Shopify/hydrogen/commit/ae7bedc89c1968b4a035f421b5ee6908f6376b1b), [`ae7bedc89c1968b4a035f421b5ee6908f6376b1b`](https://github.com/Shopify/hydrogen/commit/ae7bedc89c1968b4a035f421b5ee6908f6376b1b), [`75623a5bfdd8d6f0eab0d3547860341c20d9076c`](https://github.com/Shopify/hydrogen/commit/75623a5bfdd8d6f0eab0d3547860341c20d9076c), [`6681f92e84d42b5a6aca153fb49e31dcd8af84f6`](https://github.com/Shopify/hydrogen/commit/6681f92e84d42b5a6aca153fb49e31dcd8af84f6), [`4daf37ea291334b23bd543fdad5673ab7c9a6133`](https://github.com/Shopify/hydrogen/commit/4daf37ea291334b23bd543fdad5673ab7c9a6133)]:
+  - @shopify/hydrogen@2026.0.0
+
+## 2025.5.2
+
+### Patch Changes
+
+- Fixing the skeleton's Vite Config ([#2958](https://github.com/Shopify/hydrogen/pull/2958)) by [@balazsbajorics](https://github.com/balazsbajorics)
+
+## 2025.5.1
+
+### Patch Changes
+
+- Bumping the cli to 3.80.4 ([#2956](https://github.com/Shopify/hydrogen/pull/2956)) by [@balazsbajorics](https://github.com/balazsbajorics)
+
+## 2025.5.0
+
+### Patch Changes
+
+- Migrating to React Router 7 ([#2866](https://github.com/Shopify/hydrogen/pull/2866)) by [@balazsbajorics](https://github.com/balazsbajorics)
+
+- Updated dependencies [[`e9132d88`](https://github.com/Shopify/hydrogen/commit/e9132d8888ad090d3db41fe4d5d63569a30e9d8e), [`e9132d88`](https://github.com/Shopify/hydrogen/commit/e9132d8888ad090d3db41fe4d5d63569a30e9d8e)]:
+  - @shopify/remix-oxygen@3.0.0
+  - @shopify/hydrogen@2025.5.0
+
+## 2025.4.0
+
+### Patch Changes
+
+- Moved the Cursor rules into more generic LLM prompt files. If you were using the Cursor rules, you will find the prompts in the `cookbook/llms` folder and they can be put into your `.cursor/rules` folder manually. LLM prompt files will be maintained moving forward, while previous Cursor rules will not be updated anymore. ([#2936](https://github.com/Shopify/hydrogen/pull/2936)) by [@ruggishop](https://github.com/ruggishop)
+
+- Bump skeleton @shopify/cli and @shopify/mini-oxygen ([#2883](https://github.com/Shopify/hydrogen/pull/2883)) by [@juanpprieto](https://github.com/juanpprieto)
+
+- Update SFAPI and CAAPI versions to 2025.04 ([#2886](https://github.com/Shopify/hydrogen/pull/2886)) by [@juanpprieto](https://github.com/juanpprieto)
+
+- Updated dependencies [[`af23e710`](https://github.com/Shopify/hydrogen/commit/af23e710dac83bb57498d9c2ef1d8bcf9df55d34), [`9d8a6644`](https://github.com/Shopify/hydrogen/commit/9d8a6644a5b67dca890c6687df390aee78fc85c3)]:
+  - @shopify/hydrogen@2025.4.0
+
 ## 2025.1.7
 
 ### Patch Changes
 
 - Fix an issue with our starter template where duplicate content can exist on URLs that use internationalized handles. For example, if you have a product handle in english of `the-havoc` and translate it to `das-chaos` in German, duplicate content exists at both: ([#2821](https://github.com/Shopify/hydrogen/pull/2821)) by [@blittle](https://github.com/blittle)
-
   1. https://hydrogen.shop/de-de/products/das-chaos
   2. https://hydrogen.shop/de-de/products/the-havoc
 
@@ -25,7 +316,6 @@
 ### Patch Changes
 
 - Moved the `Layout` component back into `root.tsx` to avoid issues with styled errors. ([#2829](https://github.com/Shopify/hydrogen/pull/2829)) by [@ruggishop](https://github.com/ruggishop)
-
   1. If you have a separate `app/layout.tsx` file, delete it and move its default exported component into your `root.tsx`. For example:
 
      ```ts
@@ -79,7 +369,6 @@
 - Support for the Remix future flag `v3_routeConfig`. ([#2722](https://github.com/Shopify/hydrogen/pull/2722)) by [@seanparsons](https://github.com/seanparsons)
 
   Please refer to the Remix documentation for more details on `v3_routeConfig` future flag: [https://remix.run/docs/en/main/start/future-flags#v3_routeconfig](https://remix.run/docs/en/main/start/future-flags#v3_routeconfig)
-
   1. Update your `vite.config.ts`.
 
      ```diff
@@ -137,13 +426,13 @@
   1. Add a routes.ts file. This is your new Remix route configuration file.
 
      ```ts
-     import { flatRoutes } from "@remix-run/fs-routes";
-     import { layout, type RouteConfig } from "@remix-run/route-config";
-     import { hydrogenRoutes } from "@shopify/hydrogen";
+     import {flatRoutes} from '@remix-run/fs-routes';
+     import {layout, type RouteConfig} from '@remix-run/route-config';
+     import {hydrogenRoutes} from '@shopify/hydrogen';
 
      export default hydrogenRoutes([
        // Your entire app reading from routes folder using Layout from layout.tsx
-       layout("./layout.tsx", await flatRoutes()),
+       layout('./layout.tsx', await flatRoutes()),
      ]) satisfies RouteConfig;
      ```
 
@@ -174,7 +463,6 @@
   Remix single fetch migration guide: https://remix.run/docs/en/main/guides/single-fetch
 
   **Note:** If you have any routes that appends (or looks for) a search param named `_data`, make sure to rename it to something else.
-
   1. In your `vite.config.ts`, add the single fetch future flag.
 
      ```diff
@@ -472,7 +760,6 @@
 - Remove initial redirect from product display page ([#2643](https://github.com/Shopify/hydrogen/pull/2643)) by [@scottdixon](https://github.com/scottdixon)
 
 - Optional updates for the product route and product form to handle combined listing and 2000 variant limit. ([#2659](https://github.com/Shopify/hydrogen/pull/2659)) by [@wizardlyhel](https://github.com/wizardlyhel)
-
   1. Update your SFAPI product query to bring in the new query fields:
 
   ```diff
@@ -734,25 +1021,25 @@
   8. Update the `ProductForm` component.
 
   ```tsx
-  import { Link, useNavigate } from "@remix-run/react";
-  import { type MappedProductOptions } from "@shopify/hydrogen";
+  import {Link, useNavigate} from '@remix-run/react';
+  import {type MappedProductOptions} from '@shopify/hydrogen';
   import type {
     Maybe,
     ProductOptionValueSwatch,
-  } from "@shopify/hydrogen/storefront-api-types";
-  import { AddToCartButton } from "./AddToCartButton";
-  import { useAside } from "./Aside";
-  import type { ProductFragment } from "storefrontapi.generated";
+  } from '@shopify/hydrogen/storefront-api-types';
+  import {AddToCartButton} from './AddToCartButton';
+  import {useAside} from './Aside';
+  import type {ProductFragment} from 'storefrontapi.generated';
 
   export function ProductForm({
     productOptions,
     selectedVariant,
   }: {
     productOptions: MappedProductOptions[];
-    selectedVariant: ProductFragment["selectedOrFirstAvailableVariant"];
+    selectedVariant: ProductFragment['selectedOrFirstAvailableVariant'];
   }) {
     const navigate = useNavigate();
-    const { open } = useAside();
+    const {open} = useAside();
     return (
       <div className="product-form">
         {productOptions.map((option) => (
@@ -786,8 +1073,8 @@
                       to={`/products/${handle}?${variantUriQuery}`}
                       style={{
                         border: selected
-                          ? "1px solid black"
-                          : "1px solid transparent",
+                          ? '1px solid black'
+                          : '1px solid transparent',
                         opacity: available ? 1 : 0.3,
                       }}
                     >
@@ -804,13 +1091,13 @@
                     <button
                       type="button"
                       className={`product-options-item${
-                        exists && !selected ? " link" : ""
+                        exists && !selected ? ' link' : ''
                       }`}
                       key={option.name + name}
                       style={{
                         border: selected
-                          ? "1px solid black"
-                          : "1px solid transparent",
+                          ? '1px solid black'
+                          : '1px solid transparent',
                         opacity: available ? 1 : 0.3,
                       }}
                       disabled={!exists}
@@ -834,7 +1121,7 @@
         <AddToCartButton
           disabled={!selectedVariant || !selectedVariant.availableForSale}
           onClick={() => {
-            open("cart");
+            open('cart');
           }}
           lines={
             selectedVariant
@@ -848,7 +1135,7 @@
               : []
           }
         >
-          {selectedVariant?.availableForSale ? "Add to cart" : "Sold out"}
+          {selectedVariant?.availableForSale ? 'Add to cart' : 'Sold out'}
         </AddToCartButton>
       </div>
     );
@@ -871,7 +1158,7 @@
         aria-label={name}
         className="product-option-label-swatch"
         style={{
-          backgroundColor: color || "transparent",
+          backgroundColor: color || 'transparent',
         }}
       >
         {!!image && <img src={image} alt={name} />}
@@ -1284,7 +1571,6 @@
 ### Patch Changes
 
 - Stabilize `getSitemap`, `getSitemapIndex` and implement on skeleton ([#2589](https://github.com/Shopify/hydrogen/pull/2589)) by [@juanpprieto](https://github.com/juanpprieto)
-
   1. Update the `getSitemapIndex` at `/app/routes/[sitemap.xml].tsx`
 
   ```diff
@@ -1372,21 +1658,21 @@
   New `withCache.fetch` is for caching simple fetch requests. This method caches the responses if they are OK responses, and you can pass `shouldCacheResponse`, `cacheKey`, etc. to modify behavior. `data` is the consumed body of the response (we need to consume to cache it).
 
   ```ts
-  const withCache = createWithCache({ cache, waitUntil, request });
+  const withCache = createWithCache({cache, waitUntil, request});
 
-  const { data, response } = await withCache.fetch<{ data: T; error: string }>(
-    "my-cms.com/api",
+  const {data, response} = await withCache.fetch<{data: T; error: string}>(
+    'my-cms.com/api',
     {
-      method: "POST",
-      headers: { "Content-type": "application/json" },
+      method: 'POST',
+      headers: {'Content-type': 'application/json'},
       body,
     },
     {
       cacheStrategy: CacheLong(),
       // Cache if there are no data errors or a specific data that make this result not suited for caching
       shouldCacheResponse: (result) => !result?.error,
-      cacheKey: ["my-cms", body],
-      displayName: "My CMS query",
+      cacheKey: ['my-cms', body],
+      displayName: 'My CMS query',
     },
   );
   ```
@@ -1394,7 +1680,6 @@
 - [**Breaking change**] ([#2585](https://github.com/Shopify/hydrogen/pull/2585)) by [@wizardlyhel](https://github.com/wizardlyhel)
 
   Deprecate usages of `product.options.values` and use `product.options.optionValues` instead.
-
   1. Update your product graphql query to use the new `optionValues` field.
 
   ```diff
@@ -1962,9 +2247,9 @@
 
   ```tsx
   // app/lib/root-data.ts
-  import { useMatches } from "@remix-run/react";
-  import type { SerializeFrom } from "@shopify/remix-oxygen";
-  import type { loader } from "~/root";
+  import {useMatches} from '@remix-run/react';
+  import type {SerializeFrom} from '@shopify/remix-oxygen';
+  import type {loader} from '~/root';
 
   /**
    * Access the result of the root loader from a React component.
@@ -2075,7 +2360,6 @@
 ### Patch Changes
 
 - Improve performance of predictive search: ([#1823](https://github.com/Shopify/hydrogen/pull/1823)) by [@frandiox](https://github.com/frandiox)
-
   - Change the request to be GET instead of POST to avoid Remix route revalidations.
   - Add Cache-Control headers to the response to get quicker results when typing.
 
@@ -2126,10 +2410,10 @@
 - This is an important fix to a bug with 404 routes and path-based i18n projects where some unknown routes would not properly render a 404. This fixes all new projects, but to fix existing projects, add a `($locale).tsx` route with the following contents: ([#1732](https://github.com/Shopify/hydrogen/pull/1732)) by [@blittle](https://github.com/blittle)
 
   ```ts
-  import { type LoaderFunctionArgs } from "@remix-run/server-runtime";
+  import {type LoaderFunctionArgs} from '@remix-run/server-runtime';
 
-  export async function loader({ params, context }: LoaderFunctionArgs) {
-    const { language, country } = context.storefront.i18n;
+  export async function loader({params, context}: LoaderFunctionArgs) {
+    const {language, country} = context.storefront.i18n;
 
     if (
       params.locale &&
@@ -2137,7 +2421,7 @@
     ) {
       // If the locale URL param is defined, yet we still are still at the default locale
       // then the the locale param must be invalid, send to the 404 page
-      throw new Response(null, { status: 404 });
+      throw new Response(null, {status: 404});
     }
 
     return null;
@@ -2193,11 +2477,11 @@
   ```yaml
   projects:
     default:
-      schema: "node_modules/@shopify/hydrogen/storefront.schema.json"
+      schema: 'node_modules/@shopify/hydrogen/storefront.schema.json'
       documents:
-        - "!*.d.ts"
-        - "*.{ts,tsx,js,jsx}"
-        - "app/**/*.{ts,tsx,js,jsx}"
+        - '!*.d.ts'
+        - '*.{ts,tsx,js,jsx}'
+        - 'app/**/*.{ts,tsx,js,jsx}'
   ```
 
 - Improve resiliency of `HydrogenSession` ([#1583](https://github.com/Shopify/hydrogen/pull/1583)) by [@blittle](https://github.com/blittle)
@@ -2295,7 +2579,6 @@
 ### Major Changes
 
 - The Storefront API 2023-10 now returns menu item URLs that include the `primaryDomainUrl`, instead of defaulting to the Shopify store ID URL (example.myshopify.com). The skeleton template requires changes to check for the `primaryDomainUrl`: by [@blittle](https://github.com/blittle)
-
   1. Update the `HeaderMenu` component to accept a `primaryDomainUrl` and include
      it in the internal url check
 
@@ -2412,8 +2695,8 @@
   ```ts
   // root.tsx
 
-  import { useMatches } from "@remix-run/react";
-  import { type SerializeFrom } from "@shopify/remix-oxygen";
+  import {useMatches} from '@remix-run/react';
+  import {type SerializeFrom} from '@shopify/remix-oxygen';
 
   export const useRootLoaderData = () => {
     const [root] = useMatches();

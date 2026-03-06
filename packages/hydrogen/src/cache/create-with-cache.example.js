@@ -1,8 +1,10 @@
 // In your app's `server.ts` file:
-import * as remixBuild from '@remix-run/dev/server-build';
-import {createWithCache, CacheLong} from '@shopify/hydrogen';
-// Use another `createRequestHandler` if deploying off oxygen
-import {createRequestHandler} from '@shopify/remix-oxygen';
+import * as reactRouterBuild from 'virtual:react-router/server-build';
+import {
+  createWithCache,
+  CacheLong,
+  createRequestHandler,
+} from '@shopify/hydrogen';
 
 export default {
   async fetch(request, env, executionContext) {
@@ -100,7 +102,7 @@ export default {
     };
 
     const handleRequest = createRequestHandler({
-      build: remixBuild,
+      build: reactRouterBuild,
       mode: process.env.NODE_ENV,
       getLoadContext: () => ({
         // Make sure to update env.d.ts to

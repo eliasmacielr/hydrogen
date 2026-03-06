@@ -1,4 +1,5 @@
 import {fileURLToPath} from 'node:url';
+import {existsSync} from 'node:fs';
 import {findPathUp} from '@shopify/cli-kit/node/fs';
 import {AbortError} from '@shopify/cli-kit/node/error';
 import {dirname, joinPath} from '@shopify/cli-kit/node/path';
@@ -6,9 +7,25 @@ import {execAsync} from './process.js';
 
 // Avoid using fileURLToPath here to prevent backslashes nightmare on Windows
 const monorepoPackagesPath = new URL('../../..', import.meta.url).pathname;
-export const isHydrogenMonorepo = monorepoPackagesPath.endsWith(
-  '/hydrogen/packages/',
-);
+
+// Check if we're in the Hydrogen monorepo by checking the path structure
+// This was the original logic before PR #3074 that worked for over a year
+// Check if we're in the monorepo by looking for the templates/skeleton directory
+// This works both in development and when built as npm package
+export const isHydrogenMonorepo = (() => {
+  try {
+    const skeletonPath = joinPath(
+      dirname(monorepoPackagesPath),
+      'templates',
+      'skeleton',
+    );
+    // In npm package, the skeleton is bundled in assets, not in templates
+    // So we check for the monorepo structure
+    return existsSync(skeletonPath);
+  } catch {
+    return false;
+  }
+})();
 export const hydrogenPackagesPath = isHydrogenMonorepo
   ? monorepoPackagesPath
   : undefined;
@@ -88,13 +105,16 @@ export function getSkeletonSourceDir() {
   return joinPath(dirname(monorepoPackagesPath), 'templates', 'skeleton');
 }
 
-export async function getRepoNodeModules() {
-  const {stdout} = await execAsync('npm root');
-  let nodeModulesPath = stdout.trim();
+export function getSkeletonNodeModules(): string {
+  return joinPath(getSkeletonSourceDir(), 'node_modules');
+}
 
-  if (!nodeModulesPath && isHydrogenMonorepo) {
-    nodeModulesPath = joinPath(dirname(monorepoPackagesPath), 'node_modules');
+export async function getRepoNodeModules() {
+  // In the monorepo, use the skeleton's node_modules for consistent dep resolution.
+  if (isHydrogenMonorepo) {
+    return getSkeletonNodeModules();
   }
 
-  return nodeModulesPath;
+  const {stdout} = await execAsync('npm root');
+  return stdout.trim();
 }

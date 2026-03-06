@@ -10,7 +10,7 @@ import {
 } from '@shopify/cli-kit/node/output';
 import {readAndParseDotEnv} from '@shopify/cli-kit/node/dot-env';
 import {AbortError} from '@shopify/cli-kit/node/error';
-import {readFile, writeFile} from '@shopify/cli-kit/node/fs';
+import {writeFile} from '@shopify/cli-kit/node/fs';
 import {
   ensureIsClean,
   getLatestGitCommit,
@@ -19,6 +19,7 @@ import {
 import {joinPath, relativePath, resolvePath} from '@shopify/cli-kit/node/path';
 import {
   renderConfirmationPrompt,
+  renderInfo,
   renderSelectPrompt,
   renderSuccess,
   renderTasks,
@@ -49,10 +50,11 @@ import {
 } from '../../lib/flags.js';
 import {getOxygenDeploymentData} from '../../lib/get-oxygen-deployment-data.js';
 import {OxygenDeploymentData} from '../../lib/graphql/admin/get-oxygen-data.js';
-import {runClassicCompilerBuild} from '../../lib/classic-compiler/build.js';
 import {runBuild} from './build.js';
-import {getViteConfig} from '../../lib/vite-config.js';
-import {prepareDiffDirectory} from '../../lib/template-diff.js';
+import {
+  getViteConfig,
+  REMIX_COMPILER_ERROR_MESSAGE,
+} from '../../lib/vite-config.js';
 import {getProjectPaths, isClassicProject} from '../../lib/remix-config.js';
 import {packageManagers} from '../../lib/package-managers.js';
 import {setupResourceCleanup} from '../../lib/resource-cleanup.js';
@@ -158,18 +160,16 @@ export default class Deploy extends Command {
       env: 'SHOPIFY_HYDROGEN_FLAG_METADATA_VERSION',
       hidden: true,
     }),
-    ...commonFlags.diff,
+    'force-client-sourcemap': Flags.boolean({
+      description:
+        'Client sourcemapping is avoided by default because it makes backend code visible in the browser. Use this flag to force enabling it.',
+      env: 'SHOPIFY_HYDROGEN_FLAG_FORCE_CLIENT_SOURCEMAP',
+    }),
   };
 
   async run() {
     const {flags} = await this.parse(Deploy);
     const deploymentOptions = this.flagsToOxygenDeploymentOptions(flags);
-
-    if (flags.diff) {
-      const diff = await prepareDiffDirectory(deploymentOptions.path, false);
-      deploymentOptions.path = diff.targetDirectory;
-      setupResourceCleanup(diff.cleanup);
-    }
 
     await runDeploy(deploymentOptions);
 
@@ -201,6 +201,7 @@ interface OxygenDeploymentOptions {
   envBranch?: string;
   environmentFile?: string;
   force: boolean;
+  forceClientSourcemap?: boolean;
   noVerify: boolean;
   lockfileCheck: boolean;
   jsonOutput: boolean;
@@ -250,6 +251,7 @@ export async function runDeploy(
     envBranch,
     environmentFile,
     force: forceOnUncommitedChanges,
+    forceClientSourcemap = false,
     noVerify,
     lockfileCheck,
     jsonOutput,
@@ -289,15 +291,21 @@ export async function runDeploy(
       if (changedFiles) {
         errorMessage += `:\n\n${changedFiles.trimEnd()}`;
 
-        packageManagers.forEach(({name, lockfile, installCommand}) => {
-          if (changedFiles.includes(lockfile)) {
-            nextSteps.push([
-              `If you are using ${name}, try running`,
-              {command: installCommand},
-              `to avoid changes to ${lockfile}.`,
-            ]);
-          }
-        });
+        packageManagers.forEach(
+          ({name, lockfile, alternativeLockfiles, installCommand}) => {
+            const allLockfiles = [lockfile, ...(alternativeLockfiles || [])];
+            const changedLockfile = allLockfiles.find((lf) =>
+              changedFiles.includes(lf),
+            );
+            if (changedLockfile) {
+              nextSteps.push([
+                `If you are using ${name}, try running`,
+                {command: installCommand},
+                `to avoid changes to ${changedLockfile}.`,
+              ]);
+            }
+          },
+        );
       }
 
       throw new AbortError(errorMessage, null, nextSteps);
@@ -582,6 +590,14 @@ Continue?`.value,
   };
 
   if (buildCommand) {
+    if (forceClientSourcemap) {
+      console.log('');
+      renderInfo({
+        headline:
+          'The `--force-client-sourcemap` flag is not supported with a custom build command',
+        body: 'Client sourcemaps will not be generated.',
+      });
+    }
     config.buildCommand = buildCommand;
   } else {
     hooks.buildFunction = async (
@@ -591,13 +607,16 @@ Continue?`.value,
         outputContent`${colors.whiteBright('Building project...')}`.value,
       );
 
-      const build = isClassicCompiler ? runClassicCompilerBuild : runBuild;
+      if (isClassicCompiler) {
+        throw new AbortError(REMIX_COMPILER_ERROR_MESSAGE);
+      }
 
-      await build({
+      await runBuild({
         directory: root,
         assetPath,
         lockfileCheck,
         sourcemap: true,
+        forceClientSourcemap,
         useCodegen: false,
         entry: ssrEntry,
       });

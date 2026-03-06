@@ -5,17 +5,13 @@ import type {
 } from 'customer-accountapi.generated';
 import {
   data,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-} from '@shopify/remix-oxygen';
-import {
   Form,
   useActionData,
   useNavigation,
   useOutletContext,
-  type MetaFunction,
   type Fetcher,
-} from '@remix-run/react';
+} from 'react-router';
+import type {Route} from './+types/account.addresses';
 import {
   UPDATE_ADDRESS_MUTATION,
   DELETE_ADDRESS_MUTATION,
@@ -31,17 +27,17 @@ export type ActionResponse = {
   updatedAddress?: AddressFragment;
 };
 
-export const meta: MetaFunction = () => {
+export const meta: Route.MetaFunction = () => {
   return [{title: 'Addresses'}];
 };
 
-export async function loader({context}: LoaderFunctionArgs) {
+export async function loader({context}: Route.LoaderArgs) {
   await context.customerAccount.handleAuthStatus();
 
   return {};
 }
 
-export async function action({request, context}: ActionFunctionArgs) {
+export async function action({request, context}: Route.ActionArgs) {
   const {customerAccount} = context;
 
   try {
@@ -96,7 +92,11 @@ export async function action({request, context}: ActionFunctionArgs) {
           const {data, errors} = await customerAccount.mutate(
             CREATE_ADDRESS_MUTATION,
             {
-              variables: {address, defaultAddress},
+              variables: {
+                address,
+                defaultAddress,
+                language: customerAccount.i18n.language,
+              },
             },
           );
 
@@ -145,6 +145,7 @@ export async function action({request, context}: ActionFunctionArgs) {
                 address,
                 addressId: decodeURIComponent(addressId),
                 defaultAddress,
+                language: customerAccount.i18n.language,
               },
             },
           );
@@ -190,7 +191,10 @@ export async function action({request, context}: ActionFunctionArgs) {
           const {data, errors} = await customerAccount.mutate(
             DELETE_ADDRESS_MUTATION,
             {
-              variables: {addressId: decodeURIComponent(addressId)},
+              variables: {
+                addressId: decodeURIComponent(addressId),
+                language: customerAccount.i18n.language,
+              },
             },
           );
 
@@ -260,23 +264,23 @@ export default function Addresses() {
     <div className="account-addresses">
       <h2>Addresses</h2>
       <br />
-      {!addresses.nodes.length ? (
-        <p>You have no addresses saved.</p>
-      ) : (
+      <div>
         <div>
-          <div>
-            <legend>Create address</legend>
-            <NewAddressForm />
-          </div>
-          <br />
-          <hr />
-          <br />
+          <legend>Create address</legend>
+          <NewAddressForm key={addresses.nodes.length} />
+        </div>
+        <br />
+        <hr />
+        <br />
+        {!addresses.nodes.length ? (
+          <p>You have no addresses saved.</p>
+        ) : (
           <ExistingAddresses
             addresses={addresses}
             defaultAddress={defaultAddress}
           />
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

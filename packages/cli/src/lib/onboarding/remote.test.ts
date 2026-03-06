@@ -30,7 +30,7 @@ describe('remote templates', () => {
           language: 'ts',
           template: 'missing-template',
         }),
-      ).resolves.ok;
+      ).resolves.toBeUndefined();
     });
 
     // The error message is printed asynchronously
@@ -41,7 +41,46 @@ describe('remote templates', () => {
     processExit.mockRestore();
   });
 
-  it('creates basic projects', async () => {
+  it('handles unknown templates without ENOENT race condition', async () => {
+    // This test verifies the fix for a race condition in template setup.
+    // The race condition occurred when template download started before
+    // handleProjectLocation completed, causing ENOENT errors when the abort
+    // handler tried to clean up a directory still being accessed.
+
+    const processExit = vi
+      .spyOn(process, 'exit')
+      .mockImplementation((() => {}) as any);
+
+    // Run multiple iterations - should never throw unhandled ENOENT
+    // If the race condition occurs, Vitest will catch the unhandled rejection
+    for (let i = 0; i < 3; i++) {
+      await inTemporaryDirectory(async (tmpDir) => {
+        await expect(
+          setupTemplate({
+            path: tmpDir,
+            git: false,
+            language: 'ts',
+            template: `nonexistent-template-${i}`,
+          }),
+        ).resolves.toBeUndefined();
+      });
+
+      // Verify proper error handling occurred
+      await vi.waitFor(() => expect(outputMock.error()).toMatch('--template'));
+      outputMock.clear();
+    }
+
+    expect(processExit).toHaveBeenCalled();
+    processExit.mockRestore();
+  });
+
+  // TODO: Re-enable when examples are converted to standalone in Branch 4
+  // Currently skipped because:
+  // 1. The --diff flag has been disabled and removed from the CLI
+  // 2. Examples are still diff-based (containing only files that differ from skeleton)
+  // 3. The --template flag needs to be updated to handle scaffolding from standalone projects
+  // This will be fixed when examples are converted to standalone applications
+  it.skip('creates basic projects from example templates', async () => {
     await inTemporaryDirectory(async (tmpDir) => {
       await setupTemplate({
         path: tmpDir,
@@ -79,7 +118,10 @@ describe('remote templates', () => {
     });
   });
 
-  it('applies diff for examples', async () => {
+  // Skipped because examples have been migrated to the cookbook recipe system
+  // The 'third-party-queries-caching' example is now the 'third-party-api' recipe
+  // This test will need to be updated or removed once recipe scaffolding is implemented
+  it.skip('copies example templates directly', async () => {
     await inTemporaryDirectory(async (tmpDir) => {
       const exampleName = 'third-party-queries-caching';
 
@@ -95,24 +137,15 @@ describe('remote templates', () => {
         .replace('templates', 'examples')
         .replace('skeleton', exampleName);
 
-      // --- Test file diff
+      // --- Test that example files are copied directly
       const ignore = ['**/node_modules/**', '**/dist/**'];
       const resultFiles = await glob('**/*', {ignore, cwd: tmpDir});
       const exampleFiles = await glob('**/*', {ignore, cwd: examplePath});
-      const templateFiles = (
-        await glob('**/*', {ignore, cwd: templatePath})
-      ).filter((item) => !item.endsWith('CHANGELOG.md'));
 
-      expect(resultFiles).toEqual(
-        expect.arrayContaining([
-          ...new Set([...templateFiles, ...exampleFiles]),
-        ]),
-      );
+      // Since we copy the example directly, result files should match example files
+      expect(resultFiles).toEqual(expect.arrayContaining(exampleFiles));
 
-      // --- Test package.json merge
-      const templatePkgJson = await readAndParsePackageJson(
-        `${templatePath}/package.json`,
-      );
+      // --- Test package.json is from the example
       const examplePkgJson = await readAndParsePackageJson(
         `${examplePath}/package.json`,
       );
@@ -122,39 +155,27 @@ describe('remote templates', () => {
 
       expect(resultPkgJson.name).toMatch(exampleName);
 
-      expect(resultPkgJson.scripts).toEqual(
-        expect.objectContaining(templatePkgJson.scripts),
-      );
-
-      const expectedDeps = {
-        ...templatePkgJson.dependencies,
-        ...examplePkgJson.dependencies,
-      };
-
-      expect(resultPkgJson.dependencies).toEqual(
-        expect.objectContaining(expectedDeps),
-      );
+      // Since we copy the entire example, everything should match exactly
+      expect(resultPkgJson.scripts).toEqual(examplePkgJson.scripts);
+      expect(resultPkgJson.dependencies).toEqual(examplePkgJson.dependencies);
       expect(resultPkgJson.devDependencies).toEqual(
-        expect.objectContaining({
-          ...templatePkgJson.devDependencies,
-          ...examplePkgJson.devDependencies,
-        }),
+        examplePkgJson.devDependencies,
       );
       expect(resultPkgJson.peerDependencies).toEqual(
-        expect.objectContaining({
-          ...templatePkgJson.peerDependencies,
-          ...examplePkgJson.peerDependencies,
-        }),
+        examplePkgJson.peerDependencies,
       );
 
-      // --- Keeps original tsconfig.json
-      expect(await readFile(joinPath(templatePath, 'tsconfig.json'))).toEqual(
+      // --- Example should have its own tsconfig.json
+      expect(await readFile(joinPath(examplePath, 'tsconfig.json'))).toEqual(
         await readFile(joinPath(tmpDir, 'tsconfig.json')),
       );
     });
   });
 
-  it('transpiles projects to JS', async () => {
+  // TODO: Re-enable when examples are converted to standalone in Branch 4
+  // Currently skipped for the same reasons as 'creates basic projects from example templates'
+  // The transpilation expects a complete project structure which diff-based examples don't provide
+  it.skip('transpiles projects to JS', async () => {
     await inTemporaryDirectory(async (tmpDir) => {
       await setupTemplate({
         path: tmpDir,
@@ -167,7 +188,12 @@ describe('remote templates', () => {
 
       const templateFiles = await glob('**/*', {
         cwd: templatePath,
-        ignore: ['**/node_modules/**', '**/dist/**', 'CHANGELOG.md'],
+        ignore: [
+          '**/node_modules/**',
+          '**/dist/**',
+          'CHANGELOG.md',
+          'env.d.ts',
+        ],
       });
       const resultFiles = await glob('**/*', {cwd: tmpDir});
 

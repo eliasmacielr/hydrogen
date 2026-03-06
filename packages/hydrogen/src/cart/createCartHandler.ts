@@ -50,6 +50,14 @@ import {
   cartGiftCardCodesUpdateDefault,
 } from './queries/cartGiftCardCodeUpdateDefault';
 import {
+  type CartGiftCardCodesAddFunction,
+  cartGiftCardCodesAddDefault,
+} from './queries/cartGiftCardCodesAddDefault';
+import {
+  type CartGiftCardCodesRemoveFunction,
+  cartGiftCardCodesRemoveDefault,
+} from './queries/cartGiftCardCodesRemoveDefault';
+import {
   type CartDeliveryAddressesAddFunction,
   cartDeliveryAddressesAddDefault,
 } from './queries/cartDeliveryAddressesAddDefault';
@@ -61,6 +69,11 @@ import {
   type CartDeliveryAddressesUpdateFunction,
   cartDeliveryAddressesUpdateDefault,
 } from './queries/cartDeliveryAddressesUpdateDefault';
+import {
+  type CartDeliveryAddressesReplaceFunction,
+  cartDeliveryAddressesReplaceDefault,
+} from './queries/cartDeliveryAddressesReplaceDefault';
+import type {CartBuyerIdentityInput} from '@shopify/hydrogen-react/storefront-api-types';
 
 export type CartHandlerOptions = {
   storefront: Storefront;
@@ -69,6 +82,7 @@ export type CartHandlerOptions = {
   setCartId: (cartId: string) => Headers;
   cartQueryFragment?: string;
   cartMutateFragment?: string;
+  buyerIdentity?: CartBuyerIdentityInput;
 };
 
 export type CustomMethodsBase = Record<string, Function>;
@@ -88,6 +102,8 @@ export type HydrogenCart = {
   removeLines: ReturnType<typeof cartLinesRemoveDefault>;
   updateDiscountCodes: ReturnType<typeof cartDiscountCodesUpdateDefault>;
   updateGiftCardCodes: ReturnType<typeof cartGiftCardCodesUpdateDefault>;
+  addGiftCardCodes: ReturnType<typeof cartGiftCardCodesAddDefault>;
+  removeGiftCardCodes: ReturnType<typeof cartGiftCardCodesRemoveDefault>;
   updateBuyerIdentity: ReturnType<typeof cartBuyerIdentityUpdateDefault>;
   updateNote: ReturnType<typeof cartNoteUpdateDefault>;
   updateSelectedDeliveryOption: ReturnType<
@@ -173,6 +189,32 @@ export type HydrogenCart = {
   updateDeliveryAddresses: ReturnType<
     typeof cartDeliveryAddressesUpdateDefault
   >;
+  /**
+   * Replaces all delivery addresses on the cart.
+   *
+   * This function sends a mutation to the storefront API to replace all delivery addresses on the cart
+   * with the provided addresses. It returns the result of the mutation, including any errors that occurred.
+   *
+   * @param {CartQueryOptions} options - The options for the cart query, including the storefront API client and cart fragment.
+   * @returns {CartDeliveryAddressesReplaceFunction} - A function that takes an array of addresses and optional parameters, and returns the result of the API call.
+   *
+   * @example
+   * const result = await cart.replaceDeliveryAddresses([
+   *   {
+   *     address: {
+   *       deliveryAddress: {
+   *         address1: '123 Main St',
+   *         city: 'Anytown',
+   *         countryCode: 'US'
+   *       }
+   *     },
+   *     selected: true
+   *   }
+   * ], { someOptionalParam: 'value' });
+   */
+  replaceDeliveryAddresses: ReturnType<
+    typeof cartDeliveryAddressesReplaceDefault
+  >;
 };
 
 export type HydrogenCartCustom<
@@ -196,6 +238,7 @@ export function createCartHandler<TCustomMethods extends CustomMethodsBase>(
     customerAccount,
     cartQueryFragment,
     cartMutateFragment,
+    buyerIdentity,
   } = options;
 
   let cartId = _getCartId();
@@ -212,6 +255,13 @@ export function createCartHandler<TCustomMethods extends CustomMethodsBase>(
   const _cartCreate = cartCreateDefault(mutateOptions);
 
   const cartCreate: CartCreateFunction = async function (...args) {
+    // Default buyerIdentity to what is passed into the handler
+    // Only override if buyerIdentity is passed directly to the method
+    args[0].buyerIdentity = {
+      ...buyerIdentity,
+      ...args[0].buyerIdentity,
+    };
+
     const result = await _cartCreate(...args);
     cartId = result?.cart?.id;
     return result;
@@ -234,12 +284,13 @@ export function createCartHandler<TCustomMethods extends CustomMethodsBase>(
           quantity: line.quantity,
           merchandiseId: line.merchandiseId,
           sellingPlanId: line.sellingPlanId,
+          parent: line.parent,
         };
       });
 
       return cartId || optionalParams?.cartId
         ? await cartLinesAddDefault(mutateOptions)(lines, optionalParams)
-        : await cartCreate({lines}, optionalParams);
+        : await cartCreate({lines, buyerIdentity}, optionalParams);
     },
     updateLines: cartLinesUpdateDefault(mutateOptions),
     removeLines: cartLinesRemoveDefault(mutateOptions),
@@ -259,6 +310,8 @@ export function createCartHandler<TCustomMethods extends CustomMethodsBase>(
           )
         : await cartCreate({giftCardCodes}, optionalParams);
     },
+    addGiftCardCodes: cartGiftCardCodesAddDefault(mutateOptions),
+    removeGiftCardCodes: cartGiftCardCodesRemoveDefault(mutateOptions),
     updateBuyerIdentity: async (buyerIdentity, optionalParams) => {
       return cartId || optionalParams?.cartId
         ? await cartBuyerIdentityUpdateDefault(mutateOptions)(
@@ -294,6 +347,8 @@ export function createCartHandler<TCustomMethods extends CustomMethodsBase>(
     addDeliveryAddresses: cartDeliveryAddressesAddDefault(mutateOptions),
     removeDeliveryAddresses: cartDeliveryAddressesRemoveDefault(mutateOptions),
     updateDeliveryAddresses: cartDeliveryAddressesUpdateDefault(mutateOptions),
+    replaceDeliveryAddresses:
+      cartDeliveryAddressesReplaceDefault(mutateOptions),
   };
 
   if ('customMethods' in options) {
@@ -318,24 +373,29 @@ export type CartHandlerOptionsForDocs<
    */
   setCartId: (cartId: string) => Headers;
   /**
-   * The storefront client instance created by [`createStorefrontClient`](docs/api/hydrogen/2025-01/utilities/createstorefrontclient).
+   * The storefront client instance created by [`createStorefrontClient`](docs/api/hydrogen/utilities/createstorefrontclient).
    */
   storefront: Storefront;
   /**
    * The cart mutation fragment used in most mutation requests, except for `setMetafields` and `deleteMetafield`.
-   * See the [example usage](/docs/api/hydrogen/2025-01/utilities/createcarthandler#example-cart-fragments) in the documentation.
+   * See the [example usage](/docs/api/hydrogen/utilities/createcarthandler#example-cart-fragments) in the documentation.
    */
   cartMutateFragment?: string;
   /**
    * The cart query fragment used by `cart.get()`.
-   * See the [example usage](/docs/api/hydrogen/2025-01/utilities/createcarthandler#example-cart-fragments) in the documentation.
+   * See the [example usage](/docs/api/hydrogen/utilities/createcarthandler#example-cart-fragments) in the documentation.
    */
   cartQueryFragment?: string;
   /**
    * Define custom methods or override existing methods for your cart API instance.
-   * See the [example usage](/docs/api/hydrogen/2025-01/utilities/createcarthandler#example-custom-methods) in the documentation.
+   * See the [example usage](/docs/api/hydrogen/utilities/createcarthandler#example-custom-methods) in the documentation.
    */
   customMethods?: TCustomMethods;
+
+  /**
+   * Buyer identity. Default buyer identity is passed to cartCreate.
+   */
+  buyerIdentity?: CartBuyerIdentityInput;
 };
 
 export type HydrogenCartForDocs = {
@@ -388,6 +448,10 @@ export type HydrogenCartForDocs = {
    */
   updateDeliveryAddresses?: CartDeliveryAddressesUpdateFunction;
   /**
+   * Replace all delivery addresses on the cart.
+   */
+  replaceDeliveryAddresses?: CartDeliveryAddressesReplaceFunction;
+  /**
    * Updates additional information (attributes) in the cart.
    */
   updateAttributes?: CartAttributesUpdateFunction;
@@ -404,6 +468,14 @@ export type HydrogenCartForDocs = {
    * Updates gift card codes in the cart.
    */
   updateGiftCardCodes?: CartGiftCardCodesUpdateFunction;
+  /**
+   * Adds gift card codes to the cart without replacing existing ones.
+   */
+  addGiftCardCodes?: CartGiftCardCodesAddFunction;
+  /**
+   * Removes gift card codes from the cart.
+   */
+  removeGiftCardCodes?: CartGiftCardCodesRemoveFunction;
   /**
    * Updates items in the cart.
    */

@@ -1,5 +1,29 @@
 # @shopify/remix-oxygen
 
+## 3.0.2
+
+### Patch Changes
+
+- Update React Router to 7.12.0 with stabilized future flags ([#3346](https://github.com/Shopify/hydrogen/pull/3346)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  This release uses React Router's newly stabilized future flags (`v8_splitRouteModules`, `v8_middleware`) instead of their unstable counterparts
+
+## 3.0.1
+
+### Patch Changes
+
+- Update and pin react-router to 7.9.2 for 2025.7.0 ([#3138](https://github.com/Shopify/hydrogen/pull/3138)) by [@juanpprieto](https://github.com/juanpprieto)
+
+## 3.0.0
+
+### Major Changes
+
+- Major version bumping libraries that now depend on react-router@7 ([#2866](https://github.com/Shopify/hydrogen/pull/2866)) by [@balazsbajorics](https://github.com/balazsbajorics)
+
+### Patch Changes
+
+- Migrating to React Router 7 ([#2866](https://github.com/Shopify/hydrogen/pull/2866)) by [@balazsbajorics](https://github.com/balazsbajorics)
+
 ## 2.0.12
 
 ### Patch Changes
@@ -111,7 +135,6 @@
 ### Patch Changes
 
 - (Unstable) server-side network request debug virtual route ([#1284](https://github.com/Shopify/hydrogen/pull/1284)) by [@wizardlyhel](https://github.com/wizardlyhel)
-
   1. Update your `server.ts` so that it also passes in the `waitUntil` and `env`.
 
      ```diff
@@ -212,7 +235,6 @@
 - Bump internal Remix dependencies to 1.15.0. ([#728](https://github.com/Shopify/hydrogen/pull/728)) by [@wizardlyhel](https://github.com/wizardlyhel)
 
   Recommendations to follow:
-
   - Upgrade all the Remix packages in your app to 1.15.0.
   - Enable Remix v2 future flags at your earliest convenience following [the official guide](https://remix.run/docs/en/1.15.0/pages/v2).
 
@@ -224,7 +246,6 @@
 
   Introducing `getStorefrontHeaders` that collects the required Shopify headers for making a
   Storefront API call.
-
   - Make cart constants available as exports from `@shopify/hydrogen-react`
   - Deprecating `buyerIp` and `requestGroupId` props from `createStorefrontClient` from `@shopify/hydrogen`
   - Deprecating `getBuyerIp` function from `@shopify/remix-oxygen`

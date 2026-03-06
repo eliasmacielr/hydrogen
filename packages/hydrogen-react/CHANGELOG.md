@@ -1,5 +1,162 @@
 # @shopify/hydrogen-react
 
+## 2026.1.1
+
+### Patch Changes
+
+- Updated transitive dependencies (`form-data`, `vite`) to resolve known vulnerabilities. ([#3461](https://github.com/Shopify/hydrogen/pull/3461)) by [@fredericoo](https://github.com/fredericoo)
+
+## 2026.1.0
+
+### Major Changes
+
+- Updated to Storefront API 2026-01 and Customer Account API 2026-01. ([#3434](https://github.com/Shopify/hydrogen/pull/3434)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  This is a quarterly API version update aligned with Shopify's API release schedule.
+
+  **Action Required**: The `cartDiscountCodesUpdate` mutation now requires the `discountCodes` argument. If you have custom cart discount code logic, verify your mutations include this field.
+
+  Review the changelogs for other changes that may affect your storefront:
+  - [Storefront API 2026-01 changelog](https://shopify.dev/changelog?filter=api&api_version=2026-01&api_type=storefront-graphql)
+  - [Customer Account API 2026-01 changelog](https://shopify.dev/changelog?filter=api&api_version=2026-01&api_type=customer-account-graphql)
+
+## 2025.10.0
+
+### Major Changes
+
+- Update Storefront API and Customer Account API to version 2025-10 ([#3352](https://github.com/Shopify/hydrogen/pull/3352)) by [@fredericoo](https://github.com/fredericoo)
+
+### Minor Changes
+
+- Add `visitorConsent` support to `@inContext` directive for Storefront API parity ([#3408](https://github.com/Shopify/hydrogen/pull/3408)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  **Note: Most Hydrogen storefronts do NOT need this feature.**
+
+  This API addition provides Storefront API 2025-10 parity for the `visitorConsent` parameter in `@inContext` directives. However, if you're using Hydrogen's analytics provider or Shopify's Customer Privacy API (including third-party consent services integrated with it), consent is already handled automatically and you don't need to use this.
+
+  This feature is primarily intended for Checkout Kit and other non-Hydrogen integrations that manage consent outside of Shopify's standard consent flow.
+
+  **What it does:**
+  When explicitly provided, `visitorConsent` encodes buyer consent preferences (analytics, marketing, preferences, saleOfData) into the cart's `checkoutUrl` via the `_cs` parameter.
+
+### Patch Changes
+
+- Add `parent` prop to `AddToCartButton` for nested cart lines ([#3398](https://github.com/Shopify/hydrogen/pull/3398)) by [@fredericoo](https://github.com/fredericoo)
+
+  The `AddToCartButton` component now accepts an optional `parent` prop, allowing you to add items as children of an existing cart line. This enables adding warranties, gift wrapping, or other add-ons that should be associated with a parent product.
+
+  ### Usage
+
+  ```tsx
+  import {AddToCartButton} from '@shopify/hydrogen-react';
+
+  // Add a warranty as a child of an existing cart line (by line ID)
+  <AddToCartButton
+    variantId="gid://shopify/ProductVariant/warranty-123"
+    parent={{parentLineId: 'gid://shopify/CartLine/parent-456'}}
+  >
+    Add Extended Warranty
+  </AddToCartButton>
+
+  // Add a warranty as a child of a cart line (by merchandise ID)
+  // Useful when you know the product variant but not the cart line ID
+  <AddToCartButton
+    variantId="gid://shopify/ProductVariant/warranty-123"
+    parent={{merchandiseId: 'gid://shopify/ProductVariant/laptop-456'}}
+  >
+    Add Extended Warranty
+  </AddToCartButton>
+  ```
+
+  ### Type
+
+  ```ts
+  interface AddToCartButtonPropsBase {
+    // ... existing props
+    /** The parent line item of the item being added to the cart. Used for nested cart lines. */
+    parent?: CartLineParentInput;
+  }
+  ```
+
+- Add support for `article_reference` and `list.article_reference` metafield types ([#3407](https://github.com/Shopify/hydrogen/pull/3407)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  These new metafield types were introduced in Storefront API 2025-10, allowing merchants to reference blog articles in metafields.
+
+## 2025.7.2
+
+### Minor Changes
+
+- Add React 19 support while maintaining React 18 compatibility ([#3391](https://github.com/Shopify/hydrogen/pull/3391)) by [@kdaviduik](https://github.com/kdaviduik)
+  - Updated Hydrogen peerDependencies to accept React ^18.3.1 or non-CVE-containing React 19 versions
+
+  Users can now upgrade their Hydrogen projects to React 19 without npm peer dependency conflicts. Existing React 18 projects continue to work without changes.
+
+## 2025.7.1
+
+### Patch Changes
+
+- Remove regulation-specific privacy fields from public API documentation. The generalized privacy fields (analyticsAllowed, marketingAllowed, saleOfDataAllowed) remain available. ([#3236](https://github.com/Shopify/hydrogen/pull/3236)) by [@juanpprieto](https://github.com/juanpprieto)
+
+- New export `getTrackingValues` to obtain information for analytics and marketing. Use this instead of `getShopifyCookies` (which is now deprecated). ([#3309](https://github.com/Shopify/hydrogen/pull/3309)) by [@frandiox](https://github.com/frandiox)
+
+  `useShopifyCookies` now accepts a `fetchTrackingValues` parameter that can be used to make a Storefront API request and obtain Shopify http-only cookies, `_shopify_analytics` and `_shopify_marketing` (which replace the deprecated `_shopify_y` and `_shopify_s` cookies).
+
+## 2025.7.0
+
+### Major Changes
+
+- Update Storefront API and Customer Account API to version 2025-07 ([#3082](https://github.com/Shopify/hydrogen/pull/3082)) by [@juanpprieto](https://github.com/juanpprieto)
+
+  This update includes:
+  - Updated API version constants to 2025-07
+  - Regenerated GraphQL types for both Storefront and Customer Account APIs
+  - Updated all hardcoded API version references in documentation and tests
+  - Regenerated skeleton template types
+  - Updated skeleton's @shopify/cli dependency to ~3.83.3
+
+  Breaking changes may occur due to API schema changes between versions.
+
+### Patch Changes
+
+- Upgrade Miniflare from v2 to v4 in mini-oxygen package. ([#3039](https://github.com/Shopify/hydrogen/pull/3039)) by [@kdaviduik](https://github.com/kdaviduik)
+  - Internal MiniOxygen API has been refactored to work with Miniflare v4's new architecture.
+  - Simplified MiniOxygen class - no longer extends MiniflareCore.
+  - Updated global fetch handling to use Miniflare v4's `outboundService` API.
+  - Fixed test infrastructure to use project-relative temporary directories.
+  - Added support for Oxygen compatibility parameters (`compatibilityDate`, `compatibilityFlags`).
+  - Removed dependency on multiple `@miniflare/*` packages in favor of the consolidated `miniflare` package.
+
+- Update and pin react-router to 7.9.2 for 2025.7.0 ([#3138](https://github.com/Shopify/hydrogen/pull/3138)) by [@juanpprieto](https://github.com/juanpprieto)
+
+- Fix TypeScript enum compatibility between Storefront and Customer Account APIs ([#3139](https://github.com/Shopify/hydrogen/pull/3139)) by [@juanpprieto](https://github.com/juanpprieto)
+
+  Updated codegen configuration to reference Storefront API's LanguageCode and CurrencyCode enums for Customer Account API types. This ensures type compatibility when passing values like i18n.language between the APIs without TypeScript errors.
+
+- Fix Money component compatibility with Customer Account API USDC currency ([#3082](https://github.com/Shopify/hydrogen/pull/3082)) by [@juanpprieto](https://github.com/juanpprieto)
+
+  The 2025-07 API update added USDC currency to Customer Account API but not Storefront API, causing TypeScript errors and runtime failures. This fix:
+  - Updates Money component to accept MoneyV2 from both Storefront and Customer Account APIs
+  - Handles unsupported currency codes (like USDC) that Intl.NumberFormat doesn't recognize
+  - Falls back to decimal formatting with currency code suffix (e.g., "100.00 USDC")
+  - Maintains 2 decimal places for USDC to reinforce its 1:1 USD peg
+
+- Fixed parseMetafield to correctly handle money type metafields with currency_code ([#3072](https://github.com/Shopify/hydrogen/pull/3072)) by [@juanpprieto](https://github.com/juanpprieto)
+  - Transform currency_code (from Storefront API) to currencyCode (expected by MoneyV2 type)
+  - Maintain backward compatibility for metafields already using currencyCode
+  - Add tests for both snake_case and camelCase formats
+
+  Fixes #3071
+
+- Replace deprecated faker.internet.color() with faker.color.rgb() ([#2985](https://github.com/Shopify/hydrogen/pull/2985)) by [@emmanuel-ferdman](https://github.com/emmanuel-ferdman)
+
+- Add `@inContext` language support to Customer Account API mutations ([#3039](https://github.com/Shopify/hydrogen/pull/3039)) by [@kdaviduik](https://github.com/kdaviduik)
+
+## 2025.4.0
+
+### Patch Changes
+
+- Update SFAPI and CAAPI versions to 2025.04 ([#2886](https://github.com/Shopify/hydrogen/pull/2886)) by [@juanpprieto](https://github.com/juanpprieto)
+
 ## 2025.1.3
 
 ### Patch Changes
@@ -181,7 +338,6 @@
 ### Patch Changes
 
 - Remove deprecated parameters and props (#1455 and #1435): ([#1435](https://github.com/Shopify/hydrogen/pull/1435)) by [@wizardlyhel](https://github.com/wizardlyhel)
-
   - `createStorefrontClient` parameters `buyerIp` and `requestGroupId`
   - `<Image>` props `loaderOptions` and `widths`
 
@@ -362,7 +518,6 @@ This major release includes support for the [2023-07 version](https://shopify.de
   ```
 
   Note that `widths` and `loaderOptions` have now been deprecated, declaring `width` is no longer necessary, and we’ve added an `aspectRatio` prop:
-
   - `widths` is now calculated automatically based on a new `srcSetOptions` prop (see below for details).
   - `loaderOptions` has been removed in favour of declaring `crop` and `src` as props. `width` and `height` should only be set as props if rendering a fixed image size, with `width` otherwise defaulting to `100%`, and the loader calculating each dynamically.
   - `aspectRatio` is calculated automatically using `data.width` and `data.height` (if available) — but if you want to present an image with an aspect ratio other than what was uploaded, you can set using the format `Int/Int` (e.g. `3/2`, [see MDN docs for more info](https://developer.mozilla.org/en-US/docs/Web/CSS/aspect-ratio), note that you must use the _fraction_ style of declaring aspect ratio, decimals are not supported); if you've set an `aspectRatio`, we will default the crop to be `crop: center` (in the example above we've specified this to use `left` instead).
@@ -507,7 +662,6 @@ This major release includes support for the [2023-07 version](https://shopify.de
   An example output might look like: `https://mycdn.com/image.jpeg?width=100&height=100&crop=center`
 
   ### Additional changes
-
   - Added the `srcSetOptions` prop used to create the image URLs used in `srcset`. It’s an object with the following keys and defaults:
 
     ```js
@@ -554,7 +708,6 @@ This major release includes support for the [2023-07 version](https://shopify.de
 
   Introducing `getStorefrontHeaders` that collects the required Shopify headers for making a
   Storefront API call.
-
   - Make cart constants available as exports from `@shopify/hydrogen-react`
   - Deprecating `buyerIp` and `requestGroupId` props from `createStorefrontClient` from `@shopify/hydrogen`
   - Deprecating `getBuyerIp` function from `@shopify/remix-oxygen`
@@ -602,7 +755,6 @@ This major release includes support for the [2023-07 version](https://shopify.de
 - 6225d33: Add a deprecation notice to `<CartLinePrice/>`:
 
   Use `Money` instead. To migrate, use the `priceType` prop that matches the corresponding property on the `CartLine` object:
-
   - `regular`: `cartLine.cost.totalAmount`
   - `compareAt`: `cartLine.cost.compareAtAmountPerQuantity`
 
@@ -652,7 +804,6 @@ Depending on your upgrade path, here's a summary of the changes you need to be a
 The detailed changelog now follows:
 
 - 8d8ab13: ## Breaking Changes on Shopify analytics components
-
   - `useShopifyCookies` - if hasUserConsent is `false`, no cookies will be set
   - `sendShopifyAnalytics` - if `hasUserConsent` is false, no analytics will be sent
   - `ShopifyAppSource` got rename to `ShopifySalesChannel`
@@ -660,7 +811,6 @@ The detailed changelog now follows:
   - Added documents on analytics components
 
 - 6184517: Added the following components and hooks, which have been a part of this package for a while but weren't actually able to be used/imported.
-
   - `<CartCost />`
   - `<CartLinePrice />`
   - `<CartLineProvider />`
@@ -669,7 +819,6 @@ The detailed changelog now follows:
 - 3309706: `<ShopifyProvider />` and `useShop()` have had a breaking update:
 
   ## `ShopifyProvider`
-
   - `<ShopifyProvider />` previously accepted a single `shopifyConfig` object as a prop; now, each of the keys in this object are their own separate props.
   - We also removed `country` and `language` as objects, and they are now strings with the names `countryIsoCode` and `languageIsoCode`, respectively.
   - The `locale` prop has been removed completely; this was a duplicative prop that was a combination of `countryIsoCode` and `languageIsoCode`, so it made no sense to have to include it as well.
@@ -754,20 +903,17 @@ The detailed changelog now follows:
 - 16b6b81: Shopify Analytics
 
   Methods:
-
   - `useShopifyCookies(hasUserConsent = true, domain = ''): void` - sets and refreshes Shopify cookies
   - `getShopifyCookie(cookieString: string): ShopifyCookie` - returns Shopify cookies
   - `sendShopifyAnalytics({eventName: AnalyticsEventName, payload: ShopifyAnalytics}, domain?): Promise<void>` - sends Shopify analytics
   - `getClientBrowserParameters(): ClientBrowserParameters` - returns commonly tracked client browser values
 
   Constants:
-
   - `AnalyticsEventName` - list of Shopify accepted analytics events
   - `AnalyticsPageType` - list of Shopify accepted page type names
   - `ShopifyAppSource` - list of Shopify accepted application source
 
   Types:
-
   - `ShopifyCookies`
   - `ClientBrowserParameters`
   - `ShopifyAnalytics` - generic type for `ShopifyPageView` and `ShopifyAddToCart`
@@ -791,11 +937,9 @@ The detailed changelog now follows:
   ## Hydrogen React changes
 
   ### Breaking Changes
-
   - The default Cart query no longer uses `compareAtPriceV2` and `priceV2`; use `compareAtPrice` and `price` instead. The `V2` fields will be removed in an upcoming version of the Storefront API.
   - The storefront client and ShopifyProvider now provide the `storeDomain` exactly as it is received; it's recommended that you pass the domain with the protocol and the fully-qualified domain name for your Storefront. For example: `https://hydrogen-test.myshopify.com`
   - `parseMetafield`'s implementation has been updated and vastly improved so that it is correctly parsing all the metafield types.
-
     - The parsed metafield will now be found on the `parsedValue` property. For example:
 
       ```ts
@@ -818,7 +962,6 @@ The detailed changelog now follows:
   - The `<Metafield/>` component has been removed; use `parseMetafield().parsedValue` to have control over what you want to render
 
   ### Other Changes
-
   - The TypeScript types for the returned value of `flattenConnection()` should now be friendlier: if you are using a `PartialDeep` object, you'll still get a `PartialDeep` object in return; if you're NOT using a `PartialDeep` object, then the returned type will not be wrapped in `PartialDeep`.
 
 ## 2022.10.8
@@ -863,7 +1006,6 @@ The detailed changelog now follows:
 - 6a3a0b3: Add `CartLinePrice` component
 - ad4aca4: Update TypeScript types for `<MediaFile/>` so that `mediaOptions`'s properties are all optional instead of required.
 - 669809a: `<ShopifyProvider/>` and `useShop()` updates:
-
   - Added a function `getShopifyDomain()` which will return a fully-qualified domain URL for your Shopify backend. For example:
 
     ```ts
@@ -902,7 +1044,6 @@ The detailed changelog now follows:
   ```
 
 - 0683765: Adds CartLines components and hooks.
-
   - The `CartLineProvider` component creates a context for using a cart line.
   - The `useCartLine` hook provides access to the cart line object. It must be a descendent of a `CartProvider` component.
 
@@ -1013,17 +1154,14 @@ The detailed changelog now follows:
 - b9c3940: Add `<CartProvider/>` and releated hooks & types.
 
   Component:
-
   - `<CartProvider/>`
 
   Hooks:
-
   - `useCart()`
   - `useCartFetch()`
   - `useInstantCheckout()`
 
   Types:
-
   - `CartState`
   - `CartStatus`
   - `Cart`

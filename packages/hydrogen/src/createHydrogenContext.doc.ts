@@ -8,7 +8,7 @@ const data: ReferenceEntityTemplateSchema = {
     {
       name: 'createHydrogenContext',
       type: 'utility',
-      url: '/docs/api/hydrogen/2025-01/utilities/createhydrogencontext',
+      url: '/docs/api/hydrogen/utilities/createhydrogencontext',
     },
   ],
   description: `
@@ -20,12 +20,12 @@ The \`createHydrogenContext\` function creates the context object required to us
       tabs: [
         {
           title: 'JavaScript',
-          code: './createHydrogenContext.example.jsx',
+          code: './createHydrogenContext.example.js',
           language: 'jsx',
         },
         {
           title: 'TypeScript',
-          code: './createHydrogenContext.example.tsx',
+          code: './createHydrogenContext.example.ts',
           language: 'tsx',
         },
       ],

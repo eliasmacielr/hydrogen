@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import {randomUUID} from 'node:crypto';
 
 import {lookup as lookupMimeType} from 'mrmime';
-import {Request, Response} from '@miniflare/core';
+import {Request, Response} from 'miniflare';
 import connect from 'connect';
 import type {NextHandleFunction} from 'connect';
 import bodyParser from 'body-parser';
@@ -13,7 +13,7 @@ import bodyParser from 'body-parser';
 import type {MiniOxygen} from './core.js';
 import {OXYGEN_HEADERS_MAP} from '../common/headers.js';
 
-export {Request, Response, fetch} from '@miniflare/core';
+export {Request, Response, fetch} from 'miniflare';
 
 export type DispatchFetch = (request: Request) => Promise<Response>;
 
@@ -192,9 +192,11 @@ function createRequestMiddleware(
       for (const key of response.headers.keys()) {
         const val =
           key.toLowerCase() === 'set-cookie'
-            ? (response.headers as any).getAll(key)
+            ? response.headers.getSetCookie()
             : response.headers.get(key);
-        headers[key] = val;
+        if (val !== null) {
+          headers[key] = val;
+        }
       }
 
       let autoReloadScript = autoReloadScriptTemplate;
@@ -236,7 +238,9 @@ function createRequestMiddleware(
       res.end();
     } catch (err: any) {
       onResponseError?.(request, err as Error);
-      res.writeHead(status, {'Content-Type': 'text/plain; charset=UTF-8'});
+      res.writeHead(status || 500, {
+        'Content-Type': 'text/plain; charset=UTF-8',
+      });
       res.end(err.stack, 'utf8');
     }
   };

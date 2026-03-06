@@ -8,12 +8,14 @@ import ansiEscapes from 'ansi-escapes';
 import {getProjectPaths, isClassicProject} from '../../../lib/remix-config.js';
 import {muteDevLogs} from '../../../lib/log.js';
 import {commonFlags, flagsToCamelObject} from '../../../lib/flags.js';
-import {prepareDiffDirectory} from '../../../lib/template-diff.js';
-import {runClassicCompilerDebugCpu} from '../../../lib/classic-compiler/debug-cpu.js';
 import {setupResourceCleanup} from '../../../lib/resource-cleanup.js';
 import {createCpuStartupProfiler} from '../../../lib/cpu-profiler.js';
 import {runBuild} from '../build.js';
-import {getViteConfig} from '../../../lib/vite-config.js';
+import {
+  getViteConfig,
+  REMIX_COMPILER_ERROR_MESSAGE,
+} from '../../../lib/vite-config.js';
+import {AbortError} from '@shopify/cli-kit/node/error';
 
 const DEFAULT_OUTPUT_PATH = 'startup.cpuprofile';
 
@@ -25,7 +27,6 @@ export default class DebugCpu extends Command {
   static description = 'Builds and profiles the server startup time the app.';
   static flags = {
     ...commonFlags.path,
-    ...commonFlags.diff,
     ...commonFlags.entry,
     output: Flags.string({
       description: `Specify a path to generate the profile file. Defaults to "${DEFAULT_OUTPUT_PATH}".`,
@@ -36,23 +37,16 @@ export default class DebugCpu extends Command {
 
   async run(): Promise<void> {
     const {flags} = await this.parse(DebugCpu);
-    const originalDirectory = flags.path
-      ? resolvePath(flags.path)
-      : process.cwd();
-
-    const diff = flags.diff
-      ? await prepareDiffDirectory(originalDirectory, true)
-      : undefined;
+    const directory = flags.path ? resolvePath(flags.path) : process.cwd();
 
     const {close} = await runDebugCpu({
       ...flagsToCamelObject(flags),
-      directory: diff?.targetDirectory ?? originalDirectory,
-      output: resolvePath(originalDirectory, flags.output),
+      directory,
+      output: resolvePath(directory, flags.output),
     });
 
     setupResourceCleanup(async () => {
       await close();
-      await diff?.cleanup();
     });
   }
 }
@@ -105,13 +99,10 @@ async function runDebugCpu({directory, entry, output}: RunDebugCpuOptions) {
     },
   };
 
-  if (await isClassicProject(directory)) {
-    return runClassicCompilerDebugCpu({
-      directory,
-      output,
-      buildPathWorkerFile,
-      hooks,
-    });
+  const isClassicCompiler = await isClassicProject(directory);
+
+  if (isClassicCompiler) {
+    throw new AbortError(REMIX_COMPILER_ERROR_MESSAGE);
   }
 
   const maybeViteConfig = await getViteConfig(directory).catch(() => null);

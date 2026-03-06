@@ -1,14 +1,27 @@
 import '../../lib/onboarding/setup-template.mocks.js';
-import {describe, it, expect, vi, beforeEach, beforeAll} from 'vitest';
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  beforeAll,
+  afterAll,
+} from 'vitest';
 import {runInit} from './init.js';
 import {exec} from '@shopify/cli-kit/node/system';
 import {mockAndCaptureOutput} from '@shopify/cli-kit/node/testing/output';
-import {fileExists, readFile, removeFile} from '@shopify/cli-kit/node/fs';
-import {temporaryDirectory} from 'tempy';
+import {
+  fileExists,
+  mkdirSync,
+  readFile,
+  removeFile,
+} from '@shopify/cli-kit/node/fs';
 import {checkCurrentCLIVersion} from '../../lib/check-cli-version.js';
 import {runCheckRoutes} from './check.js';
 import {runCodegen} from './codegen.js';
 import {setupTemplate} from '../../lib/onboarding/index.js';
+import path from 'node:path';
 
 vi.mock('../../lib/check-cli-version.js');
 
@@ -61,7 +74,6 @@ describe('init', () => {
       language: 'js',
       mockShop: true,
       path: './hydrogen-quickstart',
-      routes: true,
       shortcut: true,
       quickstart: true,
       git: true,
@@ -74,7 +86,14 @@ describe('init', () => {
     let tmpDir: string;
 
     beforeAll(async () => {
-      tmpDir = temporaryDirectory({prefix: 'h2-test-'});
+      // Should be the root of the hydrogen repository.
+      const projectRootDir = path.join(__dirname, '..', '..', '..', '..', '..');
+      // Use timestamp to ensure unique directory name
+      tmpDir = path.join(
+        projectRootDir,
+        `test-project-init-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+      );
+      mkdirSync(tmpDir);
 
       await expect(
         runInit({
@@ -84,8 +103,10 @@ describe('init', () => {
           styling: 'none',
         }),
       ).resolves.not.toThrow();
+    }, 60000); // 60 second timeout for init
 
-      return () => removeFile(tmpDir);
+    afterAll(async () => {
+      await removeFile(tmpDir);
     });
 
     it('typechecks the project', async () => {

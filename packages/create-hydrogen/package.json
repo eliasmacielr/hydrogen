@@ -5,7 +5,7 @@
     "@shopify:registry": "https://registry.npmjs.org"
   },
   "license": "MIT",
-  "version": "5.0.21",
+  "version": "5.0.29",
   "type": "module",
   "repository": {
     "type": "git",
@@ -22,7 +22,10 @@
     "@ast-grep/napi": "0.34.1"
   },
   "devDependencies": {
-    "tempy": "3.1.0"
+    "@types/node": "catalog:",
+    "execa": "^8.0.1",
+    "tempy": "3.1.0",
+    "vitest": "^3.2.4"
   },
   "bin": "dist/create-app.js",
   "files": [

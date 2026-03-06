@@ -1,9 +1,9 @@
-import {createCustomerAccountClient} from '@shopify/hydrogen';
-import * as remixBuild from '@remix-run/dev/server-build';
 import {
+  createCustomerAccountClient,
   createRequestHandler,
-  createCookieSessionStorage,
-} from '@shopify/remix-oxygen';
+} from '@shopify/hydrogen';
+import {createCookieSessionStorage} from 'react-router';
+import * as reactRouterBuild from 'virtual:react-router/server-build';
 
 export default {
   async fetch(request, env, executionContext) {
@@ -22,7 +22,7 @@ export default {
     });
 
     const handleRequest = createRequestHandler({
-      build: remixBuild,
+      build: reactRouterBuild,
       mode: process.env.NODE_ENV,
       /* Inject the customer account client in the Remix context */
       getLoadContext: () => ({customerAccount}),

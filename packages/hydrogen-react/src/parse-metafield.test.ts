@@ -9,6 +9,7 @@ import {
 import {getRawMetafield} from './parse-metafield.test.helpers.js';
 import {TypeEqual, expectType} from 'ts-expect';
 import type {
+  Article,
   Collection,
   GenericFile,
   MoneyV2,
@@ -27,6 +28,17 @@ import {type RichTextASTNode} from './RichText.types.js';
  */
 describe(`parseMetafield`, () => {
   describe(`base metafields`, () => {
+    it(`article_reference`, () => {
+      const parsed = parseMetafield<ParsedMetafields['article_reference']>({
+        type: 'article_reference',
+        reference: {
+          __typename: 'Article',
+        },
+      });
+      expect(parsed.parsedValue?.__typename === 'Article').toBe(true);
+      expectType<null | Article>(parsed?.parsedValue);
+    });
+
     it(`boolean`, () => {
       const meta = getRawMetafield({
         type: 'boolean',
@@ -134,12 +146,22 @@ describe(`parseMetafield`, () => {
       expectType<null | MyJson>(parsedOtherType.parsedValue);
     });
 
-    it(`money`, () => {
+    it(`money with currencyCode (backward compatibility)`, () => {
       const parsed = parseMetafield<ParsedMetafields['money']>({
         type: 'money',
         value: JSON.stringify({amount: '12', currencyCode: 'USD'}),
       });
       expect(parsed?.parsedValue?.amount === '12').toBe(true);
+      expect(parsed?.parsedValue?.currencyCode === 'USD').toBe(true);
+      expectType<null | MoneyV2>(parsed?.parsedValue);
+    });
+
+    it(`money with currency_code (Storefront API format)`, () => {
+      const parsed = parseMetafield<ParsedMetafields['money']>({
+        type: 'money',
+        value: JSON.stringify({amount: '30.0', currency_code: 'USD'}),
+      });
+      expect(parsed?.parsedValue?.amount === '30.0').toBe(true);
       expect(parsed?.parsedValue?.currencyCode === 'USD').toBe(true);
       expectType<null | MoneyV2>(parsed?.parsedValue);
     });
@@ -268,6 +290,25 @@ describe(`parseMetafield`, () => {
   });
 
   describe(`list metafields`, () => {
+    it(`list.article_reference`, () => {
+      const parsed = parseMetafield<ParsedMetafields['list.article_reference']>(
+        {
+          type: 'list.article_reference',
+          references: {
+            nodes: [
+              {__typename: 'Article', id: '0'},
+              {__typename: 'Article', id: '1'},
+            ],
+          },
+        },
+      );
+      parsed.parsedValue?.forEach((article, index) => {
+        expect(article.__typename === 'Article').toBe(true);
+        expect(index.toString() === article.id).toBe(true);
+      });
+      expectType<null | Article[]>(parsed?.parsedValue);
+    });
+
     it(`list.collection_reference`, () => {
       const parsed = parseMetafield<
         ParsedMetafields['list.collection_reference']

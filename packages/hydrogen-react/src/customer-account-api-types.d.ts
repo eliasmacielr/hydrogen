@@ -1,6 +1,6 @@
 /**
  * THIS FILE IS AUTO-GENERATED, DO NOT EDIT
- * Based on Customer Account API 2025-01
+ * Based on Customer Account API 2026-01
  * If changes need to happen to the types defined in this file, then generally the Storefront API needs to update. After it's updated, you can run `npm run graphql-types`.
  * Except custom Scalars, which are defined in the `codegen.ts` file
  */
@@ -34,6 +34,15 @@ export type Scalars = {
   JSON: {input: unknown; output: unknown};
   URL: {input: string; output: string};
   UnsignedInt64: {input: string; output: string};
+};
+
+/** The bank account payment details related to a transaction. */
+export type AchPaymentDetails = {
+  __typename?: 'AchPaymentDetails';
+  /** The name of the bank used. */
+  bankName: Scalars['String']['output'];
+  /** The last four digits of the bank account used. */
+  last4?: Maybe<Scalars['String']['output']>;
 };
 
 /** A sale that includes an additional fee charge. */
@@ -117,6 +126,15 @@ export type AdjustmentSale = Node &
     /** The total tax amount for the sale. */
     totalTaxAmount: MoneyV2;
   };
+
+/** A Shopify app. */
+export type App = Node & {
+  __typename?: 'App';
+  /** A globally-unique ID. */
+  id: Scalars['ID']['output'];
+  /** The name of the app. */
+  title: Scalars['String']['output'];
+};
 
 /** The input fields for the billing address received from Apple Pay. */
 export type ApplePayBillingAddressInput = {
@@ -217,10 +235,18 @@ export type AppliedGiftCard = Node & {
   presentmentAmountUsed: MoneyV2;
 };
 
-/** Represents a generic custom attribute, such as whether an order is a customer's first. */
+/**
+ * A custom property. Attributes are used to store additional information about a Shopify resource, such as
+ * products, customers, or orders. Attributes are stored as key-value pairs.
+ *
+ * For example, a list of attributes might include whether a customer is a first-time buyer (`"customer_first_order": "true"`),
+ * whether an order is gift-wrapped (`"gift_wrapped": "true"`), a preferred delivery date
+ * (`"preferred_delivery_date": "2025-10-01"`), the discount applied (`"loyalty_discount_applied": "10%"`), and any
+ * notes provided by the customer (`"customer_notes": "Please leave at the front door"`).
+ */
 export type Attribute = {
   __typename?: 'Attribute';
-  /** The key or name of the attribute. For example, `"customersFirstOrder"`. */
+  /** The key or name of the attribute. For example, `"customer_first_order"`. */
   key: Scalars['String']['output'];
   /** The value of the attribute. For example, `"true"`. */
   value?: Maybe<Scalars['String']['output']>;
@@ -252,6 +278,80 @@ export type AvailableShippingRates = {
   ready: Scalars['Boolean']['output'];
   /** The fetched shipping rates. `null` until the `ready` field is `true`. */
   shippingRates?: Maybe<Array<ShippingRate>>;
+};
+
+/** The type of bank account holder. */
+export type BankAccountHolderType =
+  /** A company account holder. */
+  | 'COMPANY'
+  /** An individual account holder. */
+  | 'INDIVIDUAL';
+
+/** The type of bank account. */
+export type BankAccountType =
+  /** A checking account. */
+  | 'CHECKING'
+  /** A savings account. */
+  | 'SAVINGS';
+
+/** Represents a bank account payment instrument. */
+export type BankPaymentInstrument = Node &
+  PaymentInstrument & {
+    __typename?: 'BankPaymentInstrument';
+    /** The type of account holder. */
+    accountHolderType?: Maybe<BankAccountHolderType>;
+    /** The type of bank account. */
+    accountType: BankAccountType;
+    /** The name of the bank. */
+    bankName: Scalars['String']['output'];
+    /** The billing address associated with the bank account. */
+    billingAddress?: Maybe<PaymentInstrumentBillingAddress>;
+    /** The list of open draft orders associated with this payment instrument. */
+    draftOrders: DraftOrderConnection;
+    /** The globally-unique ID. */
+    id: Scalars['ID']['output'];
+    /** The last four digits of the account number. */
+    lastDigits: Scalars['String']['output'];
+    /** The list of pending orders associated with this payment instrument. */
+    orders: OrderConnection;
+    /** The list of subscription contracts charged using this payment instrument. */
+    subscriptionContracts: SubscriptionContractConnection;
+  };
+
+/** Represents a bank account payment instrument. */
+export type BankPaymentInstrumentDraftOrdersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** Represents a bank account payment instrument. */
+export type BankPaymentInstrumentOrdersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** Represents a bank account payment instrument. */
+export type BankPaymentInstrumentSubscriptionContractsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  query?: InputMaybe<Scalars['String']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
+  sortKey?: InputMaybe<SubscriptionContractsSortKeys>;
+};
+
+/** A bank payment method that can be used for recurring and future payments. */
+export type BankPaymentMethod = {
+  __typename?: 'BankPaymentMethod';
+  /** The payment provider client credentials. */
+  paymentProviderClientCredentials: PaymentProviderClientCredentials;
 };
 
 /** The input fields required for updating a business contact. */
@@ -364,6 +464,75 @@ export type BuyerExperienceConfiguration = {
   paymentTermsTemplate?: Maybe<PaymentTermsTemplate>;
 };
 
+/** The input fields to calculate return amounts associated with an order. */
+export type CalculateReturnInput = {
+  /** The ID of the order that will be returned. */
+  orderId: Scalars['ID']['input'];
+  /** The line items from the order to include in the return. */
+  returnLineItems: Array<CalculateReturnLineItemInput>;
+};
+
+/** The input fields for return line items on a calculated return. */
+export type CalculateReturnLineItemInput = {
+  /** The ID of the line item to be returned. */
+  lineItemId: Scalars['ID']['input'];
+  /** The quantity of the item to be returned.Quantity can't exceed the line item's fulfilled quantity. */
+  quantity: Scalars['Int']['input'];
+};
+
+/** The calculated financial outcome of a return based on the line items requested for return.Includes the monetary values of the line items, along with applicable taxes, discounts, and otherfees on the order. Financial summary may include return fees depending onthe [return rules](https://help.shopify.com/manual/fulfillment/managing-orders/returns/return-rules)at the time the order was placed. */
+export type CalculatedReturn = {
+  __typename?: 'CalculatedReturn';
+  /** A breakdown of the monetary values for the calculated return. */
+  financialSummary: ReturnFinancialSummary;
+  /** A list of line items being processed for a return. */
+  returnLineItems: CalculatedReturnLineItemConnection;
+};
+
+/** The calculated financial outcome of a return based on the line items requested for return.Includes the monetary values of the line items, along with applicable taxes, discounts, and otherfees on the order. Financial summary may include return fees depending onthe [return rules](https://help.shopify.com/manual/fulfillment/managing-orders/returns/return-rules)at the time the order was placed. */
+export type CalculatedReturnReturnLineItemsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** The line item being processed for a return and its calculated monetary values. */
+export type CalculatedReturnLineItem = {
+  __typename?: 'CalculatedReturnLineItem';
+  /** The line item being processed for a return. */
+  lineItem: LineItem;
+  /** The quantity being returned. */
+  quantity: Scalars['Int']['output'];
+  /** The subtotal of the return line item without target all discounts. */
+  subtotalBeforeTargetAllDiscountsSet: MoneyBag;
+  /** The subtotal of the return line item. */
+  subtotalSet: MoneyBag;
+  /** The total tax of the return line item. */
+  totalTaxSet: MoneyBag;
+};
+
+/** An auto-generated type for paginating through multiple CalculatedReturnLineItems. */
+export type CalculatedReturnLineItemConnection = {
+  __typename?: 'CalculatedReturnLineItemConnection';
+  /** The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node. */
+  edges: Array<CalculatedReturnLineItemEdge>;
+  /** A list of nodes that are contained in CalculatedReturnLineItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve. */
+  nodes: Array<CalculatedReturnLineItem>;
+  /** An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page. */
+  pageInfo: PageInfo;
+};
+
+/** An auto-generated type which holds one CalculatedReturnLineItem and a cursor during pagination. */
+export type CalculatedReturnLineItemEdge = {
+  __typename?: 'CalculatedReturnLineItemEdge';
+  /** The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql). */
+  cursor: Scalars['String']['output'];
+  /** The item at the end of CalculatedReturnLineItemEdge. */
+  node: CalculatedReturnLineItem;
+};
+
 /** The card payment details related to a transaction. */
 export type CardPaymentDetails = {
   __typename?: 'CardPaymentDetails';
@@ -422,11 +591,6 @@ export type Checkout = Node & {
   shippingDiscountAllocations: Array<DiscountAllocation>;
   /** The selected shipping rate, transitioned to a `shipping_line` object. */
   shippingLine?: Maybe<ShippingRate>;
-  /**
-   * The configuration values used to initialize a Shop Pay checkout.
-   * @deprecated This field is deprecated and will be removed in the future.
-   */
-  shopPayConfiguration?: Maybe<ShopPayConfiguration>;
   /** The price at checkout before duties, shipping, and taxes. */
   subtotalPrice: MoneyV2;
   /** Whether the checkout is tax exempt. */
@@ -818,11 +982,6 @@ export type CompanyContactRoleAssignmentSortKeys =
   | 'ID'
   /** Sort by the `location_name` value. */
   | 'LOCATION_NAME'
-  /**
-   * Sort by relevance to the search terms when the `query` parameter is specified on the connection.
-   * Don't use this sort key when no search query is specified.
-   */
-  | 'RELEVANCE'
   /** Sort by the `updated_at` value. */
   | 'UPDATED_AT';
 
@@ -859,8 +1018,11 @@ export type CompanyContactStatusType =
 
 /** Represents a company's business location. */
 export type CompanyLocation = HasMetafields &
+  HasStoreCreditAccounts &
   Node & {
     __typename?: 'CompanyLocation';
+    /** The list of all available payment methods that can be used for recurring and future payments. */
+    availablePaymentMethods: Array<PaymentMethod>;
     /** The billing address of the company location. */
     billingAddress?: Maybe<CompanyAddress>;
     /** The configuration of the buyer's B2B checkout. */
@@ -877,7 +1039,10 @@ export type CompanyLocation = HasMetafields &
     externalId?: Maybe<Scalars['String']['output']>;
     /** A globally-unique ID. */
     id: Scalars['ID']['output'];
-    /** The market that includes the location's shipping address. If the shipping address is empty, the shop's primary market is returned. */
+    /**
+     * The market that includes the location's shipping address. If the shipping address is empty, the shop's primary market is returned.
+     * @deprecated This `market` field will be removed in a future version of the API.
+     */
     market: Market;
     /** A metafield found by namespace and key. */
     metafield?: Maybe<Metafield>;
@@ -890,10 +1055,18 @@ export type CompanyLocation = HasMetafields &
     name: Scalars['String']['output'];
     /** The list of customer orders under the company. */
     orders: OrderConnection;
+    /** The payment instrument corresponding to the provided ID. */
+    paymentInstrument?: Maybe<
+      BankPaymentInstrument | CustomerCreditCard | PaypalBillingAgreement
+    >;
+    /** The list of stored payment instruments. */
+    paymentInstruments: PaymentInstrumentConnection;
     /** The list of roles assigned to this location. */
     roleAssignments: CompanyContactRoleAssignmentConnection;
     /** The shipping address of the company location. */
     shippingAddress?: Maybe<CompanyAddress>;
+    /** A list of the owner resource's store credit accounts. Store credit accounts are not shown for shops with store credit disabled at checkout. */
+    storeCreditAccounts: StoreCreditAccountConnection;
     /** The list of tax exemptions applied to the location. */
     taxExemptions: Array<TaxExemption>;
     /** The list of tax exemptions applied to the location with additional details. */
@@ -961,6 +1134,20 @@ export type CompanyLocationOrdersArgs = {
 };
 
 /** Represents a company's business location. */
+export type CompanyLocationPaymentInstrumentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+/** Represents a company's business location. */
+export type CompanyLocationPaymentInstrumentsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** Represents a company's business location. */
 export type CompanyLocationRoleAssignmentsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -969,6 +1156,15 @@ export type CompanyLocationRoleAssignmentsArgs = {
   query?: InputMaybe<Scalars['String']['input']>;
   reverse?: InputMaybe<Scalars['Boolean']['input']>;
   sortKey?: InputMaybe<CompanyContactRoleAssignmentSortKeys>;
+};
+
+/** Represents a company's business location. */
+export type CompanyLocationStoreCreditAccountsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  query?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** Return type for `companyLocationAssignAddress` mutation. */
@@ -1031,7 +1227,7 @@ export type ContactPermissionLocationScopeType =
   /** The contact has permission on only one location. */
   | 'ONE';
 
-/** Details for count of elements. */
+/** A numeric count with precision information indicating whether the count is exact or an estimate. */
 export type Count = {
   __typename?: 'Count';
   /** The count of elements. */
@@ -1044,7 +1240,7 @@ export type Count = {
 export type CountPrecision =
   /** The count is at least the value. A limit was imposed and reached. */
   | 'AT_LEAST'
-  /** The count is exactly the value. */
+  /** The count is exactly the value. A write may not be reflected instantaneously. */
   | 'EXACT';
 
 /**
@@ -1583,8 +1779,9 @@ export type CropRegion =
   | 'TOP';
 
 /**
- * The three-letter currency codes that represent the world currencies used in stores. These include standard ISO 4217 codes, legacy codes,
- * and non-standard codes.
+ * The currency codes that represent the world currencies throughout the Admin API. Currency codes include
+ * [standard ISO 4217 codes](https://en.wikipedia.org/wiki/ISO_4217), legacy codes, non-standard codes,
+ * digital currency codes.
  */
 export type CurrencyCode =
   /** United Arab Emirates Dirham (AED). */
@@ -1877,6 +2074,8 @@ export type CurrencyCode =
   | 'UGX'
   /** United States Dollars (USD). */
   | 'USD'
+  /** United States Dollars Coin (USDC). */
+  | 'USDC'
   /** Uruguayan Pesos (UYU). */
   | 'UYU'
   /** Uzbekistan som (UZS). */
@@ -1917,6 +2116,8 @@ export type Customer = HasMetafields &
     __typename?: 'Customer';
     /** The addresses associated with the customer. */
     addresses: CustomerAddressConnection;
+    /** The list of all available payment methods that can be used for recurring and future payments. */
+    availablePaymentMethods: Array<PaymentMethod>;
     /** The list of wallet payment configs for providers that the payment method accepts. */
     availableWalletPaymentConfigs: Array<WalletPaymentConfig>;
     /** The list of contacts the customer is associated with. */
@@ -1956,6 +2157,12 @@ export type Customer = HasMetafields &
     metafields: Array<Maybe<Metafield>>;
     /** The orders associated with the customer. */
     orders: OrderConnection;
+    /** The payment instrument corresponding to the provided ID. */
+    paymentInstrument?: Maybe<
+      BankPaymentInstrument | CustomerCreditCard | PaypalBillingAgreement
+    >;
+    /** The list of stored payment instruments. */
+    paymentInstruments: PaymentInstrumentConnection;
     /** A PayPal Billing Agreement resource. */
     paypalBillingAgreement?: Maybe<PaypalBillingAgreement>;
     /** The phone number of the customer. */
@@ -1964,7 +2171,7 @@ export type Customer = HasMetafields &
     return?: Maybe<Return>;
     /** A list of the owner resource's store credit accounts. Store credit accounts are not shown for shops with store credit disabled at checkout. */
     storeCreditAccounts: StoreCreditAccountConnection;
-    /** A Subscription Contract resource identified by ID. */
+    /** Returns a `SubscriptionContract` resource by ID. */
     subscriptionContract?: Maybe<SubscriptionContract>;
     /** The Subscription Contracts associated with the customer. */
     subscriptionContracts: SubscriptionContractConnection;
@@ -2038,6 +2245,20 @@ export type CustomerOrdersArgs = {
   query?: InputMaybe<Scalars['String']['input']>;
   reverse?: InputMaybe<Scalars['Boolean']['input']>;
   sortKey?: InputMaybe<OrderSortKeys>;
+};
+
+/** Represents the personal information of a customer. Apps using the Customer Account API must meet the protected customer data [requirements](https://shopify.dev/docs/apps/launch/protected-customer-data). */
+export type CustomerPaymentInstrumentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+/** Represents the personal information of a customer. Apps using the Customer Account API must meet the protected customer data [requirements](https://shopify.dev/docs/apps/launch/protected-customer-data). */
+export type CustomerPaymentInstrumentsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** Represents the personal information of a customer. Apps using the Customer Account API must meet the protected customer data [requirements](https://shopify.dev/docs/apps/launch/protected-customer-data). */
@@ -2223,6 +2444,8 @@ export type CustomerCreditCard = Node &
     brand: Scalars['String']['output'];
     /** Whether the credit card is the default payment method. */
     default: Scalars['Boolean']['output'];
+    /** The list of open draft orders associated with this payment instrument. */
+    draftOrders: DraftOrderConnection;
     /** Whether the credit card is about to expire. */
     expiresSoon: Scalars['Boolean']['output'];
     /** The expiry month of the credit card. */
@@ -2241,6 +2464,8 @@ export type CustomerCreditCard = Node &
     name: Scalars['String']['output'];
     /** The list of open draft orders of an associated credit card. */
     openDraftOrders: DraftOrderConnection;
+    /** The list of pending orders associated with this payment instrument. */
+    orders: OrderConnection;
     /** The list of pending orders associated with this credit card. */
     pendingOrders: OrderConnection;
     /** Whether this credit card has permission to be shown at checkout for future purchases. */
@@ -2254,7 +2479,25 @@ export type CustomerCreditCard = Node &
   };
 
 /** The credit card payment instrument. */
+export type CustomerCreditCardDraftOrdersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** The credit card payment instrument. */
 export type CustomerCreditCardOpenDraftOrdersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** The credit card payment instrument. */
+export type CustomerCreditCardOrdersArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
@@ -2451,8 +2694,6 @@ export type CustomerMailingAddressInput = {
   phone?: InputMaybe<Scalars['String']['input']>;
   /** The customer's unique phone number, formatted using E.164 standard. For example, _+16135551111_. */
   phoneNumber?: InputMaybe<Scalars['String']['input']>;
-  /** The two-letter code for the country of the address. */
-  territoryCode?: InputMaybe<Scalars['String']['input']>;
   /** The zip or postal code of the address. */
   zip?: InputMaybe<Scalars['String']['input']>;
   /**
@@ -2614,6 +2855,22 @@ export type DiscountCodeApplication = DiscountApplication & {
   /** The value of the discount application. */
   value: PricingValue;
 };
+
+/** The type of line (line item or shipping line) on an order that the subscription discount is applicable towards. */
+export type DiscountTargetType =
+  /** The discount applies onto line items. */
+  | 'LINE_ITEM'
+  /** The discount applies onto shipping lines. */
+  | 'SHIPPING_LINE';
+
+/** The type of the subscription discount. */
+export type DiscountType =
+  /** Automatic discount type. */
+  | 'AUTOMATIC_DISCOUNT'
+  /** Code discount type. */
+  | 'CODE_DISCOUNT'
+  /** Manual discount type. */
+  | 'MANUAL';
 
 /** Represents an error in the input of a mutation. */
 export type DisplayableError = {
@@ -2946,6 +3203,49 @@ export type EmailMarketingState =
   /** The customer is not currently subscribed to email marketing but was previously subscribed. */
   | 'UNSUBSCRIBED';
 
+/** An item for exchange. */
+export type ExchangeLineItem = Node & {
+  __typename?: 'ExchangeLineItem';
+  /** A globally-unique ID. */
+  id: Scalars['ID']['output'];
+  /** The image associated to the line item's variant. */
+  image?: Maybe<Image>;
+  /** Whether the product has only a single variant with the default option and value. */
+  productHasOnlyDefaultVariant?: Maybe<Scalars['Boolean']['output']>;
+  /** The ID of the product at time of refund creation. */
+  productId?: Maybe<Scalars['ID']['output']>;
+  /** The number of variant items ordered. */
+  quantity: Scalars['Int']['output'];
+  /** The title of the product at time of order creation. */
+  title?: Maybe<Scalars['String']['output']>;
+  /** The ID of the variant at time of refund creation. */
+  variantId?: Maybe<Scalars['ID']['output']>;
+  /** The variant SKU number. */
+  variantSku?: Maybe<Scalars['String']['output']>;
+  /** The title of the variant at time of refund creation. */
+  variantTitle?: Maybe<Scalars['String']['output']>;
+};
+
+/** An auto-generated type for paginating through multiple ExchangeLineItems. */
+export type ExchangeLineItemConnection = {
+  __typename?: 'ExchangeLineItemConnection';
+  /** The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node. */
+  edges: Array<ExchangeLineItemEdge>;
+  /** A list of nodes that are contained in ExchangeLineItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve. */
+  nodes: Array<ExchangeLineItem>;
+  /** An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page. */
+  pageInfo: PageInfo;
+};
+
+/** An auto-generated type which holds one ExchangeLineItem and a cursor during pagination. */
+export type ExchangeLineItemEdge = {
+  __typename?: 'ExchangeLineItemEdge';
+  /** The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql). */
+  cursor: Scalars['String']['output'];
+  /** The item at the end of ExchangeLineItemEdge. */
+  node: ExchangeLineItem;
+};
+
 /** Tokens used by ui extensions to query various APIs. */
 export type ExtensionApiTokens = {
   __typename?: 'ExtensionApiTokens';
@@ -3091,12 +3391,7 @@ export type FulfillmentEventSortKeys =
   /** Sort by the `happened_at` value. */
   | 'HAPPENED_AT'
   /** Sort by the `id` value. */
-  | 'ID'
-  /**
-   * Sort by relevance to the search terms when the `query` parameter is specified on the connection.
-   * Don't use this sort key when no search query is specified.
-   */
-  | 'RELEVANCE';
+  | 'ID';
 
 /** The status of a fulfillment event. */
 export type FulfillmentEventStatus =
@@ -3161,12 +3456,7 @@ export type FulfillmentSortKeys =
   /** Sort by the `created_at` value. */
   | 'CREATED_AT'
   /** Sort by the `id` value. */
-  | 'ID'
-  /**
-   * Sort by relevance to the search terms when the `query` parameter is specified on the connection.
-   * Don't use this sort key when no search query is specified.
-   */
-  | 'RELEVANCE';
+  | 'ID';
 
 /** The status of a fulfillment. */
 export type FulfillmentStatus =
@@ -3182,6 +3472,25 @@ export type FulfillmentStatus =
   | 'PENDING'
   /** The fulfillment was completed successfully. */
   | 'SUCCESS';
+
+/** The generic file resource lets you manage files in a merchant's store. Generic files include any file that doesn't fit into a designated type such as image or video. Example: PDF, JSON. */
+export type GenericFile = Media & {
+  __typename?: 'GenericFile';
+  /** A word or phrase to indicate the contents of a file. */
+  alt?: Maybe<Scalars['String']['output']>;
+  /** A globally-unique ID. */
+  id: Scalars['ID']['output'];
+  /** The media content type. */
+  mediaContentType: MediaContentType;
+  /** The MIME type of the file. */
+  mimeType?: Maybe<Scalars['String']['output']>;
+  /** The size of the original file in bytes. */
+  originalFileSize?: Maybe<Scalars['Int']['output']>;
+  /** The preview image for the media. */
+  previewImage?: Maybe<Image>;
+  /** The URL of the file. */
+  url?: Maybe<Scalars['URL']['output']>;
+};
 
 /** The gift card payment details related to a transaction. */
 export type GiftCardDetails = {
@@ -3360,6 +3669,12 @@ export type Image = {
    */
   src: Scalars['URL']['output'];
   /**
+   * The ThumbHash of the image.
+   *
+   * Useful to display placeholder images while the original image is loading.
+   */
+  thumbhash?: Maybe<Scalars['String']['output']>;
+  /**
    * The location of the transformed image as a URL.
    *
    * All transformation arguments are considered "best-effort". If they can be applied to an image, they will be.
@@ -3397,6 +3712,8 @@ export type ImageUrlArgs = {
 
 /** List of supported image content types. */
 export type ImageContentType =
+  /** A BMP image. */
+  | 'BMP'
   /** A JPG image. */
   | 'JPG'
   /** A PNG image. */
@@ -3430,6 +3747,291 @@ export type ImageTransformInput = {
   /** Image size multiplier for high-resolution retina displays. Must be within 1..3. */
   scale?: InputMaybe<Scalars['Int']['input']>;
 };
+
+/** Language codes supported by Shopify. */
+export type LanguageCode =
+  /** Afrikaans. */
+  | 'AF'
+  /** Akan. */
+  | 'AK'
+  /** Amharic. */
+  | 'AM'
+  /** Arabic. */
+  | 'AR'
+  /** Assamese. */
+  | 'AS'
+  /** Azerbaijani. */
+  | 'AZ'
+  /** Belarusian. */
+  | 'BE'
+  /** Bulgarian. */
+  | 'BG'
+  /** Bambara. */
+  | 'BM'
+  /** Bangla. */
+  | 'BN'
+  /** Tibetan. */
+  | 'BO'
+  /** Breton. */
+  | 'BR'
+  /** Bosnian. */
+  | 'BS'
+  /** Catalan. */
+  | 'CA'
+  /** Chechen. */
+  | 'CE'
+  /** Central Kurdish. */
+  | 'CKB'
+  /** Czech. */
+  | 'CS'
+  /** Church Slavic. */
+  | 'CU'
+  /** Welsh. */
+  | 'CY'
+  /** Danish. */
+  | 'DA'
+  /** German. */
+  | 'DE'
+  /** Dzongkha. */
+  | 'DZ'
+  /** Ewe. */
+  | 'EE'
+  /** Greek. */
+  | 'EL'
+  /** English. */
+  | 'EN'
+  /** Esperanto. */
+  | 'EO'
+  /** Spanish. */
+  | 'ES'
+  /** Estonian. */
+  | 'ET'
+  /** Basque. */
+  | 'EU'
+  /** Persian. */
+  | 'FA'
+  /** Fulah. */
+  | 'FF'
+  /** Finnish. */
+  | 'FI'
+  /** Filipino. */
+  | 'FIL'
+  /** Faroese. */
+  | 'FO'
+  /** French. */
+  | 'FR'
+  /** Western Frisian. */
+  | 'FY'
+  /** Irish. */
+  | 'GA'
+  /** Scottish Gaelic. */
+  | 'GD'
+  /** Galician. */
+  | 'GL'
+  /** Gujarati. */
+  | 'GU'
+  /** Manx. */
+  | 'GV'
+  /** Hausa. */
+  | 'HA'
+  /** Hebrew. */
+  | 'HE'
+  /** Hindi. */
+  | 'HI'
+  /** Croatian. */
+  | 'HR'
+  /** Hungarian. */
+  | 'HU'
+  /** Armenian. */
+  | 'HY'
+  /** Interlingua. */
+  | 'IA'
+  /** Indonesian. */
+  | 'ID'
+  /** Igbo. */
+  | 'IG'
+  /** Sichuan Yi. */
+  | 'II'
+  /** Icelandic. */
+  | 'IS'
+  /** Italian. */
+  | 'IT'
+  /** Japanese. */
+  | 'JA'
+  /** Javanese. */
+  | 'JV'
+  /** Georgian. */
+  | 'KA'
+  /** Kikuyu. */
+  | 'KI'
+  /** Kazakh. */
+  | 'KK'
+  /** Kalaallisut. */
+  | 'KL'
+  /** Khmer. */
+  | 'KM'
+  /** Kannada. */
+  | 'KN'
+  /** Korean. */
+  | 'KO'
+  /** Kashmiri. */
+  | 'KS'
+  /** Kurdish. */
+  | 'KU'
+  /** Cornish. */
+  | 'KW'
+  /** Kyrgyz. */
+  | 'KY'
+  /** Luxembourgish. */
+  | 'LB'
+  /** Ganda. */
+  | 'LG'
+  /** Lingala. */
+  | 'LN'
+  /** Lao. */
+  | 'LO'
+  /** Lithuanian. */
+  | 'LT'
+  /** Luba-Katanga. */
+  | 'LU'
+  /** Latvian. */
+  | 'LV'
+  /** Malagasy. */
+  | 'MG'
+  /** Māori. */
+  | 'MI'
+  /** Macedonian. */
+  | 'MK'
+  /** Malayalam. */
+  | 'ML'
+  /** Mongolian. */
+  | 'MN'
+  /** Marathi. */
+  | 'MR'
+  /** Malay. */
+  | 'MS'
+  /** Maltese. */
+  | 'MT'
+  /** Burmese. */
+  | 'MY'
+  /** Norwegian (Bokmål). */
+  | 'NB'
+  /** North Ndebele. */
+  | 'ND'
+  /** Nepali. */
+  | 'NE'
+  /** Dutch. */
+  | 'NL'
+  /** Norwegian Nynorsk. */
+  | 'NN'
+  /** Norwegian. */
+  | 'NO'
+  /** Oromo. */
+  | 'OM'
+  /** Odia. */
+  | 'OR'
+  /** Ossetic. */
+  | 'OS'
+  /** Punjabi. */
+  | 'PA'
+  /** Polish. */
+  | 'PL'
+  /** Pashto. */
+  | 'PS'
+  /** Portuguese. */
+  | 'PT'
+  /** Portuguese (Brazil). */
+  | 'PT_BR'
+  /** Portuguese (Portugal). */
+  | 'PT_PT'
+  /** Quechua. */
+  | 'QU'
+  /** Romansh. */
+  | 'RM'
+  /** Rundi. */
+  | 'RN'
+  /** Romanian. */
+  | 'RO'
+  /** Russian. */
+  | 'RU'
+  /** Kinyarwanda. */
+  | 'RW'
+  /** Sanskrit. */
+  | 'SA'
+  /** Sardinian. */
+  | 'SC'
+  /** Sindhi. */
+  | 'SD'
+  /** Northern Sami. */
+  | 'SE'
+  /** Sango. */
+  | 'SG'
+  /** Sinhala. */
+  | 'SI'
+  /** Slovak. */
+  | 'SK'
+  /** Slovenian. */
+  | 'SL'
+  /** Shona. */
+  | 'SN'
+  /** Somali. */
+  | 'SO'
+  /** Albanian. */
+  | 'SQ'
+  /** Serbian. */
+  | 'SR'
+  /** Sundanese. */
+  | 'SU'
+  /** Swedish. */
+  | 'SV'
+  /** Swahili. */
+  | 'SW'
+  /** Tamil. */
+  | 'TA'
+  /** Telugu. */
+  | 'TE'
+  /** Tajik. */
+  | 'TG'
+  /** Thai. */
+  | 'TH'
+  /** Tigrinya. */
+  | 'TI'
+  /** Turkmen. */
+  | 'TK'
+  /** Tongan. */
+  | 'TO'
+  /** Turkish. */
+  | 'TR'
+  /** Tatar. */
+  | 'TT'
+  /** Uyghur. */
+  | 'UG'
+  /** Ukrainian. */
+  | 'UK'
+  /** Urdu. */
+  | 'UR'
+  /** Uzbek. */
+  | 'UZ'
+  /** Vietnamese. */
+  | 'VI'
+  /** Volapük. */
+  | 'VO'
+  /** Wolof. */
+  | 'WO'
+  /** Xhosa. */
+  | 'XH'
+  /** Yiddish. */
+  | 'YI'
+  /** Yoruba. */
+  | 'YO'
+  /** Chinese. */
+  | 'ZH'
+  /** Chinese (Simplified). */
+  | 'ZH_CN'
+  /** Chinese (Traditional). */
+  | 'ZH_TW'
+  /** Zulu. */
+  | 'ZU';
 
 /** An object representing a product marked as a fee, aggregated by title. */
 export type LegacyAggregatedMerchandiseTermsAsFees = Node & {
@@ -3499,7 +4101,12 @@ export type LineItem = Node & {
   soldQuantity?: Maybe<Scalars['Int']['output']>;
   /** The total price of the line item, ignoring returns, before discounts. */
   soldTotalPrice?: Maybe<MoneyV2>;
-  /** The reasons that the customer can return this line item. */
+  /** Return reasons suggested based on the line item's product category in Shopify's product taxonomy. These are a curated subset of the full library of available reasons via the [`returnReasonDefinitions`](https://shopify.dev/docs/api/admin-graphql/latest/queries/returnReasonDefinitions) query. */
+  suggestedReturnReasonDefinitions?: Maybe<ReturnReasonDefinitionConnection>;
+  /**
+   * The reasons that the customer can return this line item.
+   * @deprecated Use `suggestedReturnReasonDefinitions` instead.
+   */
   supportedReturnReasons: Array<ReturnSupportedReason>;
   /** The title of the product or variant. This field only applies to custom line items. */
   title: Scalars['String']['output'];
@@ -3521,6 +4128,15 @@ export type LineItem = Node & {
   variantTitle?: Maybe<Scalars['String']['output']>;
   /** The product's vendor. */
   vendor?: Maybe<Scalars['String']['output']>;
+};
+
+/** A single line item in an order. */
+export type LineItemSuggestedReturnReasonDefinitionsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** An auto-generated type for paginating through multiple LineItems. */
@@ -3598,12 +4214,23 @@ export type LineItemGroup = Node & {
   __typename?: 'LineItemGroup';
   /** The total price of the line item group, calculated by aggregating the current total price of its line item components. */
   currentTotalPrice?: Maybe<MoneyV2>;
+  /**
+   * Whether the group merchandise is itself deliverable.
+   * @deprecated Use `is_concrete` instead.
+   */
+  deliverable?: Maybe<Scalars['Boolean']['output']>;
   /** The discount information for the line item group. */
   discountInformation?: Maybe<Array<LineItemDiscountInformation>>;
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
   /** The image of the line item group variant or the product image if the variant has no image. */
   image?: Maybe<Image>;
+  /** Whether the group represents concrete merchandise (as opposed to virtual merchandise). */
+  isConcrete?: Maybe<Scalars['Boolean']['output']>;
+  /** ID of the parent line item. */
+  parentLineItemId?: Maybe<Scalars['ID']['output']>;
+  /** The title of the parent variant. */
+  parentVariantTitle?: Maybe<Scalars['String']['output']>;
   /** The number of line item groups ordered. */
   quantity: Scalars['Int']['output'];
   /** The title of the line item group. */
@@ -3660,9 +4287,7 @@ export type Market = Node & {
   /**
    * The web presence of the market, defining its SEO strategy. This can be a different domain,
    * subdomain, or subfolders of the primary domain. Each web presence comprises one or more
-   * language variants. If a market doesn't have its own web presence, then the market is accessible on the
-   * shop’s primary domain using [country
-   * selectors](https://shopify.dev/themes/internationalization/multiple-currencies-languages#the-country-selector).
+   * language variants. If a market doesn't have its own web presence, an inherited web presence will be returned.
    */
   webPresence?: Maybe<MarketWebPresence>;
 };
@@ -3705,6 +4330,44 @@ export type MarketWebPresenceRootUrl = {
   url: Scalars['URL']['output'];
 };
 
+/** Represents a media interface. */
+export type Media = {
+  /** A word or phrase to share the nature or contents of a media. */
+  alt?: Maybe<Scalars['String']['output']>;
+  /** A globally-unique ID. */
+  id: Scalars['ID']['output'];
+  /** The media content type. */
+  mediaContentType: MediaContentType;
+  /** The preview image for the media. */
+  previewImage?: Maybe<Image>;
+};
+
+/** The content types that a media can have. */
+export type MediaContentType =
+  /** A Shopify hosted generic file. */
+  | 'GENERIC_FILE'
+  /** A Shopify hosted image. */
+  | 'IMAGE'
+  /** A Shopify hosted 3D model. */
+  | 'MODEL_3D'
+  /** A Shopify hosted video. */
+  | 'VIDEO';
+
+/** Represents a Shopify hosted image. */
+export type MediaImage = Media & {
+  __typename?: 'MediaImage';
+  /** A word or phrase to share the nature or contents of a media. */
+  alt?: Maybe<Scalars['String']['output']>;
+  /** A globally-unique ID. */
+  id: Scalars['ID']['output'];
+  /** The image for the media. */
+  image?: Maybe<Image>;
+  /** The media content type. */
+  mediaContentType: MediaContentType;
+  /** The preview image for the media. */
+  previewImage?: Maybe<Image>;
+};
+
 /**
  * The custom metadata attached to a resource. Metafields can be sorted into namespaces and are
  * comprised of keys, values, and value types.
@@ -3716,7 +4379,11 @@ export type Metafield = HasCompareDigest &
     compareDigest: Scalars['String']['output'];
     /** The date and time when the metafield was created. */
     createdAt: Scalars['DateTime']['output'];
-    /** The description of a metafield. */
+    /**
+     * The description of a metafield.
+     * @deprecated This field will be removed in a future release. Use the `description` on the metafield definition instead.
+     *
+     */
     description?: Maybe<Scalars['String']['output']>;
     /** A globally-unique ID. */
     id: Scalars['ID']['output'];
@@ -3726,6 +4393,10 @@ export type Metafield = HasCompareDigest &
     key: Scalars['String']['output'];
     /** The namespace for a metafield. */
     namespace: Scalars['String']['output'];
+    /** Returns a reference object if the metafield's type is a resource reference. */
+    reference?: Maybe<MetafieldReference>;
+    /** A list of reference objects if the metafield's type is a resource reference list. */
+    references?: Maybe<MetafieldReferenceConnection>;
     /**
      * The type name of the metafield.
      * See the list of [supported types](https://shopify.dev/apps/metafields/definitions/types).
@@ -3736,6 +4407,17 @@ export type Metafield = HasCompareDigest &
     /** The value of a metafield. */
     value: Scalars['String']['output'];
   };
+
+/**
+ * The custom metadata attached to a resource. Metafields can be sorted into namespaces and are
+ * comprised of keys, values, and value types.
+ */
+export type MetafieldReferencesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+};
 
 /** Identifies a metafield by its owner resource, namespace, and key. */
 export type MetafieldIdentifier = {
@@ -3756,6 +4438,34 @@ export type MetafieldIdentifierInput = {
   namespace: Scalars['String']['input'];
   /** The unique ID of the resource that the metafield is attached to. */
   ownerId: Scalars['ID']['input'];
+};
+
+/** Returns the resource which is being referred to by a metafield. */
+export type MetafieldReference =
+  | GenericFile
+  | MediaImage
+  | Metaobject
+  | Model3d
+  | Video;
+
+/** An auto-generated type for paginating through multiple MetafieldReferences. */
+export type MetafieldReferenceConnection = {
+  __typename?: 'MetafieldReferenceConnection';
+  /** The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node. */
+  edges: Array<MetafieldReferenceEdge>;
+  /** A list of nodes that are contained in MetafieldReferenceEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve. */
+  nodes: Array<MetafieldReference>;
+  /** An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page. */
+  pageInfo: PageInfo;
+};
+
+/** An auto-generated type which holds one MetafieldReference and a cursor during pagination. */
+export type MetafieldReferenceEdge = {
+  __typename?: 'MetafieldReferenceEdge';
+  /** The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql). */
+  cursor: Scalars['String']['output'];
+  /** The item at the end of MetafieldReferenceEdge. */
+  node: MetafieldReference;
 };
 
 /** Value type to describe the Metafield value. */
@@ -3867,6 +4577,8 @@ export type MetafieldsSetUserErrorCode =
   | 'DISALLOWED_OWNER_TYPE'
   /** The input value isn't included in the list. */
   | 'INCLUSION'
+  /** The input value is invalid. */
+  | 'INVALID'
   /** The compareDigest is invalid. */
   | 'INVALID_COMPARE_DIGEST'
   /** The type is invalid. */
@@ -3879,15 +4591,83 @@ export type MetafieldsSetUserErrorCode =
   | 'PRESENT'
   /** The metafield has been modified since it was loaded. */
   | 'STALE_OBJECT'
+  /** The input value is already taken. */
+  | 'TAKEN'
   /** The input value is too long. */
   | 'TOO_LONG'
   /** The input value is too short. */
   | 'TOO_SHORT';
 
-/**
- * A collection of monetary values in their respective currencies. Typically used in the context of multi-currency pricing and transactions,
- * when an amount in the shop's currency is converted to the customer's currency of choice (the presentment currency).
- */
+/** An instance of a user-defined model based on a MetaobjectDefinition. */
+export type Metaobject = Node & {
+  __typename?: 'Metaobject';
+  /** Accesses a field of the object by key. */
+  field?: Maybe<MetaobjectField>;
+  /**
+   * All object fields with defined values.
+   * Omitted object keys can be assumed null, and no guarantees are made about field order.
+   */
+  fields: Array<MetaobjectField>;
+  /** The unique handle of the metaobject. Useful as a custom ID. */
+  handle: Scalars['String']['output'];
+  /** A globally-unique ID. */
+  id: Scalars['ID']['output'];
+  /** The type of the metaobject. */
+  type: Scalars['String']['output'];
+  /** The date and time when the metaobject was last updated. */
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** An instance of a user-defined model based on a MetaobjectDefinition. */
+export type MetaobjectFieldArgs = {
+  key: Scalars['String']['input'];
+};
+
+/** Provides the value of a Metaobject field. */
+export type MetaobjectField = {
+  __typename?: 'MetaobjectField';
+  /** The field key. */
+  key: Scalars['String']['output'];
+  /** A referenced object if the field type is a resource reference. */
+  reference?: Maybe<MetafieldReference>;
+  /**
+   * The type name of the field.
+   * See the list of [supported types](https://shopify.dev/apps/metafields/definitions/types).
+   */
+  type: Scalars['String']['output'];
+  /** The field value. */
+  value?: Maybe<Scalars['String']['output']>;
+};
+
+/** Represents a Shopify hosted 3D model. */
+export type Model3d = Media & {
+  __typename?: 'Model3d';
+  /** A word or phrase to share the nature or contents of a media. */
+  alt?: Maybe<Scalars['String']['output']>;
+  /** A globally-unique ID. */
+  id: Scalars['ID']['output'];
+  /** The media content type. */
+  mediaContentType: MediaContentType;
+  /** The preview image for the media. */
+  previewImage?: Maybe<Image>;
+  /** The sources for a 3d model. */
+  sources: Array<Model3dSource>;
+};
+
+/** Represents a source for a Shopify hosted 3d model. */
+export type Model3dSource = {
+  __typename?: 'Model3dSource';
+  /** The filesize of the 3d model. */
+  filesize: Scalars['Int']['output'];
+  /** The format of the 3d model. */
+  format: Scalars['String']['output'];
+  /** The MIME type of the 3d model. */
+  mimeType: Scalars['String']['output'];
+  /** The URL of the 3d model. */
+  url: Scalars['String']['output'];
+};
+
+/** A collection of monetary values in their respective currencies. Used throughout the API for multi-currency pricing and transactions, when an amount in the shop's currency is converted to the customer's currency of choice. The `presentmentMoney` field contains the amount in the customer's selected currency. The `shopMoney` field contains the equivalent in the shop's base currency. */
 export type MoneyBag = {
   __typename?: 'MoneyBag';
   /** Amount in presentment currency. */
@@ -3896,12 +4676,19 @@ export type MoneyBag = {
   shopMoney: MoneyV2;
 };
 
-/** A monetary value with currency. */
+/** A precise monetary value and its associated currency. Combines a decimal amount with a three-letter currency code to express prices, costs, and other financial values throughout the API. For example, 12.99 USD. */
 export type MoneyV2 = {
   __typename?: 'MoneyV2';
-  /** Decimal money amount. */
+  /**
+   * A monetary value in decimal format, allowing for precise representation of cents or fractional
+   * currency. For example, 12.99.
+   */
   amount: Scalars['Decimal']['output'];
-  /** Currency of the money. */
+  /**
+   * The three-letter currency code that represents a world currency used in a store. Currency codes
+   * include standard [standard ISO 4217 codes](https://en.wikipedia.org/wiki/ISO_4217), legacy codes,
+   * and non-standard codes. For example, USD.
+   */
   currencyCode: CurrencyCode;
 };
 
@@ -3965,8 +4752,12 @@ export type Mutation = {
   metafieldsSet?: Maybe<MetafieldsSetPayload>;
   /** Request a new return on behalf of a customer. */
   orderRequestReturn?: Maybe<OrderRequestReturnPayload>;
+  /** Adds a new payment instrument and associates mandates. Returns the created instrument on success. */
+  paymentInstrumentAdd?: Maybe<PaymentInstrumentAddPayload>;
   /** Removes a payment instrument from a customer's account. */
   paymentInstrumentRemove?: Maybe<PaymentInstrumentRemovePayload>;
+  /** Replace existing payment mandates with a new (or existing) instrument. Subscriptions require special treatment. */
+  paymentInstrumentReplace?: Maybe<PaymentInstrumentReplacePayload>;
   /** Updates a customer's default payment instrument. */
   paymentInstrumentUpdateDefault?: Maybe<PaymentInstrumentUpdateDefaultPayload>;
   /** Connects a customer's PayPal account for use as a payment method. */
@@ -3983,6 +4774,8 @@ export type Mutation = {
    * @deprecated The `storefrontCustomerAccessTokenCreate` is deprecated and will be removed in a future version. Please see [the changelog](https://shopify.dev/changelog/deprecation-of-storefrontcustomeraccesstokencreate-mutation) for more information.
    */
   storefrontCustomerAccessTokenCreate?: Maybe<StorefrontCustomerAccessTokenCreatePayload>;
+  /** Initiates a new Stripe Financial Connections session. */
+  stripeFinancialConnectionsSessionInitiate?: Maybe<StripeFinancialConnectionsSessionInitiatePayload>;
   /** Skips a Subscription Billing Cycle. */
   subscriptionBillingCycleSkip?: Maybe<SubscriptionBillingCycleSkipPayload>;
   /** Unskips a Subscription Billing Cycle. */
@@ -4124,9 +4917,24 @@ export type MutationOrderRequestReturnArgs = {
 };
 
 /** This is the schema's entry point for all mutation operations. */
+export type MutationPaymentInstrumentAddArgs = {
+  idempotencyKey: Scalars['String']['input'];
+  instrument: PaymentInstrumentInput;
+  mandates: Array<PaymentMandateInput>;
+};
+
+/** This is the schema's entry point for all mutation operations. */
 export type MutationPaymentInstrumentRemoveArgs = {
   paymentInstrumentId: Scalars['ID']['input'];
   replacementPaymentInstrumentId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+/** This is the schema's entry point for all mutation operations. */
+export type MutationPaymentInstrumentReplaceArgs = {
+  id: Scalars['ID']['input'];
+  idempotencyKey: Scalars['String']['input'];
+  instrument: PaymentInstrumentInput;
+  mandates?: InputMaybe<Array<PaymentMandateInput>>;
 };
 
 /** This is the schema's entry point for all mutation operations. */
@@ -4207,6 +5015,62 @@ export type Node = {
   id: Scalars['ID']['output'];
 };
 
+/** A line item with at least one unit that is not eligible for return. */
+export type NonReturnableLineItem = {
+  __typename?: 'NonReturnableLineItem';
+  /** The line item associated with the non-returnable units. */
+  lineItem: LineItem;
+  /** The number of units that aren't eligible for return. */
+  quantity: Scalars['Int']['output'];
+  /** Details about non-returnable quantities, including the number of units that can't be returned and the reasons they can't be returned, grouped by reason (e.g., already returned, not yet fulfilled). */
+  quantityDetails: Array<NonReturnableQuantityDetail>;
+};
+
+/** An auto-generated type for paginating through multiple NonReturnableLineItems. */
+export type NonReturnableLineItemConnection = {
+  __typename?: 'NonReturnableLineItemConnection';
+  /** The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node. */
+  edges: Array<NonReturnableLineItemEdge>;
+  /** A list of nodes that are contained in NonReturnableLineItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve. */
+  nodes: Array<NonReturnableLineItem>;
+  /** An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page. */
+  pageInfo: PageInfo;
+};
+
+/** An auto-generated type which holds one NonReturnableLineItem and a cursor during pagination. */
+export type NonReturnableLineItemEdge = {
+  __typename?: 'NonReturnableLineItemEdge';
+  /** The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql). */
+  cursor: Scalars['String']['output'];
+  /** The item at the end of NonReturnableLineItemEdge. */
+  node: NonReturnableLineItem;
+};
+
+/**
+ * Details about non-returnable quantities, including the number of units that can't be returned
+ * and the reasons for non-returnability, grouped by reason (e.g., already returned, not yet fulfilled).
+ */
+export type NonReturnableQuantityDetail = {
+  __typename?: 'NonReturnableQuantityDetail';
+  /** The number of units that aren't eligible for return. */
+  quantity: Scalars['Int']['output'];
+  /** The reason why this quantity isn't eligible for return. */
+  reasonCode: NonReturnableReason;
+};
+
+/** The reason why a line item quantity can't be returned. */
+export type NonReturnableReason =
+  /** The line item quantity is final sale. This is only applicable if return rules were in place at the time an order was placed. */
+  | 'FINAL_SALE'
+  /** The line item quantity is ineligible for return for a reason that has not been predefined. */
+  | 'OTHER'
+  /** The line item quantity has already been returned. */
+  | 'RETURNED'
+  /** The return window for this line item quantity has expired. This is only applicable if return rules were in place at the time an order was placed. */
+  | 'RETURN_WINDOW_EXPIRED'
+  /** The line item quantity has not been fulfilled by the merchant. */
+  | 'UNFULFILLED';
+
 /** A customer’s completed request to purchase one or more products from a shop. Apps using the Customer Account API must meet the protected customer data [requirements](https://shopify.dev/docs/apps/launch/protected-customer-data). */
 export type Order = HasMetafields &
   Node & {
@@ -4282,7 +5146,10 @@ export type Order = HasMetafields &
     lineItemsSummary?: Maybe<OrderLineItemsSummary>;
     /** The name of the fulfillment location assigned at the time of order creation. */
     locationName?: Maybe<Scalars['String']['output']>;
-    /** The market that includes the order's shipping address. Or the shop's primary market if the shipping address is empty. */
+    /**
+     * The market that includes the order's shipping address. Or the shop's primary market if the shipping address is empty.
+     * @deprecated This `market` field will be removed in a future version of the API.
+     */
     market: Market;
     /** A metafield found by namespace and key. */
     metafield?: Maybe<Metafield>;
@@ -4328,6 +5195,8 @@ export type Order = HasMetafields &
     requiresShipping: Scalars['Boolean']['output'];
     /** A Return identified by ID. */
     return?: Maybe<Return>;
+    /** The return information for the order. */
+    returnInformation: OrderReturnInformation;
     /** The list of returns for the order with pagination. */
     returns: ReturnConnection;
     /** The mailing address to which the order items are shipped. */
@@ -4515,11 +5384,6 @@ export type OrderByCompanySortKeys =
   | 'ORDER_NUMBER'
   /** Sort by the `processed_at` value. */
   | 'PROCESSED_AT'
-  /**
-   * Sort by relevance to the search terms when the `query` parameter is specified on the connection.
-   * Don't use this sort key when no search query is specified.
-   */
-  | 'RELEVANCE'
   /** Sort by the `total_price` value. */
   | 'TOTAL_PRICE'
   /** Sort by the `updated_at` value. */
@@ -4537,11 +5401,6 @@ export type OrderByContactSortKeys =
   | 'PROCESSED_AT'
   /** Sort by the `purchasing_company_location_name` value. */
   | 'PURCHASING_COMPANY_LOCATION_NAME'
-  /**
-   * Sort by relevance to the search terms when the `query` parameter is specified on the connection.
-   * Don't use this sort key when no search query is specified.
-   */
-  | 'RELEVANCE'
   /** Sort by the `total_price` value. */
   | 'TOTAL_PRICE'
   /** Sort by the `updated_at` value. */
@@ -4557,11 +5416,6 @@ export type OrderByLocationSortKeys =
   | 'ORDER_NUMBER'
   /** Sort by the `processed_at` value. */
   | 'PROCESSED_AT'
-  /**
-   * Sort by relevance to the search terms when the `query` parameter is specified on the connection.
-   * Don't use this sort key when no search query is specified.
-   */
-  | 'RELEVANCE'
   /** Sort by the `total_price` value. */
   | 'TOTAL_PRICE'
   /** Sort by the `updated_at` value. */
@@ -4592,9 +5446,6 @@ export type OrderConnection = {
   /** An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page. */
   pageInfo: PageInfo;
 };
-
-/** An order that redacts data if the requester does not have authorization to view it. */
-export type OrderDetailsPageOrder = Order | PublicOrder;
 
 /** The disount information for a specific order. */
 export type OrderDiscountInformation = {
@@ -4702,30 +5553,30 @@ export type OrderFinancialStatus =
   /** Displayed as **Voided**. */
   | 'VOIDED';
 
-/** The aggregation of each order's active fulfillments and opened fulfillment orders for display purposes. */
+/** Represents the order's aggregated fulfillment status for display purposes. */
 export type OrderFulfillmentStatus =
-  /** Attempted to deliver the fulfillment. */
-  | 'ATTEMPTED_TO_DELIVER'
-  /** The order is confirmed. */
-  | 'CONFIRMED'
-  /** Every physical fulfillment of the order has been successfully delivered. */
-  | 'DELIVERED'
-  /** The order has one fulfillment in transit. */
-  | 'IN_TRANSIT'
-  /** This order has multiple physical fulfillments with differing statuses. */
-  | 'MULTIPLE_SHIPMENTS'
-  /** The order has one fulfillment on its way. */
-  | 'ON_ITS_WAY'
-  /** The order has one fulfillment out for delivery. */
-  | 'OUT_FOR_DELIVERY'
-  /** The order has been picked up. */
-  | 'PICKED_UP'
-  /** The order has one fulfillment being prepared for shipping. */
-  | 'PREPARING_FOR_SHIPPING'
-  /** The order is ready to be picked up. */
+  /** Displayed as **Fulfilled**. All of the items in the order have been fulfilled. */
+  | 'FULFILLED'
+  /** Displayed as **In progress**. All of the items in the order have had a request for fulfillment sent to the fulfillment service or all of the items have been marked as in progress. */
+  | 'IN_PROGRESS'
+  /** Displayed as **On hold**. All of the unfulfilled items in this order are on hold. */
+  | 'ON_HOLD'
+  /** Displayed as **Open**. None of the items in the order have been fulfilled. Replaced by "UNFULFILLED" status. */
+  | 'OPEN'
+  /** Displayed as **Partially fulfilled**. Some of the items in the order have been fulfilled. */
+  | 'PARTIALLY_FULFILLED'
+  /** Displayed as **Pending fulfillment**. A request for fulfillment of some items awaits a response from the fulfillment service. Replaced by "IN_PROGRESS" status. */
+  | 'PENDING_FULFILLMENT'
+  /** Displayed as **Ready for delivery**. */
+  | 'READY_FOR_DELIVERY'
+  /** Displayed as **Ready for pickup**. */
   | 'READY_FOR_PICKUP'
-  /** There was a problem with the fulfillment. */
-  | 'THERE_WAS_A_PROBLEM';
+  /** Displayed as **Restocked**. All of the items in the order have been restocked. Replaced by "UNFULFILLED" status. */
+  | 'RESTOCKED'
+  /** Displayed as **Scheduled**. All of the unfulfilled items in this order are scheduled for fulfillment at later time. */
+  | 'SCHEDULED'
+  /** Displayed as **Unfulfilled**. None of the items in the order have been fulfilled. */
+  | 'UNFULFILLED';
 
 /** The quantitative information about the line items of a specific order. */
 export type OrderLineItemsSummary = {
@@ -4738,6 +5589,15 @@ export type OrderLineItemsSummary = {
   totalQuantityOfLineItems: Scalars['Int']['output'];
   /** The total quantity of all tips in the order. */
   totalQuantityOfTipLineItems: Scalars['Int']['output'];
+};
+
+/** The summary of reasons why the order is ineligible for return. */
+export type OrderNonReturnableSummary = {
+  __typename?: 'OrderNonReturnableSummary';
+  /** Distinct reasons why line items in the order are ineligible for return. */
+  nonReturnableReasons: Array<NonReturnableReason>;
+  /** A message displayed to the customer summarizing why the order is ineligible for return. */
+  summaryMessage?: Maybe<Scalars['String']['output']>;
 };
 
 /** The summary of payment status information for the order. */
@@ -4796,6 +5656,50 @@ export type OrderRequestReturnPayload = {
   userErrors: Array<ReturnUserError>;
 };
 
+/** The return information for a specific order. */
+export type OrderReturnInformation = {
+  __typename?: 'OrderReturnInformation';
+  /** Whether the order has one or more restocking fees associated with its returnable line items. */
+  hasRestockingFee: Scalars['Boolean']['output'];
+  /** Whether the order has one or more return promises associated with any of its line items. */
+  hasReturnPromise: Scalars['Boolean']['output'];
+  /** Whether the order has one or more return shipping fees associated with its returnable line items. */
+  hasReturnShippingFee: Scalars['Boolean']['output'];
+  /** The line items that are not eligible for return. */
+  nonReturnableLineItems: NonReturnableLineItemConnection;
+  /** The summary of reasons why the order is ineligible for return. */
+  nonReturnableSummary?: Maybe<OrderNonReturnableSummary>;
+  /** The subtotal of all fees associated with return processing that have been applied to the order (e.g. return shipping fees or restocking fees), aggregated by fee type. */
+  returnFees: Array<ReturnRestockingFee | ReturnShippingFee>;
+  /**
+   * Note for the buyer about the return shipping method. Possible values are: "merchant_provided_label",
+   * "no_shipping_required", or a localized message that the buyer is responsible for return shipping.
+   */
+  returnShippingMethodNote?: Maybe<Scalars['String']['output']>;
+  /** A set of return shipping methods associated with the order's returnable line items. Return shipping methods are defined by the return rules at the time the order is placed. */
+  returnShippingMethods: Array<ReturnShippingMethod>;
+  /** The line items that are eligible for return. */
+  returnableLineItems: ReturnableLineItemConnection;
+};
+
+/** The return information for a specific order. */
+export type OrderReturnInformationNonReturnableLineItemsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** The return information for a specific order. */
+export type OrderReturnInformationReturnableLineItemsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 /** The group including the shipping lines of the order. */
 export type OrderShippingLineGroup = {
   __typename?: 'OrderShippingLineGroup';
@@ -4832,11 +5736,6 @@ export type OrderSortKeys =
   | 'ORDER_NUMBER'
   /** Sort by the `processed_at` value. */
   | 'PROCESSED_AT'
-  /**
-   * Sort by relevance to the search terms when the `query` parameter is specified on the connection.
-   * Don't use this sort key when no search query is specified.
-   */
-  | 'RELEVANCE'
   /** Sort by the `total_price` value. */
   | 'TOTAL_PRICE'
   /** Sort by the `updated_at` value. */
@@ -4854,6 +5753,8 @@ export type OrderTransaction = Node &
     id: Scalars['ID']['output'];
     /** The kind of the transaction. */
     kind?: Maybe<OrderTransactionKind>;
+    /** The associated order for the transaction. */
+    order?: Maybe<Order>;
     /** The payment details for the transaction. */
     paymentDetails?: Maybe<PaymentDetails>;
     /** The payment icon to display for the transaction. */
@@ -4912,6 +5813,8 @@ export type OrderTransactionStatus =
 
 /** The type of order transaction. */
 export type OrderTransactionType =
+  /** An ACH bank account transaction. */
+  | 'ACH'
   /** A bank deposit transaction. */
   | 'BANK_DEPOSIT'
   /** A card transaction. */
@@ -4948,8 +5851,18 @@ export type PageInfo = {
   startCursor?: Maybe<Scalars['String']['output']>;
 };
 
+/** The input fields for a single remote-token credential. */
+export type PaymentCredentialRemoteTokenInput = {
+  /** Internal provider identifier. */
+  providerId?: InputMaybe<Scalars['Int']['input']>;
+  /** Opaque credential token. */
+  token: Scalars['String']['input'];
+  /** Credential type. */
+  type: Scalars['String']['input'];
+};
+
 /** Payment details related to a transaction. */
-export type PaymentDetails = CardPaymentDetails;
+export type PaymentDetails = AchPaymentDetails | CardPaymentDetails;
 
 /** The payment icon to display for the transaction. */
 export type PaymentIcon = {
@@ -4978,6 +5891,12 @@ export type PaymentIconImage = Node & {
    * @deprecated Use `url` instead.
    */
   src: Scalars['URL']['output'];
+  /**
+   * The ThumbHash of the image.
+   *
+   * Useful to display placeholder images while the original image is loading.
+   */
+  thumbhash?: Maybe<Scalars['String']['output']>;
   /**
    * The location of the transformed image as a URL.
    *
@@ -5016,8 +5935,58 @@ export type PaymentIconImageUrlArgs = {
 
 /** A payment instrument. */
 export type PaymentInstrument = {
+  /** The list of open draft orders associated with this payment instrument. */
+  draftOrders: DraftOrderConnection;
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
+  /** The list of pending orders associated with this payment instrument. */
+  orders: OrderConnection;
+  /** The list of subscription contracts charged using this payment instrument. */
+  subscriptionContracts: SubscriptionContractConnection;
+};
+
+/** A payment instrument. */
+export type PaymentInstrumentDraftOrdersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** A payment instrument. */
+export type PaymentInstrumentOrdersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** A payment instrument. */
+export type PaymentInstrumentSubscriptionContractsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  query?: InputMaybe<Scalars['String']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
+  sortKey?: InputMaybe<SubscriptionContractsSortKeys>;
+};
+
+/** Return type for `paymentInstrumentAdd` mutation. */
+export type PaymentInstrumentAddPayload = {
+  __typename?: 'PaymentInstrumentAddPayload';
+  /** The URL to which the customer should be redirected to complete the 3D Secure payment flow. */
+  nextActionUrl?: Maybe<Scalars['URL']['output']>;
+  /** The newly added payment instrument. */
+  paymentInstrument?: Maybe<
+    BankPaymentInstrument | CustomerCreditCard | PaypalBillingAgreement
+  >;
+  /** If the payment verification result is processing. When this is true, payment_instrument will be null. */
+  processing?: Maybe<Scalars['Boolean']['output']>;
+  /** The list of errors that occurred from executing the mutation. */
+  userErrors: Array<UserErrorsPaymentInstrumentUserErrors>;
 };
 
 /** The billing address associated with a credit card payment instrument. */
@@ -5045,11 +6014,54 @@ export type PaymentInstrumentBillingAddress = {
   zip?: Maybe<Scalars['String']['output']>;
 };
 
+/** An auto-generated type for paginating through multiple PaymentInstruments. */
+export type PaymentInstrumentConnection = {
+  __typename?: 'PaymentInstrumentConnection';
+  /** The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node. */
+  edges: Array<PaymentInstrumentEdge>;
+  /** A list of nodes that are contained in PaymentInstrumentEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve. */
+  nodes: Array<
+    BankPaymentInstrument | CustomerCreditCard | PaypalBillingAgreement
+  >;
+  /** An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page. */
+  pageInfo: PageInfo;
+};
+
+/** An auto-generated type which holds one PaymentInstrument and a cursor during pagination. */
+export type PaymentInstrumentEdge = {
+  __typename?: 'PaymentInstrumentEdge';
+  /** The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql). */
+  cursor: Scalars['String']['output'];
+  /** The item at the end of PaymentInstrumentEdge. */
+  node: BankPaymentInstrument | CustomerCreditCard | PaypalBillingAgreement;
+};
+
+/** The input fields for a payment instrument. */
+export type PaymentInstrumentInput = {
+  /** The remote-token based instrument (e.g., credit card session, PayPal token). */
+  remoteToken?: InputMaybe<RemoteTokenPaymentInstrumentInput>;
+};
+
 /** Return type for `paymentInstrumentRemove` mutation. */
 export type PaymentInstrumentRemovePayload = {
   __typename?: 'PaymentInstrumentRemovePayload';
   /** The ID of the deleted payment instrument. */
   deletedPaymentInstrumentId?: Maybe<Scalars['ID']['output']>;
+  /** The list of errors that occurred from executing the mutation. */
+  userErrors: Array<UserErrorsPaymentInstrumentUserErrors>;
+};
+
+/** Return type for `paymentInstrumentReplace` mutation. */
+export type PaymentInstrumentReplacePayload = {
+  __typename?: 'PaymentInstrumentReplacePayload';
+  /** The URL to which the customer should be redirected to complete the 3D Secure payment flow. */
+  nextActionUrl?: Maybe<Scalars['URL']['output']>;
+  /** The replacement payment instrument. */
+  paymentInstrument?: Maybe<
+    BankPaymentInstrument | CustomerCreditCard | PaypalBillingAgreement
+  >;
+  /** If the payment verification result is processing. When this is true, payment_instrument will be null. */
+  processing?: Maybe<Scalars['Boolean']['output']>;
   /** The list of errors that occurred from executing the mutation. */
   userErrors: Array<UserErrorsPaymentInstrumentUserErrors>;
 };
@@ -5072,6 +6084,33 @@ export type PaymentInstrumentWalletType =
   /** The credit card is a Shop Pay wallet. */
   | 'SHOP_PAY';
 
+/** The input fields for a mandate association for a payment instrument. */
+export type PaymentMandateInput = {
+  resourceId?: InputMaybe<Scalars['Int']['input']>;
+  resourceType: PaymentMandateResourceType;
+};
+
+/** Resources a mandate can be associated with. */
+export type PaymentMandateResourceType =
+  | 'ANY'
+  | 'CHECKOUT'
+  | 'DRAFTORDER'
+  | 'ORDER'
+  | 'RECEIPT'
+  | 'SUBSCRIPTIONS';
+
+/** A payment method that customers can use to pay. */
+export type PaymentMethod = BankPaymentMethod;
+
+/** Represents a payment provider client credentials. */
+export type PaymentProviderClientCredentials = {
+  __typename?: 'PaymentProviderClientCredentials';
+  /** The API client key for the payment provider client. */
+  apiClientKey?: Maybe<Scalars['String']['output']>;
+  /** The merchant's payment provider account id. */
+  merchantAccountId?: Maybe<Scalars['String']['output']>;
+};
+
 /** A single payment schedule defined in the payment terms. */
 export type PaymentSchedule = Node & {
   __typename?: 'PaymentSchedule';
@@ -5088,6 +6127,8 @@ export type PaymentSchedule = Node & {
   dueAt?: Maybe<Scalars['DateTime']['output']>;
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
+  /** Remaining balance to be paid or authorized by the customer for this payment schedule. */
+  totalBalance: MoneyV2;
 };
 
 /** An auto-generated type for paginating through multiple PaymentSchedules. */
@@ -5181,8 +6222,12 @@ export type PaypalBillingAgreement = Node &
     __typename?: 'PaypalBillingAgreement';
     /** The billing address associated with the payment method. */
     billingAddress?: Maybe<PaymentInstrumentBillingAddress>;
+    /** The list of open draft orders associated with this payment instrument. */
+    draftOrders: DraftOrderConnection;
     /** The globally-unique ID. */
     id: Scalars['ID']['output'];
+    /** The list of pending orders associated with this payment instrument. */
+    orders: OrderConnection;
     /** The email address associated with the PayPal account. */
     paypalAccountEmail?: Maybe<Scalars['String']['output']>;
     /** The list of pending orders associated with this PayPal billing agreement. */
@@ -5190,6 +6235,24 @@ export type PaypalBillingAgreement = Node &
     /** The list of subscription contracts charged using this PayPal billing agreement. */
     subscriptionContracts: SubscriptionContractConnection;
   };
+
+/** A payment method using a PayPal billing agreement. */
+export type PaypalBillingAgreementDraftOrdersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** A payment method using a PayPal billing agreement. */
+export type PaypalBillingAgreementOrdersArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
+};
 
 /** A payment method using a PayPal billing agreement. */
 export type PaypalBillingAgreementPendingOrdersArgs = {
@@ -5299,138 +6362,6 @@ export type ProductSale = Node &
     totalTaxAmount: MoneyV2;
   };
 
-/** The data that about an order that is visible to anyone with the order ID. */
-export type PublicOrder = Node & {
-  __typename?: 'PublicOrder';
-  /**
-   * The date and time when the order was canceled.
-   * Returns `null` if the order wasn't canceled.
-   */
-  cancelledAt?: Maybe<Scalars['DateTime']['output']>;
-  /**
-   * A randomly generated alpha-numeric identifier for the order that may be shown to the customer
-   * instead of the sequential order name. For example, "XPAV284CT", "R50KELTJP" or "35PKUN0UJ".
-   * This value isn't guaranteed to be unique.
-   */
-  confirmationNumber?: Maybe<Scalars['String']['output']>;
-  /** The discount information for the order, including line-level discount applications. */
-  discountInformation: OrderDiscountInformation;
-  /** The name of the associated draft order. */
-  draftOrderName?: Maybe<Scalars['String']['output']>;
-  /** The edit summary of the order. */
-  editSummary?: Maybe<OrderEditSummary>;
-  /** The financial status of the order. */
-  financialStatus?: Maybe<OrderFinancialStatus>;
-  /** The fulfillment status of the order. */
-  fulfillmentStatus: OrderFulfillmentStatus;
-  /** The fulfillments associated with the order. */
-  fulfillments: FulfillmentConnection;
-  /** Whether the customer has an email address. */
-  hasEmail: Scalars['Boolean']['output'];
-  /** A globally-unique ID. */
-  id: Scalars['ID']['output'];
-  /** The merchandise lines marked as fees with total value, aggregated by title. */
-  legacyAggregatedMerchandiseTermsAsFees: Array<LegacyAggregatedMerchandiseTermsAsFees>;
-  /** Whether or not products marked as fees should be rendered as money lines. */
-  legacyRepresentProductsAsFees: Scalars['Boolean']['output'];
-  /** The price of the order before duties, shipping, taxes, and fees. */
-  legacySubtotalWithoutFees?: Maybe<MoneyV2>;
-  /** The list of the order's line item containers (e.g., Unfulfilled). */
-  lineItemContainers: Array<LineItemContainer>;
-  /** The list of line items of the order. */
-  lineItems: LineItemConnection;
-  /** The market that includes the order's shipping address. Or the shop's primary market if the shipping address is empty. */
-  market: Market;
-  /**
-   * The identifier for the order that appears on the order.
-   * For example, _#1000_ or _Store1001.
-   */
-  name: Scalars['String']['output'];
-  /** The payment information for the order. */
-  paymentInformation?: Maybe<OrderPaymentInformation>;
-  /** The pickup information for the order. */
-  pickupInformation?: Maybe<OrderPickupInformation>;
-  /** The purchase order number of the order. */
-  poNumber?: Maybe<Scalars['String']['output']>;
-  /**
-   * The date and time when the order was processed.
-   * This value can be set to dates in the past when importing from other systems.
-   * If no value is provided, it will be auto-generated based on current date and time.
-   */
-  processedAt: Scalars['DateTime']['output'];
-  /** A list of refunds associated with the order. */
-  refunds: Array<Refund>;
-  /** The path to recreate the order in the cart and redirect to checkout. Will return nil if the line item count exceeds 100. */
-  reorderPath?: Maybe<Scalars['String']['output']>;
-  /** Whether the order requires shipping. */
-  requiresShipping: Scalars['Boolean']['output'];
-  /** A Return identified by ID. */
-  return?: Maybe<Return>;
-  /** The list of returns for the order with pagination. */
-  returns: ReturnConnection;
-  /** The list of shipping line groups for the order. */
-  shippingLineGroups: Array<OrderShippingLineGroup>;
-  /** The totals and quantities for the order, ignoring returns. */
-  soldInformation: OrderSoldInformation;
-  /** The price of the order before duties, shipping, and taxes. */
-  subtotal?: Maybe<MoneyV2>;
-  /** The price of the order before order-level discounts, duties, shipping. It includes taxes in  tax-inclusive orders. */
-  subtotalBeforeDiscounts?: Maybe<MoneyV2>;
-  /** The total cost of shipping after discounts. */
-  totalDiscountedShipping: MoneyV2;
-  /** The total amount of duties after returns. */
-  totalDuties?: Maybe<MoneyV2>;
-  /** The total duties and duties status. */
-  totalDutiesSummary?: Maybe<OrderDutiesSummary>;
-  /** The total amount of the order (including taxes and discounts) minus the amounts for line items that have been returned. */
-  totalPrice: MoneyV2;
-  /** The total amount refunded. */
-  totalRefunded: MoneyV2;
-  /** The total cost of shipping. */
-  totalShipping: MoneyV2;
-  /** The total cost of taxes. */
-  totalTax?: Maybe<MoneyV2>;
-  /** The total value of tips. */
-  totalTip?: Maybe<MoneyV2>;
-  /** A list of transactions associated with the order. */
-  transactions: Array<OrderTransaction>;
-};
-
-/** The data that about an order that is visible to anyone with the order ID. */
-export type PublicOrderFulfillmentsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  query?: InputMaybe<Scalars['String']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
-  sortKey?: InputMaybe<FulfillmentSortKeys>;
-};
-
-/** The data that about an order that is visible to anyone with the order ID. */
-export type PublicOrderLineItemsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-/** The data that about an order that is visible to anyone with the order ID. */
-export type PublicOrderReturnArgs = {
-  id: Scalars['ID']['input'];
-};
-
-/** The data that about an order that is visible to anyone with the order ID. */
-export type PublicOrderReturnsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
-  sortKey?: InputMaybe<ReturnSortKeys>;
-};
-
 /** The information of the purchasing company for an order or draft order. */
 export type PurchasingCompany = {
   __typename?: 'PurchasingCompany';
@@ -5460,16 +6391,17 @@ export type QueryRoot = {
   extensionApiTokens?: Maybe<ExtensionApiTokens>;
   /** Returns an Order resource by ID. Apps using the Customer Account API must meet the protected customer data [requirements](https://shopify.dev/docs/apps/launch/protected-customer-data). */
   order?: Maybe<Order>;
-  /** An Order resource identified by ID. */
-  orderDetailsPageOrder?: Maybe<OrderDetailsPageOrder>;
+  /** Returns a Return resource by ID. Apps using the Customer Account API must meet the protected customer data [requirements](https://shopify.dev/docs/apps/launch/protected-customer-data). */
+  return?: Maybe<Return>;
+  /** The calculated monetary value of the return. */
+  returnCalculate?: Maybe<CalculatedReturn>;
   /** Returns the information about the shop. Apps using the Customer Account API must meet the protected customer data [requirements](https://shopify.dev/docs/apps/launch/protected-customer-data). */
   shop: Shop;
   /**
-   * Public metafields for Shop, Order, Customer, Company, CompanyLocation, Product, and ProductVariant.
-   * Shop metafields are always fetched if there is a match for the given namespace and key pairs.
+   * Public metafields for Shop, Order, Customer, Company, CompanyLocation, Product, and ProductVariant
+   * for given extension ids. Shop metafields are always fetched if there is a match for the given namespace and key pairs.
    * Product and ProductVariant are only fetched if resource_ids are provided and there is a match for the
-   * namespace and key. Either filters or extensionIds is needed. If both are provided, filters will be used.
-   * This is restricted to development shops for local UI extension development purposes only.
+   * namespace and key. This is restricted to development shops for local UI extension development purposes only.
    */
   uiExtensionMetafields: Array<UiExtensionMetafield>;
   /** A session token for an UI extension. */
@@ -5503,13 +6435,17 @@ export type QueryRootOrderArgs = {
 };
 
 /** This acts as the public, top-level API from which all queries start. */
-export type QueryRootOrderDetailsPageOrderArgs = {
+export type QueryRootReturnArgs = {
   id: Scalars['ID']['input'];
 };
 
 /** This acts as the public, top-level API from which all queries start. */
+export type QueryRootReturnCalculateArgs = {
+  input: CalculateReturnInput;
+};
+
+/** This acts as the public, top-level API from which all queries start. */
 export type QueryRootUiExtensionMetafieldsArgs = {
-  filters?: InputMaybe<Array<UiExtensionMetafieldFilterInput>>;
   orderId?: InputMaybe<Scalars['ID']['input']>;
   resourceIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
@@ -5518,7 +6454,6 @@ export type QueryRootUiExtensionMetafieldsArgs = {
 export type QueryRootUiExtensionSessionTokenArgs = {
   appId?: InputMaybe<Scalars['ID']['input']>;
   extensionActivationId?: InputMaybe<Scalars['ID']['input']>;
-  id?: InputMaybe<Scalars['ID']['input']>;
 };
 
 /** The record of refunds issued to a customer. */
@@ -5608,6 +6543,16 @@ export type RemainingLineItemContainerLineItemEdge = {
   node: RemainingLineItemContainerLineItem;
 };
 
+/** The input fields for a remote-token instrument. */
+export type RemoteTokenPaymentInstrumentInput = {
+  /** The billing address associated with the payment instrument. */
+  billingAddress?: InputMaybe<CustomerAddressInput>;
+  /** Credentials for the remote token instrument. Multiple entries may be required for some instrument types. */
+  credentials: Array<PaymentCredentialRemoteTokenInput>;
+  /** The owner ID to associate with this instrument. */
+  ownerId: Scalars['ID']['input'];
+};
+
 /** The input fields for a line item requested for return. */
 export type RequestedLineItemInput = {
   /**
@@ -5620,8 +6565,8 @@ export type RequestedLineItemInput = {
   lineItemId: Scalars['ID']['input'];
   /** The quantity of the line item that the customer wants to return. */
   quantity: Scalars['Int']['input'];
-  /** The reason for returning the item. */
-  returnReason: ReturnReason;
+  /** The ID of a [`ReturnReasonDefinition`](https://shopify.dev/docs/api/customer/latest/objects/ReturnReasonDefinition). Use [`LineItem.suggestedReturnReasonDefinitions`](https://shopify.dev/docs/api/customer/latest/objects/LineItem#field-LineItem.fields.suggestedReturnReasonDefinitions) to get reasons tailored to the product's category. */
+  returnReasonDefinitionId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 /** Return type for `resendGiftCard` mutation. */
@@ -5676,20 +6621,36 @@ export type Return = Node & {
   createdAt?: Maybe<Scalars['DateTime']['output']>;
   /** The additional details about why the merchant declined the return request. */
   decline?: Maybe<ReturnDecline>;
+  /** The exchange line items attached to the return. */
+  exchangeLineItems: ExchangeLineItemConnection;
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
   /** The name assigned to the return. */
   name: Scalars['String']['output'];
   /** The line items associated with the return. */
-  returnLineItems: ReturnLineItemConnection;
+  returnLineItems: ReturnLineItemTypeConnection;
+  /** The number of line items associated with the return. */
+  returnLineItemsCount?: Maybe<Count>;
   /** The list of reverse deliveries associated with the return. */
   reverseDeliveries: ReverseDeliveryConnection;
   /** The current status of the `Return`. */
   status: ReturnStatus;
   /** The timeline events related to the return. */
   timelineEvents: Array<TimelineEvent>;
+  /** The number of line items associated with the return. */
+  tmpReturnLineItemsCount: Scalars['Int']['output'];
   /** The date when the return was last updated. */
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
+/** A product return. */
+export type ReturnExchangeLineItemsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  includeRemovedItems?: InputMaybe<Scalars['Boolean']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** A product return. */
@@ -5826,40 +6787,95 @@ export type ReturnErrorCode =
   /** The input value is the wrong length. */
   | 'WRONG_LENGTH';
 
-/** A line item that has been returned. */
-export type ReturnLineItem = Node & {
-  __typename?: 'ReturnLineItem';
-  /** A globally-unique ID. */
-  id: Scalars['ID']['output'];
-  /** The related line item that has been returned. */
-  lineItem: LineItem;
-  /** The line item quantity that has been returned. */
-  quantity: Scalars['Int']['output'];
-  /** The reason the line item quantity was returned. */
-  returnReason: ReturnReason;
+/** A fee associated with the processing of a return. */
+export type ReturnFee = {
+  /** The total monetary value of the fee in shop and presentment currencies. */
+  amountSet: MoneyBag;
+  /** Human-readable name of the fee. */
+  title: Scalars['String']['output'];
 };
 
-/** An auto-generated type for paginating through multiple ReturnLineItems. */
-export type ReturnLineItemConnection = {
-  __typename?: 'ReturnLineItemConnection';
+/** The financial breakdown of the return. */
+export type ReturnFinancialSummary = {
+  __typename?: 'ReturnFinancialSummary';
+  /** The subtotal of all return line items restocking fees. */
+  restockingFeeSubtotalSet: MoneyBag;
+  /** The sum of all order level discounts that are target_all?. */
+  returnOrderLevelDiscountSubtotalSet: MoneyBag;
+  /** The subtotal of all return line items shipping fees. */
+  returnShippingFeeSubtotalSet: MoneyBag;
+  /** The subtotal of all return line items excluding target_all discounts. */
+  returnSubtotalBeforeTargetAllDiscountsSet: MoneyBag;
+  /** The subtotal of all return line items. */
+  returnSubtotalSet: MoneyBag;
+  /** The subtotal of all return line items with order level discounts applied. */
+  returnSubtotalWithCartDiscountSet: MoneyBag;
+  /** The total sum of all return line items, including return line item subtotals, fees and taxes. */
+  returnTotalSet: MoneyBag;
+  /** The total tax sum of all return line items. */
+  returnTotalTaxSet: MoneyBag;
+};
+
+/** A line item that has been returned. */
+export type ReturnLineItem = Node &
+  ReturnLineItemType & {
+    __typename?: 'ReturnLineItem';
+    /** A globally-unique ID. */
+    id: Scalars['ID']['output'];
+    /** The related line item that has been returned. */
+    lineItem: LineItem;
+    /** The line item quantity that has been returned. */
+    quantity: Scalars['Int']['output'];
+    /** The reason the line item quantity was returned. */
+    returnReason: ReturnReason;
+    /** The standardized reason for why the item is being returned. */
+    returnReasonDefinition?: Maybe<ReturnReasonDefinition>;
+  };
+
+/** A line item that has been returned. */
+export type ReturnLineItemType = {
+  /** A globally-unique ID. */
+  id: Scalars['ID']['output'];
+  /** The specific line item that's being returned. */
+  lineItem: LineItem;
+  /** The quantity of the line item that's been returned. */
+  quantity: Scalars['Int']['output'];
+  /**
+   * The reason for returning the line item.
+   * @deprecated Use `returnReasonDefinition` instead. This field will be removed in the future.
+   */
+  returnReason: ReturnReason;
+  /** The standardized reason for why the item is being returned. */
+  returnReasonDefinition?: Maybe<ReturnReasonDefinition>;
+};
+
+/** An auto-generated type for paginating through multiple ReturnLineItemTypes. */
+export type ReturnLineItemTypeConnection = {
+  __typename?: 'ReturnLineItemTypeConnection';
   /** The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node. */
-  edges: Array<ReturnLineItemEdge>;
-  /** A list of nodes that are contained in ReturnLineItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve. */
-  nodes: Array<ReturnLineItem>;
+  edges: Array<ReturnLineItemTypeEdge>;
+  /** A list of nodes that are contained in ReturnLineItemTypeEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve. */
+  nodes: Array<ReturnLineItem | UnverifiedReturnLineItem>;
   /** An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page. */
   pageInfo: PageInfo;
 };
 
-/** An auto-generated type which holds one ReturnLineItem and a cursor during pagination. */
-export type ReturnLineItemEdge = {
-  __typename?: 'ReturnLineItemEdge';
+/** An auto-generated type which holds one ReturnLineItemType and a cursor during pagination. */
+export type ReturnLineItemTypeEdge = {
+  __typename?: 'ReturnLineItemTypeEdge';
   /** The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql). */
   cursor: Scalars['String']['output'];
-  /** The item at the end of ReturnLineItemEdge. */
-  node: ReturnLineItem;
+  /** The item at the end of ReturnLineItemTypeEdge. */
+  node: ReturnLineItem | UnverifiedReturnLineItem;
 };
 
-/** The reason for returning the item. */
+/**
+ * The reason for returning the item.
+ *
+ * > **Deprecated**: This enum is deprecated in favor of `ReturnReasonDefinition`.
+ * > Use `returnReasonDefinitionId` in input objects and `returnReasonDefinition` in return line items instead.
+ * > This enum will be removed in a future API version.
+ */
 export type ReturnReason =
   /** The color of the item didn't meet expectations. */
   | 'COLOR'
@@ -5882,17 +6898,92 @@ export type ReturnReason =
   /** The customer received the wrong item. */
   | 'WRONG_ITEM';
 
+/**
+ * A standardized reason for returning an item.
+ *
+ * - Shopify offers an expanded library of return reasons available to all merchants
+ * - For each product, Shopify suggests a curated subset of reasons based on the product's category.
+ */
+export type ReturnReasonDefinition = Node & {
+  __typename?: 'ReturnReasonDefinition';
+  /**
+   * Whether the return reason has been removed from taxonomy.
+   *
+   * Deleted reasons should not be presented to customers when creating new returns, but may still
+   * appear on existing returns that were created before the reason was deleted. This field enables
+   * graceful deprecation of return reasons without breaking historical data.
+   */
+  deleted: Scalars['Boolean']['output'];
+  /**
+   * A unique, human-readable, stable identifier for the return reason.
+   *
+   * Example values include "arrived-late", "comfort", "too-tight", "color-too-bright", and "quality".
+   * The handle remains consistent across API versions and localizations, making it suitable for programmatic use.
+   */
+  handle: Scalars['String']['output'];
+  /** A globally-unique ID. */
+  id: Scalars['ID']['output'];
+  /**
+   * The localized, user-facing name of the return reason.
+   *
+   * This field returns the reason name in the requested locale, automatically falling back to
+   * English if no translation is available. Use this field when displaying return reasons to
+   * customers.
+   */
+  name: Scalars['String']['output'];
+};
+
+/** An auto-generated type for paginating through multiple ReturnReasonDefinitions. */
+export type ReturnReasonDefinitionConnection = {
+  __typename?: 'ReturnReasonDefinitionConnection';
+  /** The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node. */
+  edges: Array<ReturnReasonDefinitionEdge>;
+  /** A list of nodes that are contained in ReturnReasonDefinitionEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve. */
+  nodes: Array<ReturnReasonDefinition>;
+  /** An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page. */
+  pageInfo: PageInfo;
+};
+
+/** An auto-generated type which holds one ReturnReasonDefinition and a cursor during pagination. */
+export type ReturnReasonDefinitionEdge = {
+  __typename?: 'ReturnReasonDefinitionEdge';
+  /** The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql). */
+  cursor: Scalars['String']['output'];
+  /** The item at the end of ReturnReasonDefinitionEdge. */
+  node: ReturnReasonDefinition;
+};
+
+/** The restocking fee incurred during the return process. */
+export type ReturnRestockingFee = ReturnFee & {
+  __typename?: 'ReturnRestockingFee';
+  /** The total monetary value of the fee in shop and presentment currencies. */
+  amountSet: MoneyBag;
+  /** Human-readable name of the fee. */
+  title: Scalars['String']['output'];
+};
+
+/** The shipping fee incurred during the return process. */
+export type ReturnShippingFee = ReturnFee & {
+  __typename?: 'ReturnShippingFee';
+  /** The total monetary value of the fee in shop and presentment currencies. */
+  amountSet: MoneyBag;
+  /** Human-readable name of the fee. */
+  title: Scalars['String']['output'];
+};
+
+/** How items will be returned to the merchant. */
+export type ReturnShippingMethod =
+  /** The customer is responsible for providing the shipping label. */
+  | 'CUSTOMER_PROVIDED_LABEL'
+  /** The merchant provides the shipping label. */
+  | 'MERCHANT_PROVIDED_LABEL';
+
 /** The set of valid sort keys for the Return query. */
 export type ReturnSortKeys =
   /** Sort by the `created_at` value. */
   | 'CREATED_AT'
   /** Sort by the `id` value. */
-  | 'ID'
-  /**
-   * Sort by relevance to the search terms when the `query` parameter is specified on the connection.
-   * Don't use this sort key when no search query is specified.
-   */
-  | 'RELEVANCE';
+  | 'ID';
 
 /** The current status of a `Return`. */
 export type ReturnStatus =
@@ -5925,6 +7016,35 @@ export type ReturnUserError = DisplayableError & {
   field?: Maybe<Array<Scalars['String']['output']>>;
   /** The error message. */
   message: Scalars['String']['output'];
+};
+
+/** A line item with at least one unit that is eligible for return. */
+export type ReturnableLineItem = {
+  __typename?: 'ReturnableLineItem';
+  /** The related line item. */
+  lineItem: LineItem;
+  /** The quantity of units that can be returned. */
+  quantity: Scalars['Int']['output'];
+};
+
+/** An auto-generated type for paginating through multiple ReturnableLineItems. */
+export type ReturnableLineItemConnection = {
+  __typename?: 'ReturnableLineItemConnection';
+  /** The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node. */
+  edges: Array<ReturnableLineItemEdge>;
+  /** A list of nodes that are contained in ReturnableLineItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve. */
+  nodes: Array<ReturnableLineItem>;
+  /** An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page. */
+  pageInfo: PageInfo;
+};
+
+/** An auto-generated type which holds one ReturnableLineItem and a cursor during pagination. */
+export type ReturnableLineItemEdge = {
+  __typename?: 'ReturnableLineItemEdge';
+  /** The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql). */
+  cursor: Scalars['String']['output'];
+  /** The item at the end of ReturnableLineItemEdge. */
+  node: ReturnableLineItem;
 };
 
 /**
@@ -6284,17 +7404,6 @@ export type ShopAppLinksAndResources = {
   shopPayOrder: Scalars['Boolean']['output'];
 };
 
-/** The configuration values used to initialize a Shop Pay checkout. */
-export type ShopPayConfiguration = {
-  __typename?: 'ShopPayConfiguration';
-  /** Whether the checkout is a checkout one session. */
-  checkoutOne: Scalars['Boolean']['output'];
-  /** The URL parameters containing an encrypted blob used by Shop Pay's backend. */
-  transactionParams: Scalars['String']['output'];
-  /** The URL from which the Shop Pay checkout can be completed. */
-  transactionUrl: Scalars['URL']['output'];
-};
-
 /** Return type for `shopPayCreditCardGetUpdateUrl` mutation. */
 export type ShopPayCreditCardGetUpdateUrlPayload = {
   __typename?: 'ShopPayCreditCardGetUpdateUrlPayload';
@@ -6342,6 +7451,8 @@ export type StoreCreditAccount = Node & {
   __typename?: 'StoreCreditAccount';
   /** The current balance of the store credit account. */
   balance: MoneyV2;
+  /** The expirable part of the store credit account balance. */
+  expirableBalance: MoneyV2;
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
   /** The transaction history of the store credit account. */
@@ -6387,6 +7498,8 @@ export type StoreCreditAccountCreditTransaction = Node &
     balanceAfterTransaction: MoneyV2;
     /** The date and time when the transaction was created. */
     createdAt: Scalars['DateTime']['output'];
+    /** The event that caused the store credit account transaction. */
+    event: StoreCreditSystemEvent;
     /**
      * The time at which the transaction expires.
      * Debit transactions will always spend the soonest expiring credit first.
@@ -6394,6 +7507,8 @@ export type StoreCreditAccountCreditTransaction = Node &
     expiresAt?: Maybe<Scalars['DateTime']['output']>;
     /** A globally-unique ID. */
     id: Scalars['ID']['output'];
+    /** The origin of the store credit account transaction. */
+    origin?: Maybe<StoreCreditAccountTransactionOrigin>;
     /**
      * The remaining amount of the credit.
      * The remaining amount will decrease when a debit spends this credit. It may also increase if that debit is subsequently reverted.
@@ -6422,8 +7537,12 @@ export type StoreCreditAccountDebitRevertTransaction = Node &
     createdAt: Scalars['DateTime']['output'];
     /** The reverted debit transaction. */
     debitTransaction: StoreCreditAccountDebitTransaction;
+    /** The event that caused the store credit account transaction. */
+    event: StoreCreditSystemEvent;
     /** A globally-unique ID. */
     id: Scalars['ID']['output'];
+    /** The origin of the store credit account transaction. */
+    origin?: Maybe<StoreCreditAccountTransactionOrigin>;
   };
 
 /** A debit transaction which decreases the store credit account balance. */
@@ -6438,8 +7557,12 @@ export type StoreCreditAccountDebitTransaction = Node &
     balanceAfterTransaction: MoneyV2;
     /** The date and time when the transaction was created. */
     createdAt: Scalars['DateTime']['output'];
+    /** The event that caused the store credit account transaction. */
+    event: StoreCreditSystemEvent;
     /** A globally-unique ID. */
     id: Scalars['ID']['output'];
+    /** The origin of the store credit account transaction. */
+    origin?: Maybe<StoreCreditAccountTransactionOrigin>;
   };
 
 /** An auto-generated type which holds one StoreCreditAccount and a cursor during pagination. */
@@ -6470,6 +7593,10 @@ export type StoreCreditAccountExpirationTransaction =
     createdAt: Scalars['DateTime']['output'];
     /** The credit transaction which expired. */
     creditTransaction: StoreCreditAccountCreditTransaction;
+    /** The event that caused the store credit account transaction. */
+    event: StoreCreditSystemEvent;
+    /** The origin of the store credit account transaction. */
+    origin?: Maybe<StoreCreditAccountTransactionOrigin>;
   };
 
 /** Interface for a store credit account transaction. */
@@ -6482,6 +7609,10 @@ export type StoreCreditAccountTransaction = {
   balanceAfterTransaction: MoneyV2;
   /** The date and time when the transaction was created. */
   createdAt: Scalars['DateTime']['output'];
+  /** The event that caused the store credit account transaction. */
+  event: StoreCreditSystemEvent;
+  /** The origin of the store credit account transaction. */
+  origin?: Maybe<StoreCreditAccountTransactionOrigin>;
 };
 
 /** An auto-generated type for paginating through multiple StoreCreditAccountTransactions. */
@@ -6513,6 +7644,26 @@ export type StoreCreditAccountTransactionEdge = {
     | StoreCreditAccountExpirationTransaction;
 };
 
+/** The origin of a store credit account transaction. */
+export type StoreCreditAccountTransactionOrigin = OrderTransaction;
+
+/** The event that caused the store credit account transaction. */
+export type StoreCreditSystemEvent =
+  /** An adjustment was made to the store credit account. */
+  | 'ADJUSTMENT'
+  /** Store credit was returned when an authorized payment was voided. */
+  | 'ORDER_CANCELLATION'
+  /** Store credit was used as payment for an order. */
+  | 'ORDER_PAYMENT'
+  /** Store credit was refunded from an order. */
+  | 'ORDER_REFUND'
+  /** A store credit payment was reverted due to another payment method failing. */
+  | 'PAYMENT_FAILURE'
+  /** A smaller amount of store credit was captured than was originally authorized. */
+  | 'PAYMENT_RETURNED'
+  /** Tax finalization affected the store credit payment. */
+  | 'TAX_FINALIZATION';
+
 /** Return type for `storefrontCustomerAccessTokenCreate` mutation. */
 export type StorefrontCustomerAccessTokenCreatePayload = {
   __typename?: 'StorefrontCustomerAccessTokenCreatePayload';
@@ -6520,6 +7671,15 @@ export type StorefrontCustomerAccessTokenCreatePayload = {
   customerAccessToken?: Maybe<Scalars['String']['output']>;
   /** The list of errors that occurred from executing the mutation. */
   userErrors: Array<UserErrorsStorefrontCustomerAccessTokenCreateUserErrors>;
+};
+
+/** Return type for `stripeFinancialConnectionsSessionInitiate` mutation. */
+export type StripeFinancialConnectionsSessionInitiatePayload = {
+  __typename?: 'StripeFinancialConnectionsSessionInitiatePayload';
+  /** The Stripe Financial Connections client secret for session initiation. */
+  clientSecret?: Maybe<Scalars['String']['output']>;
+  /** The list of errors that occurred from executing the mutation. */
+  userErrors: Array<UserErrorsStripeFinancialConnectionsSessionUserErrors>;
 };
 
 /** Represents a subscription anchor. */
@@ -6647,12 +7807,7 @@ export type SubscriptionBillingCyclesSortKeys =
   /** Sort by the `cycle_index` value. */
   | 'CYCLE_INDEX'
   /** Sort by the `id` value. */
-  | 'ID'
-  /**
-   * Sort by relevance to the search terms when the `query` parameter is specified on the connection.
-   * Don't use this sort key when no search query is specified.
-   */
-  | 'RELEVANCE';
+  | 'ID';
 
 /** The billing policy of a subscription. */
 export type SubscriptionBillingPolicy = {
@@ -6673,6 +7828,8 @@ export type SubscriptionBillingPolicy = {
 export type SubscriptionContract = Node &
   SubscriptionContractBase & {
     __typename?: 'SubscriptionContract';
+    /** The subscription app that the subscription contract is registered to. */
+    app?: Maybe<App>;
     /** Whether the subscription contract is eligible for customer actions. */
     appEligibleForCustomerActions: Scalars['Boolean']['output'];
     /** The billing policy associated with the subscription contract. */
@@ -6689,6 +7846,8 @@ export type SubscriptionContract = Node &
     deliveryPolicy: SubscriptionDeliveryPolicy;
     /** The delivery price for each billing of the subscription contract. */
     deliveryPrice: MoneyV2;
+    /** The list of subscription discounts associated with the subscription contract. */
+    discounts?: Maybe<SubscriptionDiscountConnection>;
     /** A globally-unique ID. */
     id: Scalars['ID']['output'];
     /** The last billing error type of the contract. */
@@ -6710,7 +7869,9 @@ export type SubscriptionContract = Node &
     /** The order from which the contract originated. */
     originOrder?: Maybe<Order>;
     /** The payment instrument being charged for this subscription contract. */
-    paymentInstrument?: Maybe<CustomerCreditCard | PaypalBillingAgreement>;
+    paymentInstrument?: Maybe<
+      BankPaymentInstrument | CustomerCreditCard | PaypalBillingAgreement
+    >;
     /** An estimate of the breakdown of the amounts that will be charged in the next billing attempt. */
     priceBreakdownEstimate?: Maybe<SubscriptionPriceBreakdown>;
     /** The revision ID of the contract. */
@@ -6722,6 +7883,15 @@ export type SubscriptionContract = Node &
     /** The date and time when the subscription contract was updated. */
     updatedAt: Scalars['DateTime']['output'];
   };
+
+/** A Subscription Contract. */
+export type SubscriptionContractDiscountsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
+};
 
 /** A Subscription Contract. */
 export type SubscriptionContractLinesArgs = {
@@ -6772,6 +7942,8 @@ export type SubscriptionContractBase = {
   deliveryMethod?: Maybe<SubscriptionDeliveryMethod>;
   /** The delivery price for each billing of the subscription contract. */
   deliveryPrice: MoneyV2;
+  /** The list of subscription discounts associated with the subscription contract. */
+  discounts?: Maybe<SubscriptionDiscountConnection>;
   /** The number of lines associated with the subscription contract. */
   lineCount: Scalars['Int']['output'];
   /** A list of subscription lines associated with the subscription contract. */
@@ -6786,6 +7958,15 @@ export type SubscriptionContractBase = {
   priceBreakdownEstimate?: Maybe<SubscriptionPriceBreakdown>;
   /** The date and time when the subscription contract was updated. */
   updatedAt: Scalars['DateTime']['output'];
+};
+
+/** The common fields of a subscription contract. */
+export type SubscriptionContractBaseDiscountsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** The common fields of a subscription contract. */
@@ -6958,11 +8139,8 @@ export type SubscriptionContractsSortKeys =
   | 'CREATED_AT'
   /** Sort by the `id` value. */
   | 'ID'
-  /**
-   * Sort by relevance to the search terms when the `query` parameter is specified on the connection.
-   * Don't use this sort key when no search query is specified.
-   */
-  | 'RELEVANCE'
+  /** Sort by the `status` value. */
+  | 'STATUS'
   /** Sort by the `updated_at` value. */
   | 'UPDATED_AT';
 
@@ -7066,8 +8244,6 @@ export type SubscriptionDeliveryMethodShipping = {
 /** The input fields for a shipping delivery method. */
 export type SubscriptionDeliveryMethodShippingInput = {
   /** The address to ship to. */
-  address?: InputMaybe<CustomerMailingAddressInput>;
-  /** The address to ship to. */
   shippingAddress?: InputMaybe<CustomerAddressInput>;
 };
 
@@ -7120,6 +8296,88 @@ export type SubscriptionDeliveryPolicy = {
   intervalCount?: Maybe<Count>;
 };
 
+/** A discount applied to a subscription contract. */
+export type SubscriptionDiscount = {
+  __typename?: 'SubscriptionDiscount';
+  /** Specify whether the subscription discount will apply on all subscription lines. */
+  appliesToAllLines: Scalars['Boolean']['output'];
+  /** The unique ID. */
+  id: Scalars['ID']['output'];
+  /** The list of subscription lines associated with the subscription discount. */
+  lines?: Maybe<SubscriptionLineConnection>;
+  /** The maximum number of times the subscription discount will be applied on orders. */
+  recurringCycleLimit?: Maybe<Scalars['Int']['output']>;
+  /** Type of line the discount applies on. */
+  targetType: DiscountTargetType;
+  /** The title associated with the subscription discount. */
+  title?: Maybe<Scalars['String']['output']>;
+  /** The type of the subscription discount. */
+  type: DiscountType;
+  /** The number of times the discount was applied. */
+  usageCount?: Maybe<Count>;
+  /** The value of the subscription discount. */
+  value: SubscriptionDiscountValue;
+};
+
+/** A discount applied to a subscription contract. */
+export type SubscriptionDiscountLinesArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  reverse?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** Represents what a particular discount reduces from a line price. */
+export type SubscriptionDiscountAllocation = {
+  __typename?: 'SubscriptionDiscountAllocation';
+  /** Allocation amount. */
+  amount: MoneyV2;
+  /** Discount that created the allocation. */
+  discount: SubscriptionDiscount;
+};
+
+/** An auto-generated type for paginating through multiple SubscriptionDiscounts. */
+export type SubscriptionDiscountConnection = {
+  __typename?: 'SubscriptionDiscountConnection';
+  /** The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node. */
+  edges: Array<SubscriptionDiscountEdge>;
+  /** A list of nodes that are contained in SubscriptionDiscountEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve. */
+  nodes: Array<SubscriptionDiscount>;
+  /** An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page. */
+  pageInfo: PageInfo;
+};
+
+/** An auto-generated type which holds one SubscriptionDiscount and a cursor during pagination. */
+export type SubscriptionDiscountEdge = {
+  __typename?: 'SubscriptionDiscountEdge';
+  /** The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql). */
+  cursor: Scalars['String']['output'];
+  /** The item at the end of SubscriptionDiscountEdge. */
+  node: SubscriptionDiscount;
+};
+
+/** The value of the discount and how it will be applied. */
+export type SubscriptionDiscountFixedAmountValue = {
+  __typename?: 'SubscriptionDiscountFixedAmountValue';
+  /** The fixed amount value of the discount. */
+  amount: MoneyV2;
+  /** Whether the amount is applied per item. */
+  appliesOnEachItem: Scalars['Boolean']['output'];
+};
+
+/** The percentage value of the discount. */
+export type SubscriptionDiscountPercentageValue = {
+  __typename?: 'SubscriptionDiscountPercentageValue';
+  /** The percentage value of the discount. */
+  percentage: Scalars['Int']['output'];
+};
+
+/** The value of the discount and how it will be applied. */
+export type SubscriptionDiscountValue =
+  | SubscriptionDiscountFixedAmountValue
+  | SubscriptionDiscountPercentageValue;
+
 /** Defines valid subscription intervals. */
 export type SubscriptionInterval =
   /** Represents a day interval. */
@@ -7138,6 +8396,8 @@ export type SubscriptionLine = {
   currentPrice: MoneyV2;
   /** The custom attributes associated with the line item. */
   customAttributes: Array<Attribute>;
+  /** Discount allocations. */
+  discountAllocations: Array<SubscriptionDiscountAllocation>;
   /** The unique ID of the line item. */
   id: Scalars['ID']['output'];
   /** The image associated with the product variant. */
@@ -7371,7 +8631,7 @@ export type TaxExemption =
   | 'CA_SK_SUB_CONTRACTOR_EXEMPTION'
   /** This customer is exempt from specific taxes for holding a valid STATUS_CARD_EXEMPTION in Canada. */
   | 'CA_STATUS_CARD_EXEMPTION'
-  /** This customer is exempt from VAT for purchases within the EU that is shipping from outside of customer's country. */
+  /** This customer is exempt from VAT for purchases within the EU that is shipping from outside of customer's country, as well as purchases from the EU to the UK. */
   | 'EU_REVERSE_CHARGE_EXEMPTION_RULE'
   /** This customer is exempt from specific taxes for holding a valid RESELLER_EXEMPTION in Alaska. */
   | 'US_AK_RESELLER_EXEMPTION'
@@ -8127,14 +9387,6 @@ export type UiExtensionMetafield = Node & {
   valueType: MetafieldValueType;
 };
 
-/** The input fields for filtering ui extension metafields. */
-export type UiExtensionMetafieldFilterInput = {
-  /** A metafield key. */
-  key: Scalars['String']['input'];
-  /** A metafield namespace. */
-  namespace: Scalars['String']['input'];
-};
-
 /** A session token for a UI extension. */
 export type UiExtensionSessionToken = {
   __typename?: 'UiExtensionSessionToken';
@@ -8255,12 +9507,26 @@ export type UnitPriceMeasurementUnit =
   | 'CL'
   /** 100 centimeters equals 1 meter. */
   | 'CM'
+  /** Imperial system unit of volume (U.S. customary unit). */
+  | 'FLOZ'
+  /** 1 foot equals 12 inches. */
+  | 'FT'
+  /** Imperial system unit of area. */
+  | 'FT2'
   /** Metric system unit of weight. */
   | 'G'
+  /** 1 gallon equals 128 fluid ounces (U.S. customary unit). */
+  | 'GAL'
+  /** Imperial system unit of length. */
+  | 'IN'
+  /** 1 item, a unit of count. */
+  | 'ITEM'
   /** 1 kilogram equals 1000 grams. */
   | 'KG'
   /** Metric system unit of volume. */
   | 'L'
+  /** Imperial system unit of weight. */
+  | 'LB'
   /** Metric system unit of length. */
   | 'M'
   /** Metric system unit of area. */
@@ -8272,7 +9538,17 @@ export type UnitPriceMeasurementUnit =
   /** 1000 milliliters equals 1 liter. */
   | 'ML'
   /** 1000 millimeters equals 1 meter. */
-  | 'MM';
+  | 'MM'
+  /** 16 ounces equals 1 pound. */
+  | 'OZ'
+  /** 1 pint equals 16 fluid ounces (U.S. customary unit). */
+  | 'PT'
+  /** 1 quart equals 32 fluid ounces (U.S. customary unit). */
+  | 'QT'
+  /** The unit of measurement is unknown. Upgrade to the latest version of the API to resolve this unit. */
+  | 'UNKNOWN'
+  /** 1 yard equals 36 inches. */
+  | 'YD';
 
 /** This represents new sale types that have been added in future API versions. You may update to a more recent API version to receive additional details about this sale. */
 export type UnknownSale = Node &
@@ -8296,6 +9572,25 @@ export type UnknownSale = Node &
     totalDiscountAmountBeforeTaxes: MoneyV2;
     /** The total tax amount for the sale. */
     totalTaxAmount: MoneyV2;
+  };
+
+/** An unverified return line item. */
+export type UnverifiedReturnLineItem = Node &
+  ReturnLineItemType & {
+    __typename?: 'UnverifiedReturnLineItem';
+    /** A globally-unique ID. */
+    id: Scalars['ID']['output'];
+    /** The specific line item that's being returned. */
+    lineItem: LineItem;
+    /** The quantity of the line item that's been returned. */
+    quantity: Scalars['Int']['output'];
+    /**
+     * The reason for returning the line item.
+     * @deprecated Use `returnReasonDefinition` instead. This field will be removed in the future.
+     */
+    returnReason: ReturnReason;
+    /** The standardized reason for why the item is being returned. */
+    returnReasonDefinition?: Maybe<ReturnReasonDefinition>;
   };
 
 /** The error codes for failed business contact mutations. */
@@ -8422,6 +9717,8 @@ export type UserErrorsCustomerAddressUserErrorsCode =
   | 'ADDRESS_ARGUMENT_EMPTY'
   /** The provided address ID doesn't exist. */
   | 'ADDRESS_ID_DOES_NOT_EXIST'
+  /** Input contains HTML tags. */
+  | 'CONTAINS_HTML_TAGS'
   /** The provided country doesn't exist. */
   | 'COUNTRY_NOT_EXIST'
   /** The provided customer address already exists. */
@@ -8505,6 +9802,10 @@ export type UserErrorsCustomerUserErrors = DisplayableError & {
 
 /** Possible error codes that can be returned by `UserErrorsCustomerUserErrors`. */
 export type UserErrorsCustomerUserErrorsCode =
+  /** Input contains HTML tags. */
+  | 'CONTAINS_HTML_TAGS'
+  /** Input contains URL. */
+  | 'CONTAINS_URL'
   /** The customer does not exist. */
   | 'CUSTOMER_DOES_NOT_EXIST'
   /** The personal information input argument is empty. */
@@ -8571,6 +9872,8 @@ export type UserErrorsPaymentInstrumentUserErrorsCode =
   | 'NAME_INVALID'
   /** The card's number is invalid. */
   | 'NUMBER_INVALID'
+  /** Owner ID is invalid. */
+  | 'OWNER_ID_INVALID'
   /** Payment instrument ID does not exist. */
   | 'PAYMENT_INSTRUMENT_ID_DOES_NOT_EXIST'
   /** This payment instrument is already on file. */
@@ -8579,6 +9882,8 @@ export type UserErrorsPaymentInstrumentUserErrorsCode =
   | 'PHONE_NUMBER_NOT_VALID'
   /** The field is required. */
   | 'REQUIRED'
+  /** Saved payment methods is not enabled on this shop. */
+  | 'SAVED_PAYMENT_METHODS_NOT_ENABLED'
   /** This test card cannot be used for real transactions. */
   | 'TEST_MODE_LIVE_CARD'
   /** Address field is too long. */
@@ -8655,10 +9960,61 @@ export type UserErrorsStorefrontCustomerAccessTokenCreateUserErrorsCode =
   /** The customer does not exist. */
   'CUSTOMER_DOES_NOT_EXIST';
 
+/** The error codes for failed Stripe Financial Connections session initiation. */
+export type UserErrorsStripeFinancialConnectionsSessionUserErrors =
+  DisplayableError & {
+    __typename?: 'UserErrorsStripeFinancialConnectionsSessionUserErrors';
+    /** The error code. */
+    code?: Maybe<UserErrorsStripeFinancialConnectionsSessionUserErrorsCode>;
+    /** The path to the input field that caused the error. */
+    field?: Maybe<Array<Scalars['String']['output']>>;
+    /** The error message. */
+    message: Scalars['String']['output'];
+  };
+
+/** Possible error codes that can be returned by `UserErrorsStripeFinancialConnectionsSessionUserErrors`. */
+export type UserErrorsStripeFinancialConnectionsSessionUserErrorsCode =
+  /** Stripe Financial Connections session could not be initiated. */
+  'STRIPE_FINANCIAL_CONNECTIONS_SESSION_ERROR';
+
+/** Represents a Shopify hosted video. */
+export type Video = Media & {
+  __typename?: 'Video';
+  /** A word or phrase to share the nature or contents of a media. */
+  alt?: Maybe<Scalars['String']['output']>;
+  /** A globally-unique ID. */
+  id: Scalars['ID']['output'];
+  /** The media content type. */
+  mediaContentType: MediaContentType;
+  /** The preview image for the media. */
+  previewImage?: Maybe<Image>;
+  /** The sources for a video. */
+  sources: Array<VideoSource>;
+};
+
+/** Represents a source for a Shopify hosted video. */
+export type VideoSource = {
+  __typename?: 'VideoSource';
+  /** The format of the video source. */
+  format: Scalars['String']['output'];
+  /** The height of the video. */
+  height: Scalars['Int']['output'];
+  /** The video MIME type. */
+  mimeType: Scalars['String']['output'];
+  /** The URL of the video. */
+  url: Scalars['String']['output'];
+  /** The width of the video. */
+  width: Scalars['Int']['output'];
+};
+
 /** The configuration used for Payment Wallets. */
 export type WalletPaymentConfig = ApplePayWalletConfig | GooglePayWalletConfig;
 
-/** A weight, which includes a numeric value and a unit of measurement. */
+/**
+ * A weight measurement with its numeric value and unit. Used throughout the API, for example in shipping calculations, delivery conditions, order line items, and inventory measurements.
+ *
+ * The weight combines a decimal value with a standard unit of measurement to ensure consistent weight handling across different regional systems.
+ */
 export type Weight = {
   __typename?: 'Weight';
   /** The unit of measurement for `value`. */

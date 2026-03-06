@@ -17,12 +17,17 @@ export function mdNote(text: string): MDNote {
 export type MDFrontMatter = {
   type: 'FRONTMATTER';
   data: Record<string, unknown>;
+  comments?: string[];
 };
 
-export function mdFrontMatter(data: Record<string, unknown>): MDFrontMatter {
+export function mdFrontMatter(
+  data: Record<string, unknown>,
+  comments?: string[],
+): MDFrontMatter {
   return {
     type: 'FRONTMATTER',
     data,
+    comments,
   };
 }
 
@@ -144,6 +149,15 @@ export function mdQuote(text: string): MDQuote {
   };
 }
 
+export type RawHTML = {
+  type: 'RAW_HTML';
+  html: string;
+};
+
+export function mdRawHTML(html: string): RawHTML {
+  return {type: 'RAW_HTML', html};
+}
+
 export type MDBlock =
   | MDHeading
   | MDImage
@@ -154,7 +168,8 @@ export type MDBlock =
   | MDTable
   | MDQuote
   | MDFrontMatter
-  | MDNote;
+  | MDNote
+  | RawHTML;
 
 export function renderMDBlock(block: MDBlock, format: RenderFormat): string {
   switch (block.type) {
@@ -164,7 +179,7 @@ export function renderMDBlock(block: MDBlock, format: RenderFormat): string {
     case 'IMAGE':
       return `![${block.alt}](${block.src})`;
     case 'CODE':
-      const code = ['```' + block.language, block.content, '```'];
+      const code = ['~~~' + block.language, block.content, '~~~'];
       if (block.collapsed) {
         switch (format) {
           case 'github':
@@ -172,9 +187,9 @@ export function renderMDBlock(block: MDBlock, format: RenderFormat): string {
           case 'shopify.dev':
             return [
               '<details>\n',
-              '{% codeblock markdown %}',
+              '<CodeBlock type="file">',
               ...code,
-              '{% endcodeblock %}',
+              '</CodeBlock>',
               '\n</details>',
             ].join('\n');
           default:
@@ -184,7 +199,7 @@ export function renderMDBlock(block: MDBlock, format: RenderFormat): string {
       return code.join('\n');
     case 'SHOPIFY_CODEFILES':
       return [
-        '{% codeblock file %}',
+        '<CodeBlock type="file">',
         ...block.files.map((file) =>
           [
             '```' +
@@ -194,7 +209,7 @@ export function renderMDBlock(block: MDBlock, format: RenderFormat): string {
             '```\n',
           ].join('\n'),
         ),
-        '{% endcodeblock %}',
+        '</CodeBlock>',
       ].join('\n');
     case 'LIST':
       return block.items.map((item) => `- ${item}`).join('\n');
@@ -218,22 +233,30 @@ export function renderMDBlock(block: MDBlock, format: RenderFormat): string {
       })
         .trim()
         // Remove any quotes wrapping the stringified values manually,
-        // as some of them may have been added by the YAML stringifier while Cursor doesn't like them.
+        // as some of them may have been added by the YAML stringifier.
         .split('\n')
         .map((line) => {
           return line.replace(/^([^'"]+): ['"](.+)['"]/, '$1: $2');
         })
         .join('\n');
 
-      return ['---', stringified, '---'].join('\n');
-    case 'NOTE':
       return [
-        '> [!NOTE]',
-        block.text
-          .split('\n')
-          .map((line) => `> ${line}`)
-          .join('\n'),
+        '---',
+        ...(block.comments ?? []).map((comment) => `# ${comment}`),
+        stringified,
+        '---',
       ].join('\n');
+    case 'NOTE':
+      if (format === 'shopify.dev') {
+        return `<Notice framed type="note" label="Note">\n${block.text}\n</Notice>`;
+      } else {
+        return [
+          '> [!NOTE]',
+          block.text.split('\n').map((line) => `> ${line}`),
+        ].join('\n');
+      }
+    case 'RAW_HTML':
+      return block.html;
     default:
       assertNever(block);
   }
@@ -262,9 +285,8 @@ export function serializeMDBlocksToFile(
   filePath: string,
   format: RenderFormat,
 ) {
-  let data = blocks.map((block) => renderMDBlock(block, format)).join('\n\n');
-  if (format === 'shopify.dev') {
-    data = data.replace(/\{\{/g, "{{ '{{' }}");
-  }
+  let data = blocks
+    .map((block) => renderMDBlock(block, format).trim())
+    .join('\n\n');
   fs.writeFileSync(filePath, data);
 }

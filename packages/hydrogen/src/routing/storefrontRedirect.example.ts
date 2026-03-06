@@ -1,9 +1,9 @@
 import {storefrontRedirect, createStorefrontClient} from '@shopify/hydrogen';
-import * as remixBuild from '@remix-run/dev/server-build';
+import * as reactRouterBuild from 'virtual:react-router/server-build';
 import {
   createRequestHandler,
   getStorefrontHeaders,
-} from '@shopify/remix-oxygen';
+} from '@shopify/hydrogen/oxygen';
 
 export default {
   async fetch(request: Request, env: Env, executionContext: ExecutionContext) {
@@ -17,7 +17,7 @@ export default {
     });
 
     const handleRequest = createRequestHandler({
-      build: remixBuild,
+      build: reactRouterBuild,
       mode: process.env.NODE_ENV,
     });
 

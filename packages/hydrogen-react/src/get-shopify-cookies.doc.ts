@@ -11,8 +11,15 @@ const data: ReferenceEntityTemplateSchema = {
       url: '/api/hydrogen-react/hooks/useShopifyCookies',
       type: 'tool',
     },
+    {
+      subtitle: 'Utility',
+      name: 'getTrackingValues',
+      url: '/api/hydrogen-react/utilities/getTrackingValues',
+      type: 'gear',
+    },
   ],
-  description: 'Parses cookie string and returns Shopify cookies.',
+  description:
+    'Parses cookie string and returns Shopify cookies. For tracking values, consider using `getTrackingValues` instead, which reads from modern Shopify cookies.',
   type: 'utility',
   defaultExample: {
     description: 'I am the default example',

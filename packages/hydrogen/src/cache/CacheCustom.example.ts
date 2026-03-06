@@ -1,4 +1,4 @@
-import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {type LoaderFunctionArgs} from 'react-router';
 import {CacheCustom} from '@shopify/hydrogen';
 
 export async function loader({context}: LoaderFunctionArgs) {
@@ -13,8 +13,8 @@ export async function loader({context}: LoaderFunctionArgs) {
     `,
     {
       cache: CacheCustom({
-        maxAge: 1000 * 60 * 60 * 24 * 365,
-        staleWhileRevalidate: 1000 * 60 * 60 * 24 * 7,
+        maxAge: 60 * 60 * 24 * 365,
+        staleWhileRevalidate: 60 * 60 * 24 * 7,
       }),
     },
   );

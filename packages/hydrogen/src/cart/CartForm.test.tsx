@@ -16,7 +16,7 @@ function MockForm({
   );
 }
 
-vi.mock('@remix-run/react', () => ({
+vi.mock('react-router', () => ({
   useFetcher: vi.fn().mockImplementation(() => {
     return {
       Form: MockForm,
@@ -85,8 +85,11 @@ describe('<CartForm />', () => {
       DeliveryAddressesAdd: 'DeliveryAddressesAdd',
       DeliveryAddressesUpdate: 'DeliveryAddressesUpdate',
       DeliveryAddressesRemove: 'DeliveryAddressesRemove',
+      DeliveryAddressesReplace: 'DeliveryAddressesReplace',
       DiscountCodesUpdate: 'DiscountCodesUpdate',
       GiftCardCodesUpdate: 'GiftCardCodesUpdate',
+      GiftCardCodesAdd: 'GiftCardCodesAdd',
+      GiftCardCodesRemove: 'GiftCardCodesRemove',
       LinesAdd: 'LinesAdd',
       LinesUpdate: 'LinesUpdate',
       LinesRemove: 'LinesRemove',

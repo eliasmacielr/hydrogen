@@ -1,14 +1,14 @@
 import {
   createCustomerAccountClient,
+  createRequestHandler,
   type HydrogenSession,
 } from '@shopify/hydrogen';
-import * as remixBuild from '@remix-run/dev/server-build';
 import {
-  createRequestHandler,
   createCookieSessionStorage,
   type SessionStorage,
   type Session,
-} from '@shopify/remix-oxygen';
+} from 'react-router';
+import * as reactRouterBuild from 'virtual:react-router/server-build';
 
 // In server.ts
 export default {
@@ -39,7 +39,7 @@ export default {
     });
 
     const handleRequest = createRequestHandler({
-      build: remixBuild,
+      build: reactRouterBuild,
       mode: process.env.NODE_ENV,
       /* Inject the customer account client in the Remix context */
       getLoadContext: () => ({customerAccount}),
@@ -114,8 +114,8 @@ import {
   useRouteError,
   isRouteErrorResponse,
   useLocation,
-} from '@remix-run/react';
-import {type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+  type LoaderFunctionArgs,
+} from 'react-router';
 
 export async function loader({context}: LoaderFunctionArgs) {
   if (!(await context.customerAccount.isLoggedIn())) {

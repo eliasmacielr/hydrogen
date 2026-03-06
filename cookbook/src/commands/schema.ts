@@ -1,5 +1,5 @@
 import {CommandModule} from 'yargs';
-import {zodToJsonSchema} from 'zod-to-json-schema';
+import {z} from 'zod';
 import fs from 'fs';
 import {COOKBOOK_PATH} from '../lib/constants';
 import path from 'path';
@@ -15,11 +15,11 @@ export const schema: CommandModule<{}, SchemaArgs> = {
 };
 
 async function handler(_: SchemaArgs) {
-  const jsonSchema = zodToJsonSchema(RecipeSchema);
+  const jsonSchema = z.toJSONSchema(RecipeSchema);
   console.log(JSON.stringify(jsonSchema, null, 2));
 
   fs.writeFileSync(
     path.join(COOKBOOK_PATH, 'recipe.schema.json'),
-    JSON.stringify(jsonSchema, null, 2),
+    JSON.stringify(jsonSchema, null, 2) + '\n',
   );
 }

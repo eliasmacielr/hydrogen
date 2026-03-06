@@ -1,13 +1,13 @@
 {
   "extends": "../../tsconfig.json",
   "include": ["src", "dev.env.d.ts", "assets"],
-  "exclude": ["dist", "__tests__", "node_modules", ".turbo"],
+  "exclude": ["dist", "__tests__", "node_modules", ".turbo", "assets/routes"],
   "compilerOptions": {
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "jsx": "react-jsx",
     "noUncheckedIndexedAccess": true,
-    "types": ["node", "@remix-run/dev"],
+    "types": ["node", "react-router"],
     "outDir": "dist",
     "paths": {
       "~/mini-oxygen/*": ["../mini-oxygen/src/*"],

@@ -3,13 +3,22 @@ import type {
   Session,
   SessionData,
   FlashSessionData,
-} from '@remix-run/server-runtime';
+  RouterContextProvider,
+} from 'react-router';
 import type {RequestEventPayload} from './vite/request-events';
 import {
   CUSTOMER_ACCOUNT_SESSION_KEY,
   BUYER_SESSION_KEY,
 } from './customer/constants';
 import type {BuyerInput} from '@shopify/hydrogen-react/storefront-api-types';
+import type {StorefrontClient, I18nBase} from './storefront';
+import type {CustomerAccount} from './customer/types';
+import type {
+  HydrogenCart,
+  HydrogenCartCustom,
+  CustomMethodsBase,
+} from './cart/createCartHandler';
+
 export interface HydrogenSessionData {
   [CUSTOMER_ACCOUNT_SESSION_KEY]: {
     accessToken?: string;
@@ -60,11 +69,35 @@ export type StorefrontHeaders = {
   requestGroupId: string | null;
   /** The IP address of the client. */
   buyerIp: string | null;
+  /** The signature of the client's IP address for verification. */
+  buyerIpSig: string | null;
   /** The cookie header from the client  */
   cookie: string | null;
-  /** The purpose header value for debugging */
+  /** The sec-purpose or purpose header value */
   purpose: string | null;
 };
+
+export interface HydrogenRouterContextProvider<
+  TSession extends HydrogenSession = HydrogenSession,
+  TCustomMethods extends CustomMethodsBase | undefined = {},
+  TI18n extends I18nBase = I18nBase,
+  TEnv extends HydrogenEnv = Env,
+> extends RouterContextProvider {
+  /** A GraphQL client for querying the Storefront API */
+  storefront: import('./storefront').Storefront<TI18n>;
+  /** A GraphQL client for querying the Customer Account API */
+  customerAccount: import('./customer/types').CustomerAccount;
+  /** A collection of utilities used to interact with the cart */
+  cart: TCustomMethods extends CustomMethodsBase
+    ? import('./cart/createCartHandler').HydrogenCartCustom<TCustomMethods>
+    : import('./cart/createCartHandler').HydrogenCart;
+  /** Environment variables from the fetch function */
+  env: TEnv;
+  /** The waitUntil function for keeping requests alive */
+  waitUntil?: WaitUntil;
+  /** Session implementation */
+  session: TSession;
+}
 
 declare global {
   interface Window {

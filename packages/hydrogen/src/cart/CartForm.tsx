@@ -1,4 +1,4 @@
-import {type FetcherWithComponents, useFetcher} from '@remix-run/react';
+import {type FetcherWithComponents, useFetcher} from 'react-router';
 import {type MetafieldWithoutOwnerId} from './queries/cart-types';
 import type {ReactNode} from 'react';
 import type {
@@ -82,6 +82,34 @@ type CartGiftCardCodesUpdateProps = {
 
 type CartGiftCardCodesUpdateRequire = {
   action: 'GiftCardCodesUpdate';
+  inputs: {
+    giftCardCodes: string[];
+  } & OtherFormData;
+};
+
+type CartGiftCardCodesAddProps = {
+  action: 'GiftCardCodesAdd';
+  inputs?: {
+    giftCardCodes: string[];
+  } & OtherFormData;
+};
+
+type CartGiftCardCodesAddRequire = {
+  action: 'GiftCardCodesAdd';
+  inputs: {
+    giftCardCodes: string[];
+  } & OtherFormData;
+};
+
+type CartGiftCardCodesRemoveProps = {
+  action: 'GiftCardCodesRemove';
+  inputs?: {
+    giftCardCodes: string[];
+  } & OtherFormData;
+};
+
+type CartGiftCardCodesRemoveRequire = {
+  action: 'GiftCardCodesRemove';
   inputs: {
     giftCardCodes: string[];
   } & OtherFormData;
@@ -231,6 +259,20 @@ type CartDeliveryAddressesUpdateRequire = {
   } & OtherFormData;
 };
 
+type CartDeliveryAddressesReplaceProps = {
+  action: 'DeliveryAddressesReplace';
+  inputs?: {
+    addresses: Array<CartSelectableAddressInput>;
+  } & OtherFormData;
+};
+
+type CartDeliveryAddressesReplaceRequire = {
+  action: 'DeliveryAddressesReplace';
+  inputs: {
+    addresses: Array<CartSelectableAddressInput>;
+  } & OtherFormData;
+};
+
 type CartCustomProps = {
   action: `Custom${string}`;
   inputs?: Record<string, unknown>;
@@ -264,6 +306,8 @@ type CartActionInputProps =
   | CartCreateProps
   | CartDiscountCodesUpdateProps
   | CartGiftCardCodesUpdateProps
+  | CartGiftCardCodesAddProps
+  | CartGiftCardCodesRemoveProps
   | CartLinesAddProps
   | CartLinesUpdateProps
   | CartLinesRemoveProps
@@ -274,6 +318,7 @@ type CartActionInputProps =
   | CartDeliveryAddressesAddProps
   | CartDeliveryAddressesRemoveProps
   | CartDeliveryAddressesUpdateProps
+  | CartDeliveryAddressesReplaceProps
   | CartCustomProps;
 
 export type CartActionInput =
@@ -282,6 +327,8 @@ export type CartActionInput =
   | CartCreateRequire
   | CartDiscountCodesUpdateRequire
   | CartGiftCardCodesUpdateRequire
+  | CartGiftCardCodesAddRequire
+  | CartGiftCardCodesRemoveRequire
   | CartLinesAddRequire
   | CartLinesUpdateRequire
   | CartLinesRemoveRequire
@@ -292,6 +339,7 @@ export type CartActionInput =
   | CartDeliveryAddressesAddRequire
   | CartDeliveryAddressesRemoveRequire
   | CartDeliveryAddressesUpdateRequire
+  | CartDeliveryAddressesReplaceRequire
   | CartCustomRequire;
 
 type CartFormProps = CartActionInputProps & CartFormCommonProps;
@@ -329,6 +377,8 @@ CartForm.ACTIONS = {
   Create: 'Create',
   DiscountCodesUpdate: 'DiscountCodesUpdate',
   GiftCardCodesUpdate: 'GiftCardCodesUpdate',
+  GiftCardCodesAdd: 'GiftCardCodesAdd',
+  GiftCardCodesRemove: 'GiftCardCodesRemove',
   LinesAdd: 'LinesAdd',
   LinesRemove: 'LinesRemove',
   LinesUpdate: 'LinesUpdate',
@@ -339,6 +389,7 @@ CartForm.ACTIONS = {
   DeliveryAddressesAdd: 'DeliveryAddressesAdd',
   DeliveryAddressesUpdate: 'DeliveryAddressesUpdate',
   DeliveryAddressesRemove: 'DeliveryAddressesRemove',
+  DeliveryAddressesReplace: 'DeliveryAddressesReplace',
 } as const;
 
 function getFormInput(formData: FormData): CartActionInput {

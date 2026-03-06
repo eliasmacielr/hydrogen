@@ -2,7 +2,7 @@
 
 - [🧑‍🍳 Hydrogen Cookbook](#-hydrogen-cookbook)
   - [Recipes](#recipes)
-  - [Cursor rules](#cursor-rules)
+  - [LLM prompts](#llm-prompts)
   - [Usage](#usage)
     - [Apply](#apply)
       - [Syntax](#syntax)
@@ -10,6 +10,7 @@
     - [Generate](#generate)
       - [Syntax](#syntax-1)
       - [Example](#example-1)
+      - [Single-file flag (`filePath`)](#single-file-flag-filepath)
     - [Validate](#validate)
       - [Syntax](#syntax-2)
       - [Example](#example-2)
@@ -25,6 +26,12 @@
     - [Schema](#schema)
       - [Syntax](#syntax-6)
       - [Example](#example-6)
+    - [Skeleton Files](#skeleton-files)
+      - [Syntax](#syntax-7)
+      - [Example](#example-7)
+    - [Affected Recipes](#affected-recipes)
+      - [Syntax](#syntax-8)
+      - [Example](#example-8)
 
 This is the Hydrogen Cookbook, a collection of example _recipes_ to showcase specific scenarios and usecases for Hydrogen projects.
 
@@ -39,9 +46,9 @@ Each recipe is located in the [cookbook's recipes folder](/cookbook/recipes/) an
 - `patches/`: a folder containing patches to be applied to existing files in the skeleton template. The file ↔ patch mappings are defined in the `recipe.yaml` file under the `ingredients` key.
 - `README.md`: the human-readable Markdown render of the recipe, based off of the `recipe.yaml` file.
 
-## Cursor rules
+## LLM prompts
 
-Recipes come paired with [Cursor](https://www.cursor.com/) rules that can be included in a Hydrogen project to improve the AI-assisted coding experience. The rules are available in [the .cursor folder](/cookbook/.cursor) and can be copied verbatim into the `.cursor` folder at the root of a Hydrogen project repository.
+Recipes come paired with LLM prompts that can be included in a Hydrogen project to improve the AI-assisted coding experience. The prompts are available in [the llms folder](/cookbook/llms).
 
 ## Usage
 
@@ -51,12 +58,14 @@ The cookbook comes with a set of commands for creating and managing recipes. All
 cookbook.ts <command>
 
 Commands:
-  cookbook.ts generate    Generate a recipe from the skeleton's changes
-  cookbook.ts render      Render a recipe to a given format
-  cookbook.ts apply       Apply a recipe to the current project
-  cookbook.ts validate    Validate a recipe
-  cookbook.ts regenerate  Regenerate a recipe
-  cookbook.ts update      Update a recipe
+  cookbook.ts generate         Generate a recipe from the skeleton's changes
+  cookbook.ts render           Render a recipe to a given format
+  cookbook.ts apply            Apply a recipe to the current project
+  cookbook.ts validate         Validate a recipe
+  cookbook.ts regenerate       Regenerate a recipe
+  cookbook.ts update           Update a recipe
+  cookbook.ts skeleton-files   List all skeleton files referenced by recipes
+  cookbook.ts affected-recipes List recipes affected by changes to skeleton files
 
 Options:
   --version  Show version number                                       [boolean]
@@ -90,7 +99,7 @@ npm run cookbook -- apply --recipe my-recipe
 
 `generate` will build a recipe folder based on the current changes made to the skeleton template, effectively snapshotting its state into a reproducible recipe.
 
-Additionally, it will also generate the Cursor rule (and related LLM-friendly files) for the recipe.
+Additionally, it will also generate the LLM prompt (and related LLM-friendly files) for the recipe.
 
 The workflow for creating a new recipe is as follows:
 
@@ -107,14 +116,17 @@ cookbook.ts generate
 Generate a recipe from the skeleton's changes
 
 Options:
-  --version          Show version number                   [boolean]
-  --help             Show help                             [boolean]
-  --recipe           The name of the recipe to generate
-                                                 [string] [required]
-  --onlyFiles        Only generate the files for the recipe, not the
-                     recipe.yaml file.                     [boolean]
-  --referenceBranch  The reference branch to use for the recipe
-                                   [string] [default: "origin/main"]
+  --version               Show version number                          [boolean]
+  --help                  Show help                                    [boolean]
+  --recipe                The name of the recipe to generate [string] [required]
+  --onlyFiles             Only generate the files for the recipe, not the
+                          recipe.yaml file.                            [boolean]
+  --referenceBranch       The reference branch to use for the recipe
+                                               [string] [default: "origin/main"]
+  --recipeManifestFormat  The format of the recipe manifest file
+                                                      [string] [default: "yaml"]
+  --filePath              If specified, only generate the diffs for this file
+                          (and update any references in the recipe.     [string]
 ```
 
 #### Example
@@ -122,6 +134,13 @@ Options:
 ```sh
 npm run cookbook -- generate --recipe my-recipe
 ```
+
+
+#### Single-file flag (`filePath`)
+
+If `filePath` is provided, and it points to a file in the skeleton template folder, the command will generate the diff patch **only** for that file, without updating the manifest.
+
+The recipe must exist, as well as a step for that file.
 
 ### Validate
 
@@ -148,10 +167,13 @@ cookbook.ts validate
 Validate a recipe
 
 Options:
-  --version  Show version number                           [boolean]
-  --help     Show help                                     [boolean]
-  --recipe   The name of the recipe to validate. If not provided,
-             all recipes will be validated.                 [string]
+  --version                  Show version number                       [boolean]
+  --help                     Show help                                 [boolean]
+  --recipe                   The name of the recipe to validate. If not
+                             provided, all recipes will be validated.   [string]
+  --hydrogenPackagesVersion  The version of Hydrogen to use for the recipe. If
+                             not provided, the latest version will be used.
+                                                                        [string]
 ```
 
 #### Example
@@ -268,4 +290,109 @@ Options:
 
 ```sh
 npm run cookbook -- schema
+```
+
+### Skeleton Files
+
+`skeleton-files` lists all skeleton template files that are referenced by recipes (via diffs or ingredients). It maps each file to the recipes that touch it.
+
+Note: `deletedFiles` entries in a recipe are intentionally excluded — files that are unconditionally deleted by a recipe cannot become stale and do not need to be tracked.
+
+#### Syntax
+
+```plain
+cookbook.ts skeleton-files
+
+List all skeleton files referenced by recipes (or a specific recipe)
+
+Options:
+  --version       Show version number                                  [boolean]
+  --help          Show help                                            [boolean]
+  --recipe        Recipe name(s) to query (default: all recipes)        [array]
+  --json          Output as JSON object instead of formatted text
+                                                      [boolean] [default: false]
+  --existing-only  Only show files that currently exist in the skeleton
+                                                      [boolean] [default: false]
+```
+
+#### Example
+
+```sh
+# List all skeleton files referenced by any recipe
+npm run cookbook -- skeleton-files
+
+# List files for a specific recipe
+npm run cookbook -- skeleton-files --recipe my-recipe
+
+# List files for multiple recipes, as JSON
+npm run cookbook -- skeleton-files --recipe recipe-a --recipe recipe-b --json
+
+# Only show files that currently exist on disk
+npm run cookbook -- skeleton-files --existing-only
+```
+
+Default (text) output format:
+
+```
+templates/skeleton/app/root.tsx -> [recipe-a, recipe-b]
+templates/skeleton/app/server.ts -> [recipe-a]
+```
+
+JSON output format (`--json`):
+
+```json
+{
+  "templates/skeleton/app/root.tsx": ["recipe-a", "recipe-b"],
+  "templates/skeleton/app/server.ts": ["recipe-a"]
+}
+```
+
+### Affected Recipes
+
+`affected-recipes` takes a list of changed skeleton file paths and returns the names of all recipes that reference any of those files. It is called by the pre-commit hook to warn developers when skeleton changes may require recipe updates.
+
+Note: `deletedFiles` entries in a recipe are intentionally excluded — changes to files that a recipe unconditionally deletes cannot make the recipe stale.
+
+#### Syntax
+
+```plain
+cookbook.ts affected-recipes [files..]
+
+List recipes affected by changes to the given skeleton files
+
+Options:
+  --version  Show version number                                       [boolean]
+  --help     Show help                                                 [boolean]
+  --files    Repo-relative paths to changed skeleton files
+                                                       [array] [default: []]
+  --json     Output as JSON array instead of newline-separated names
+                                                      [boolean] [default: false]
+```
+
+#### Example
+
+```sh
+# Check which recipes are affected by a changed file
+npm run cookbook -- affected-recipes templates/skeleton/app/root.tsx
+
+# Pass multiple files
+npm run cookbook -- affected-recipes \
+  templates/skeleton/app/root.tsx \
+  templates/skeleton/app/server.ts
+
+# Output as a JSON array (useful for scripting / CI matrix jobs)
+npm run cookbook -- affected-recipes --json templates/skeleton/app/root.tsx
+```
+
+Default (text) output — one recipe name per line:
+
+```
+recipe-a
+recipe-b
+```
+
+JSON output (`--json`):
+
+```json
+["recipe-a", "recipe-b"]
 ```

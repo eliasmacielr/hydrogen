@@ -1,12 +1,11 @@
 import type {Plugin, ConfigEnv} from 'vite';
-import type {Preset as RemixPreset} from '@remix-run/dev';
+import type {Preset as RemixPreset} from '@react-router/dev/config';
 import {
   setupHydrogenMiddleware,
   type HydrogenMiddlewareOptions,
 } from './hydrogen-middleware.js';
 import type {HydrogenPluginOptions} from './types.js';
 import {type RequestEventPayload, emitRequestEvent} from './request-events.js';
-import {getVirtualRoutes} from './get-virtual-routes.js';
 
 // Do not import JS from here, only types
 import type {OxygenPlugin} from '~/mini-oxygen/vite/plugin.js';
@@ -18,8 +17,8 @@ type HydrogenSharedOptions = Partial<
   Pick<HydrogenPluginOptions, 'disableVirtualRoutes'> &
     Pick<ConfigEnv, 'command'> & {
       remixConfig?: Parameters<
-        NonNullable<RemixPreset['remixConfigResolved']>
-      >[0]['remixConfig'];
+        NonNullable<RemixPreset['reactRouterConfigResolved']>
+      >[0]['reactRouterConfig'];
     }
 >;
 
@@ -40,6 +39,11 @@ export type HydrogenPlugin = Plugin<{
  */
 export function hydrogen(pluginOptions: HydrogenPluginOptions = {}): Plugin[] {
   let middlewareOptions: HydrogenMiddlewareOptions = {};
+
+  const isHydrogenMonorepo = new URL(
+    '../../..',
+    import.meta.url,
+  ).pathname.endsWith('/hydrogen/packages/');
 
   return [
     {
@@ -70,18 +74,28 @@ export function hydrogen(pluginOptions: HydrogenPluginOptions = {}): Plugin[] {
                 'react/jsx-dev-runtime',
                 'react-dom',
                 'react-dom/server',
-                '@remix-run/server-runtime',
+                'react-router',
               ],
             },
           },
           // Vite performs an initial reload after optimizing these dependencies.
           // Do it early to avoid the initial reload:
           optimizeDeps: {
-            // Avoid optimizing Hydrogen itself in the monorepo
-            // to prevent caching source code changes:
+            // Vite performs an initial reload after optimizing these dependencies.
+            // Do it early to avoid the initial reload:
             include: isHydrogenMonorepo
-              ? ['content-security-policy-builder', 'worktop/cookie']
-              : ['@shopify/hydrogen'],
+              ? [
+                  // In monorepo, optimize non-Hydrogen packages to allow
+                  // source code changes to be reflected without cache issues
+                  'content-security-policy-builder',
+                  'worktop/cookie',
+                  '@shopify/hydrogen > @shopify/graphql-client',
+                  'use-resize-observer',
+                ]
+              : [
+                  // In production projects, optimize Hydrogen and critical deps
+                  '@shopify/hydrogen',
+                ],
           },
         };
       },
@@ -107,6 +121,10 @@ export function hydrogen(pluginOptions: HydrogenPluginOptions = {}): Plugin[] {
 
         oxygenPlugin?.api?.registerPluginOptions?.({
           compatibilityDate: getCompatDate(),
+          env: {
+            // Pass the project root to the worker for Chrome DevTools workspace configuration
+            HYDROGEN_PROJECT_ROOT: resolvedConfig.root,
+          },
           requestHook: ({request, response, meta}) => {
             // Emit events for requests
             emitRequestEvent(
@@ -139,6 +157,15 @@ export function hydrogen(pluginOptions: HydrogenPluginOptions = {}): Plugin[] {
                   data as RequestEventPayload,
                   resolvedConfig.root,
                 );
+              },
+            },
+            {
+              // Improve stack traces in Oxygen by showing full error stack
+              script: () => {
+                const originalErrorToString = Error.prototype.toString;
+                Error.prototype.toString = function () {
+                  return this.stack || originalErrorToString.call(this);
+                };
               },
             },
             /**
@@ -194,68 +221,3 @@ function mergeOptions(
 
   return {...acc, ...newOptionsWithoutUndefined};
 }
-
-hydrogen.v3preset = () =>
-  ({
-    name: 'hydrogen',
-    remixConfigResolved({remixConfig}) {
-      sharedOptions.remixConfig = remixConfig;
-    },
-    remixConfig() {
-      return {
-        buildDirectory: 'dist',
-      };
-    },
-  }) satisfies RemixPreset;
-
-hydrogen.preset = () =>
-  ({
-    name: 'hydrogen',
-    remixConfigResolved({remixConfig}) {
-      sharedOptions.remixConfig = remixConfig;
-    },
-    remixConfig() {
-      if (sharedOptions.disableVirtualRoutes) return {};
-
-      return {
-        buildDirectory: 'dist',
-        async routes(defineRoutes) {
-          if (
-            sharedOptions.disableVirtualRoutes ||
-            sharedOptions.command !== 'serve'
-          ) {
-            return {};
-          }
-
-          const {root, routes: virtualRoutes} = await getVirtualRoutes();
-
-          const result = defineRoutes((route) => {
-            route(root.path, root.file, {id: root.id}, () => {
-              virtualRoutes.map(({path, file, index, id}) => {
-                route(path, file, {id, index});
-              });
-            });
-          });
-
-          // - Goal: stop matching the user's root with our virtual routes
-          // to avoid adding layouts and calling user loaders.
-          //
-          // - Problem: Even though root-less routes work in Remix, it always
-          // adds the user root as the parentId of every route when we leave it
-          // as undefined. Even if we delete it manually here, it adds it back:
-          // https://github.com/remix-run/remix/blob/b07921efd5e8eed98e2996749852777c71bc3e50/packages/remix-dev/config.ts#L565
-          //
-          // - Solution:
-          // The String object tricks Remix into thinking that the
-          // parentId is defined (!!new String('') === true) so it doesn't
-          // overwrite it with `root`. Later, this value acts as an
-          // undefined / empty string when matching routes so it
-          // doesn't match the user root.
-          // @ts-expect-error
-          result[root.id].parentId = new String('');
-
-          return result;
-        },
-      };
-    },
-  }) satisfies RemixPreset;

@@ -18,6 +18,8 @@ import {
   parseReferenceBranch,
 } from '../lib/util';
 import {loadRecipe} from '../lib/recipe';
+import {handleZodErrorFromLoadRecipe} from '../lib/validate';
+import {ZodError} from 'zod';
 
 type UpdateArgs = {
   recipe: string;
@@ -61,10 +63,21 @@ async function handler(args: UpdateArgs) {
     execSync('git pull');
   }
 
-  // load the recipe
-  const {commit} = loadRecipe({
-    directory: path.join(COOKBOOK_PATH, 'recipes', recipeName),
-  });
+  const recipeDir = path.join(COOKBOOK_PATH, 'recipes', recipeName);
+  const recipeYamlPath = path.join(recipeDir, 'recipe.yaml');
+
+  let recipe;
+  try {
+    recipe = loadRecipe({directory: recipeDir});
+  } catch (error) {
+    if (error instanceof ZodError) {
+      handleZodErrorFromLoadRecipe(error, recipeName, recipeYamlPath);
+      process.exit(1);
+    }
+    throw error;
+  }
+
+  const {commit} = recipe;
 
   // checkout the repo at the recipe's commit hash
   execSync(`git checkout ${commit}`);
@@ -76,7 +89,9 @@ async function handler(args: UpdateArgs) {
 
   execSync(`git checkout -b ${applyBranch}`);
   execSync(`git add .`, {cwd: REPO_ROOT});
-  execSync(`git commit -m "Update ${recipeName}"`, {cwd: REPO_ROOT});
+  execSync(`git commit --no-verify -m "Update ${recipeName}"`, {
+    cwd: REPO_ROOT,
+  });
 
   // merge the reference branch into the apply branch
   let mergeOk = false;
@@ -106,7 +121,7 @@ async function handler(args: UpdateArgs) {
 
     execSync(`git add .`, {cwd: REPO_ROOT});
     execSync(
-      `git commit --allow-empty -m "Merge ${applyBranch} into ${parsedReferenceBranch.branch}"`,
+      `git commit --no-verify --allow-empty -m "Merge ${applyBranch} into ${parsedReferenceBranch.branch}"`,
       {
         cwd: REPO_ROOT,
       },
@@ -155,7 +170,9 @@ async function handler(args: UpdateArgs) {
 
     // commit the changes
     execSync(`git add .`, {cwd: REPO_ROOT});
-    execSync(`git commit -m "Update ${recipeName}"`, {cwd: REPO_ROOT});
+    execSync(`git commit --no-verify -m "Update ${recipeName}"`, {
+      cwd: REPO_ROOT,
+    });
 
     // checkout the main branch
     execSync(`git checkout ${parsedReferenceBranch.branch}`);

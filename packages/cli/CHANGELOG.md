@@ -1,11 +1,233 @@
 # @shopify/cli-hydrogen
 
+## 11.1.10
+
+### Patch Changes
+
+- Updated `prettier` from v2 to v3. ([#3461](https://github.com/Shopify/hydrogen/pull/3461)) by [@fredericoo](https://github.com/fredericoo)
+
+- Removes the React Router v7 version check from the dev command as was confusing from what was resolved in node_modules ([#3499](https://github.com/Shopify/hydrogen/pull/3499)) by [@andguy95](https://github.com/andguy95)
+
+- Fixed an issue where users without addresses could not add the first one ([#3456](https://github.com/Shopify/hydrogen/pull/3456)) by [@fredericoo](https://github.com/fredericoo)
+
+- Route scaffolding now runs automatically during `hydrogen init`, so new projects are fully set up with all routes by default. The `--routes` flag and confirmation prompt have been removed since routes are always generated. ([#3448](https://github.com/Shopify/hydrogen/pull/3448)) by [@fredericoo](https://github.com/fredericoo)
+
+- Updated dependencies [[`ff93a1daf2207e52e1f8331f9ff2ccd1f9b7fed6`](https://github.com/Shopify/hydrogen/commit/ff93a1daf2207e52e1f8331f9ff2ccd1f9b7fed6)]:
+  - @shopify/mini-oxygen@4.0.1
+
+## 11.1.9
+
+### Patch Changes
+
+- Updated to Storefront API 2026-01 and Customer Account API 2026-01. ([#3434](https://github.com/Shopify/hydrogen/pull/3434)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  This is a quarterly API version update aligned with Shopify's API release schedule.
+
+  **Action Required**: The `cartDiscountCodesUpdate` mutation now requires the `discountCodes` argument. If you have custom cart discount code logic, verify your mutations include this field.
+
+  Review the changelogs for other changes that may affect your storefront:
+  - [Storefront API 2026-01 changelog](https://shopify.dev/changelog?filter=api&api_version=2026-01&api_type=storefront-graphql)
+  - [Customer Account API 2026-01 changelog](https://shopify.dev/changelog?filter=api&api_version=2026-01&api_type=customer-account-graphql)
+
+## 11.1.8
+
+### Patch Changes
+
+- Update Storefront API and Customer Account API to version 2025-10 ([#3430](https://github.com/Shopify/hydrogen/pull/3430)) by [@kdaviduik](https://github.com/kdaviduik)
+
+- Add support for Bun's text-based lockfile (`bun.lock`) introduced in Bun 1.2, and npm's shrinkwrap lockfile (`npm-shrinkwrap.json`), as alternatives to their respective primary lockfiles (`bun.lockb` and `package-lock.json`). ([#3430](https://github.com/Shopify/hydrogen/pull/3430)) by [@kdaviduik](https://github.com/kdaviduik)
+
+- Add `cartGiftCardCodesAdd` mutation ([#3430](https://github.com/Shopify/hydrogen/pull/3430)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  ## New Feature: cartGiftCardCodesAdd
+
+  The skeleton template has been updated to use the new `cartGiftCardCodesAdd` mutation:
+  - Removed `UpdateGiftCardForm` component from `CartSummary.tsx`
+  - Added `AddGiftCardForm` component using `CartForm.ACTIONS.GiftCardCodesAdd`
+
+  If you customized the gift card form in your project, you may want to migrate to the new `Add` action for simpler code.
+
+  ## Usage
+
+  ```typescript
+  import {CartForm} from '@shopify/hydrogen';
+
+  <CartForm action={CartForm.ACTIONS.GiftCardCodesAdd} inputs={{giftCardCodes: ['CODE1', 'CODE2']}}>
+    <button>Add Gift Cards</button>
+  </CartForm>
+  ```
+
+  Or with createCartHandler:
+
+  ```typescript
+  const cart = createCartHandler({storefront, getCartId, setCartId});
+  await cart.addGiftCardCodes(['SUMMER2025', 'WELCOME10']);
+  ```
+
+- Add support for nested cart line items (warranties, gift wrapping, etc.) ([#3430](https://github.com/Shopify/hydrogen/pull/3430)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  Storefront API 2025-10 introduces `parentRelationship` on cart line items, enabling parent-child relationships for add-ons. This update displays nested line items in the cart.
+
+  ### Changes
+  - Updates GraphQL fragments to include `parentRelationship` and `lineComponents` fields
+  - Updates `CartMain` and `CartLineItem` to render child line items with visual hierarchy
+
+  ### Note
+
+  This update focuses on **displaying** nested line items. To add both a product and its child (e.g., warranty) in a single action:
+
+  ```tsx
+  <AddToCartButton
+    lines={[
+      {merchandiseId: 'gid://shopify/ProductVariant/laptop-456', quantity: 1},
+      {
+        merchandiseId: 'gid://shopify/ProductVariant/warranty-123',
+        quantity: 1,
+        parent: {merchandiseId: 'gid://shopify/ProductVariant/laptop-456'},
+      },
+    ]}
+  >
+    Add to Cart with Warranty
+  </AddToCartButton>
+  ```
+
+## 11.1.7
+
+### Patch Changes
+
+- Support OAuth parameters via URL query strings in skeleton login route ([#3391](https://github.com/Shopify/hydrogen/pull/3391)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  The skeleton template's login route (`account_.login.tsx`) now reads OAuth parameters from the URL and forwards them to `customerAccount.login()`. This enables deep linking to the login page with pre-configured authentication options.
+
+  ### Supported Query Parameters
+
+  | Query Parameter   | Description                                                                        |
+  | ----------------- | ---------------------------------------------------------------------------------- |
+  | `acr_values`      | Direct users to a specific login method (e.g., `provider:google` for social login) |
+  | `login_hint`      | Pre-fill the email address field                                                   |
+  | `login_hint_mode` | When set to `submit` with `login_hint`, auto-submits the login form                |
+  | `locale`          | Display the login page in a specific language (e.g., `fr`, `zh-CN`)                |
+
+  ### Usage Examples
+
+  ```
+  /account/login?login_hint=user@example.com
+  /account/login?login_hint=user@example.com&login_hint_mode=submit
+  /account/login?acr_values=provider:google
+  /account/login?locale=fr
+  ```
+
+## 11.1.6
+
+### Patch Changes
+
+- Fix upgrade notice showing incorrect old versions when current version is missing from changelog. The `shopify hydrogen dev` command now correctly displays available upgrades using semver comparison when the current version doesn't exist in changelog.json. ([#3251](https://github.com/Shopify/hydrogen/pull/3251)) by [@juanpprieto](https://github.com/juanpprieto)
+
+- Update React Router to 7.12.0 with stabilized future flags ([#3346](https://github.com/Shopify/hydrogen/pull/3346)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  This release uses React Router's newly stabilized future flags (`v8_splitRouteModules`, `v8_middleware`) instead of their unstable counterparts
+
+## 11.1.5
+
+### Patch Changes
+
+- Update skeleton and create-hydrogen for @shopify/cli@3.85.4 incl @shopify/cli-hydrogen@11.1.4 ([#3232](https://github.com/Shopify/hydrogen/pull/3232)) by [@juanpprieto](https://github.com/juanpprieto)
+
+## 11.1.4
+
+### Patch Changes
+
+- **What changed:** ([#3229](https://github.com/Shopify/hydrogen/pull/3229)) by [@juanpprieto](https://github.com/juanpprieto)
+
+  ## Miniflare v3 upgrade
+
+  ## CLI: Stabilized Customer Account API development flag
+
+  The `--customer-account-push` flag is now stable and ready for production use. This flag enables tunneling for local development with Customer Account API OAuth flows.
+
+  **Before:**
+
+  ```bash
+  # Flag was experimental with __unstable suffix
+  shopify hydrogen dev --customer-account-push__unstable
+  ```
+
+  **After:**
+
+  ```bash
+  # Flag is now stable
+  shopify hydrogen dev --customer-account-push
+
+  # Or use environment variable
+  SHOPIFY_HYDROGEN_FLAG_CUSTOMER_ACCOUNT_PUSH=true npm run dev
+  ```
+
+  This flag automatically:
+  - Creates a tunnel for your local development server
+  - Configures the Customer Account API OAuth callback URLs
+  - Enables testing of the full authentication flow locally
+
+  ## Additional changes
+  - Fix defer/streaming in development & preview
+  - Upgrade Miniflare from v2 to v4 in mini-oxygen package
+  - Add `--force-client-sourcemap` flag support to the `deploy` command
+  - Implement proper environment variable quoting for shell metacharacters in `env pull` command
+
+## 11.1.3
+
+### Patch Changes
+
+- Fix issue so that Hydrogen build command will work with Remix ([#3056](https://github.com/Shopify/hydrogen/pull/3056)) by [@juanpprieto](https://github.com/juanpprieto)
+
+## 11.1.2
+
+### Patch Changes
+
+- Improve upgrade command to handle removal of dependencies. This feature is necessary to aid in upgrading from Remix to React Router 7 by [@juanpprieto](https://github.com/juanpprieto)
+
+## 11.1.1
+
+### Deprecated release
+
+This release contained breaking changes and was immediately deprecated. Do not use.
+
+## 11.1.0
+
+### Minor Changes
+
+- Fixing the CLI for Remix-based hydrogen projects ([#2958](https://github.com/Shopify/hydrogen/pull/2958)) by [@balazsbajorics](https://github.com/balazsbajorics)
+
+## 11.0.1
+
+### Patch Changes
+
+- Bumping the cli to 3.80.4 ([#2956](https://github.com/Shopify/hydrogen/pull/2956)) by [@balazsbajorics](https://github.com/balazsbajorics)
+
+## 11.0.0
+
+### Major Changes
+
+- Removing support for the legacy Remix Compiler. Please upgrade to Vite by running 'npx shopify hydrogen setup vite' ([#2941](https://github.com/Shopify/hydrogen/pull/2941)) by [@balazsbajorics](https://github.com/balazsbajorics)
+
+- Major version bumping libraries that now depend on react-router@7 ([#2866](https://github.com/Shopify/hydrogen/pull/2866)) by [@balazsbajorics](https://github.com/balazsbajorics)
+
+### Patch Changes
+
+- Adding .react-router to the .gitignore generated by the CLI ([#2952](https://github.com/Shopify/hydrogen/pull/2952)) by [@balazsbajorics](https://github.com/balazsbajorics)
+
+- Migrating to React Router 7 ([#2866](https://github.com/Shopify/hydrogen/pull/2866)) by [@balazsbajorics](https://github.com/balazsbajorics)
+
+## 10.0.2
+
+### Patch Changes
+
+- Update SFAPI and CAAPI versions to 2025.04 ([#2886](https://github.com/Shopify/hydrogen/pull/2886)) by [@juanpprieto](https://github.com/juanpprieto)
+
 ## 10.0.1
 
 ### Patch Changes
 
 - Fix an issue with our starter template where duplicate content can exist on URLs that use internationalized handles. For example, if you have a product handle in english of `the-havoc` and translate it to `das-chaos` in German, duplicate content exists at both: ([#2821](https://github.com/Shopify/hydrogen/pull/2821)) by [@blittle](https://github.com/blittle)
-
   1. https://hydrogen.shop/de-de/products/das-chaos
   2. https://hydrogen.shop/de-de/products/the-havoc
 
@@ -33,7 +255,6 @@
   ```
 
 - Moved the `Layout` component back into `root.tsx` to avoid issues with styled errors. ([#2829](https://github.com/Shopify/hydrogen/pull/2829)) by [@ruggishop](https://github.com/ruggishop)
-
   1. If you have a separate `app/layout.tsx` file, delete it and move its default exported component into your `root.tsx`. For example:
 
      ```ts
@@ -75,7 +296,6 @@
 - Support for the Remix future flag `v3_routeConfig`. ([#2722](https://github.com/Shopify/hydrogen/pull/2722)) by [@seanparsons](https://github.com/seanparsons)
 
   Please refer to the Remix documentation for more details on `v3_routeConfig` future flag: [https://remix.run/docs/en/main/start/future-flags#v3_routeconfig](https://remix.run/docs/en/main/start/future-flags#v3_routeconfig)
-
   1. Add the following npm package dev dependencies:
 
      ```diff
@@ -359,7 +579,6 @@
 ### Patch Changes
 
 - Clean up messaging around unlinked storefronts when running CLI commands ([#1937](https://github.com/Shopify/hydrogen/pull/1937)) by [@aswamy](https://github.com/aswamy)
-
   - When you run `env list`, `env pull`, or `deploy` against a storefront that isn't linked, it will show a warning message instead of an error message.
   - If you don't have a storefront to link to on Admin, we will just ask you to create a storefront instead of displaying an option list of size 1.
   - If you deleted a storefront on Admin, we will try to relink your storefront when running `env list`, `env pull`, or `deploy`.
@@ -390,7 +609,6 @@
 - Move the Hydrogen CLI's `env push` command to stable. ([#1946](https://github.com/Shopify/hydrogen/pull/1946)) by [@aswamy](https://github.com/aswamy)
 
 - Deprecate the `--env-branch` flag, in favor of `--env`. ([#1841](https://github.com/Shopify/hydrogen/pull/1841)) by [@aswamy](https://github.com/aswamy)
-
   - `--env` accepts the environment's handle, instead of the environment's associated branch name
     - Run `env list` to display all environments and their handles
   - Any CLI commands that accepted the `--env-branch` flag now accept the `--env` flag.
@@ -477,7 +695,6 @@
 ### Minor Changes
 
 - Adds new command line flag options for the `deploy` command: ([#1736](https://github.com/Shopify/hydrogen/pull/1736)) by [@vincentezw](https://github.com/vincentezw)
-
   - `build-command`: Allows users to specify which command is used to build the project (instead of the default build function). This provides more flexibility for projects that have custom build processes.
   - `no-lockfile-check`: Allows users to skip the lockfile check during the build process. This can be useful in scenarios where you want to bypass the lockfile check for certain reasons, such as in monorepos, where the lockfile resides in the root folder.
 
@@ -580,7 +797,6 @@
 ### Minor Changes
 
 - Add the [`upgrade` command](https://h2o.fyi/cli#upgrade) to make it easier to upgrade from older versions of Hydrogen. Features: ([#1458](https://github.com/Shopify/hydrogen/pull/1458)) by [@juanpprieto](https://github.com/juanpprieto)
-
   - Automatically updates dependencies in your package.json file.
   - Generates a customized instruction file in the `/.shopify` directory, outlining any code changes required to complete the upgrade.
   - Adds a warning when running the `dev` command with an outdated version.
@@ -759,7 +975,6 @@
 - Delay installing certain dependencies to speed up project initialization time. ([#1272](https://github.com/Shopify/hydrogen/pull/1272)) by [@frandiox](https://github.com/frandiox)
 
 - (Unstable) server-side network request debug virtual route ([#1284](https://github.com/Shopify/hydrogen/pull/1284)) by [@wizardlyhel](https://github.com/wizardlyhel)
-
   1. Update your `server.ts` so that it also passes in the `waitUntil` and `env`.
 
      ```diff
@@ -838,7 +1053,6 @@
 - Support Remix Hot Module Replacement (HMR) and Hot Data Revalidation (HDR). ([#1187](https://github.com/Shopify/hydrogen/pull/1187)) by [@frandiox](https://github.com/frandiox)
 
   Start using it with the following changes to your project:
-
   1. Upgrade to the latest Hydrogen version and Remix 1.19.1.
 
   2. Enable the v2 dev server in `remix.config.js`:
@@ -1058,7 +1272,6 @@ Shopify CLI now gives you [more options](https://shopify.dev/docs/custom-storefr
   > Note: This feature is unstable and subject to change in patch releases.
 
   How to use it while unstable:
-
   1. Write your queries/mutations in `.ts` or `.tsx` files and use the `#graphql` comment inside the strings. It's important that every query/mutation/fragment in your project has a **unique name**:
 
      ```ts
@@ -1199,7 +1412,6 @@ Shopify CLI now gives you [more options](https://shopify.dev/docs/custom-storefr
 - Bump internal Remix dependencies to 1.15.0. ([#728](https://github.com/Shopify/hydrogen/pull/728)) by [@wizardlyhel](https://github.com/wizardlyhel)
 
   Recommendations to follow:
-
   - Upgrade all the Remix packages in your app to 1.15.0.
   - Enable Remix v2 future flags at your earliest convenience following [the official guide](https://remix.run/docs/en/1.15.0/pages/v2).
 

@@ -28,7 +28,6 @@ import {
 import {spawnCodegenProcess} from '../../lib/codegen.js';
 import {getAllEnvironmentVariables} from '../../lib/environment-variables.js';
 import {displayDevUpgradeNotice} from './upgrade.js';
-import {prepareDiffDirectory} from '../../lib/template-diff.js';
 import {
   getDebugBannerLine,
   startTunnelAndPushConfig,
@@ -44,9 +43,10 @@ import {logRequestLine} from '../../lib/mini-oxygen/common.js';
 import {
   findHydrogenPlugin,
   findOxygenPlugin,
+  getViteConfig,
   isViteProject,
+  REMIX_COMPILER_ERROR_MESSAGE,
 } from '../../lib/vite-config.js';
-import {runClassicCompilerDev} from '../../lib/classic-compiler/dev.js';
 import {importVite} from '../../lib/import-utils.js';
 import {createEntryPointErrorHandler} from '../../lib/deps-optimizer.js';
 import {getCodeFormatOptions} from '../../lib/format-code.js';
@@ -83,7 +83,6 @@ export default class Dev extends Command {
       default: false,
       required: false,
     }),
-    ...commonFlags.diff,
     ...commonFlags.customerAccountPush,
     ...commonFlags.verbose,
     host: Flags.boolean({
@@ -97,54 +96,28 @@ export default class Dev extends Command {
       env: 'SHOPIFY_HYDROGEN_FLAG_DISABLE_DEPS_OPTIMIZER',
       default: false,
     }),
-
-    // For the classic compiler:
-    ...overrideFlag(commonFlags.legacyRuntime, {
-      'legacy-runtime': {
-        description:
-          '[Classic Remix Compiler] ' +
-          commonFlags.legacyRuntime['legacy-runtime'].description,
-      },
-    }),
-    ...overrideFlag(commonFlags.sourcemap, {
-      sourcemap: {
-        description:
-          '[Classic Remix Compiler] ' +
-          commonFlags.sourcemap.sourcemap.description,
-      },
-    }),
   };
 
   async run(): Promise<void> {
     const {flags} = await this.parse(Dev);
-    const originalDirectory = flags.path
-      ? resolvePath(flags.path)
-      : process.cwd();
-
-    const diff = flags.diff
-      ? await prepareDiffDirectory(originalDirectory, true)
-      : undefined;
-
-    const directory = diff?.targetDirectory ?? originalDirectory;
+    const directory = flags.path ? resolvePath(flags.path) : process.cwd();
 
     const devParams = {
       ...flagsToCamelObject(flags),
-      customerAccountPush: flags['customer-account-push__unstable'],
+      customerAccountPush: flags['customer-account-push'],
       path: directory,
       cliConfig: this.config,
     };
 
-    const {close} = (await isViteProject(directory))
-      ? await runDev(devParams)
-      : await runClassicCompilerDev(devParams);
+    const isVite = await isViteProject(directory);
+    if (!isVite) {
+      throw new AbortError(REMIX_COMPILER_ERROR_MESSAGE);
+    }
+
+    const {close} = await runDev(devParams);
 
     setupResourceCleanup(async () => {
       await close();
-
-      if (diff) {
-        await diff.copyShopifyConfig();
-        await diff.cleanup();
-      }
     });
   }
 }
@@ -235,6 +208,10 @@ export async function runDev({
   const viteServer = await vite.createServer({
     root,
     clearScreen: false,
+    // In unit tests, node_modules is a symlink. Avoid writing .vite cache inside it.
+    cacheDir: process.env.SHOPIFY_UNIT_TEST
+      ? joinPath(root, '.vite')
+      : undefined,
     customLogger: process.env.SHOPIFY_UNIT_TEST
       ? Object.assign(vite.createLogger(), {
           info: (msg: string) => collectLog('info', msg),
@@ -309,6 +286,7 @@ export async function runDev({
   }
 
   const h2PluginOptions = h2Plugin.api?.getPluginOptions?.();
+  const remixConfig = (await getViteConfig(root)).remixConfig;
 
   let codegenProcess: ReturnType<typeof spawnCodegenProcess> | undefined;
   const setupCodegen = useCodegen
@@ -317,7 +295,7 @@ export async function runDev({
         codegenProcess = spawnCodegenProcess({
           rootDirectory: root,
           configFilePath: codegenConfigPath,
-          appDirectory: h2PluginOptions?.remixConfig?.appDirectory,
+          appDirectory: remixConfig?.appDirectory,
         });
       }
     : undefined;
@@ -364,6 +342,7 @@ export async function runDev({
   console.log('\n');
 
   const storefrontTitle = (await backgroundPromise).storefrontTitle;
+
   showSuccessBanner({
     disableVirtualRoutes,
     debug,

@@ -3,6 +3,1108 @@
   "version": "1",
   "releases": [
     {
+      "title": "Storefront API 2026-01 and Customer Account API 2026-01",
+      "version": "2026.1.0",
+      "date": "2026-02-09",
+      "hash": "14d09107663313bae8eac3c701b90a7bc49819e4",
+      "commit": "https://github.com/Shopify/hydrogen/pull/3453/commits/14d09107663313bae8eac3c701b90a7bc49819e4",
+      "pr": "https://github.com/Shopify/hydrogen/pull/3453",
+      "dependencies": {
+        "@shopify/hydrogen": "2026.1.0"
+      },
+      "devDependencies": {},
+      "removeDependencies": [
+        "@shopify/hydrogen"
+      ],
+      "fixes": [],
+      "features": [
+        {
+          "title": "Update Storefront API and Customer Account API to 2026-01",
+          "info": "Quarterly API version update from 2025-10 to 2026-01. The cartDiscountCodesUpdate mutation now requires the discountCodes argument — if you have custom cart discount code logic, verify your mutations include this field.",
+          "breaking": true,
+          "pr": "https://github.com/Shopify/hydrogen/pull/3434",
+          "id": "3434"
+        }
+      ]
+    },
+    {
+      "title": "CLI lockfile improvements and bug fix",
+      "version": "2025.10.1",
+      "date": "2026-02-06",
+      "hash": "0723a6fba40e4d41e7569ac00175b51c959a408d",
+      "commit": "https://github.com/Shopify/hydrogen/pull/3451/commits/0723a6fba40e4d41e7569ac00175b51c959a408d",
+      "pr": "https://github.com/Shopify/hydrogen/pull/3451",
+      "dependencies": {
+        "@shopify/hydrogen": "2025.10.1"
+      },
+      "devDependencies": {},
+      "removeDependencies": [
+        "@shopify/hydrogen"
+      ],
+      "fixes": [
+        {
+          "title": "Fix virtual routes failing when file paths contain spaces",
+          "info": "File paths containing spaces were causing errors with virtual routes due to URL-encoded path segments not being decoded.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3436",
+          "id": "3436"
+        },
+        {
+          "title": "Update skeleton template to use cartGiftCardCodesAdd mutation",
+          "info": "The skeleton template now uses the new cartGiftCardCodesAdd mutation, replacing the UpdateGiftCardForm component with a simpler AddGiftCardForm using CartForm.ACTIONS.GiftCardCodesAdd. If you customized the gift card form in your project, you may want to migrate to the new Add action for simpler code.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3401",
+          "id": "3401"
+        },
+        {
+          "title": "Add nested cart line items display to skeleton template",
+          "info": "The skeleton template now displays nested cart line items (warranties, gift wrapping, etc.) using the parentRelationship and lineComponents fields from Storefront API 2025-10. Updates CartMain and CartLineItem to render child line items with visual hierarchy.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3398",
+          "id": "3398"
+        }
+      ],
+      "features": [
+        {
+          "title": "Add support for Bun and npm shrinkwrap lockfiles",
+          "info": "The CLI now recognizes Bun's text-based lockfile (bun.lock) introduced in Bun 1.2 and npm's shrinkwrap lockfile (npm-shrinkwrap.json) as alternatives to their respective primary lockfiles (bun.lockb and package-lock.json).",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3405",
+          "id": "3405"
+        }
+      ]
+    },
+    {
+      "title": "Storefront API 2025-10, React 19 support, and new cart mutations",
+      "version": "2025.10.0",
+      "date": "2026-01-30",
+      "hash": "87eb365ba4e9ec60ebb303d074f6254d4e3b0144",
+      "commit": "https://github.com/Shopify/hydrogen/commit/87eb365ba4e9ec60ebb303d074f6254d4e3b0144",
+      "pr": "https://github.com/Shopify/hydrogen/pull/3421",
+      "dependencies": {
+        "@shopify/hydrogen": "2025.10.0"
+      },
+      "devDependencies": {
+        "graphql-config": "^5.0.3"
+      },
+      "removeDependencies": [
+        "@shopify/hydrogen"
+      ],
+      "fixes": [
+        {
+          "title": "Add OAuth query parameter support to login route",
+          "info": "The skeleton template's login route now reads OAuth parameters from the URL and forwards them to customerAccount.login(). Supported parameters include acr_values (direct users to specific login method), login_hint (pre-fill email), login_hint_mode (auto-submit with submit value), and locale (display language).",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3388",
+          "id": "3388"
+        },
+        {
+          "title": "Add locale and loginHintMode parameters to Customer Account login",
+          "info": "Added optional locale parameter to control login page language (supports en, fr, es, de, ja, zh-CN, and more), and loginHintMode parameter that when set to 'submit' with loginHint auto-submits the login form.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3386",
+          "id": "3386"
+        },
+        {
+          "title": "Add article_reference metafield type support",
+          "info": "New metafield types introduced in Storefront API 2025-10 allowing merchants to reference blog articles in metafields.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3407",
+          "id": "3407"
+        },
+        {
+          "title": "BREAKING: cartDeliveryAddressesUpdate empty array behavior",
+          "info": "In Storefront API 2025-10+, passing an empty array to cart.updateDeliveryAddresses() now clears all delivery addresses. Previous API versions treated empty arrays as no-op.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3393",
+          "id": "3393"
+        }
+      ],
+      "features": [
+        {
+          "title": "Update Storefront API and Customer Account API to 2025-10",
+          "info": "Major API version update from 2025-07 to 2025-10. Includes new mutations (cartGiftCardCodesAdd, cartDeliveryAddressesReplace), new metafield types (article_reference), and behavior changes (empty array in delivery address updates).",
+          "breaking": true,
+          "pr": "https://github.com/Shopify/hydrogen/pull/3352",
+          "id": "3352"
+        },
+        {
+          "title": "Add cartGiftCardCodesAdd mutation",
+          "info": "New mutation to add gift card codes without replacing existing ones. Simplifies gift card management compared to updateGiftCardCodes which required passing all existing codes. The API handles duplicates gracefully with idempotent behavior.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3401",
+          "id": "3401"
+        },
+        {
+          "title": "Add cartDeliveryAddressesReplace mutation",
+          "info": "New mutation to replace all delivery addresses on a cart in a single operation. Available via cart.replaceDeliveryAddresses() method or CartForm.ACTIONS.DeliveryAddressesReplace action.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3406",
+          "id": "3406"
+        },
+        {
+          "title": "Add React 19 support",
+          "info": "Hydrogen and Hydrogen React now support React 19 while maintaining React 18 compatibility. Updated peerDependencies to accept React ^18.3.1 or non-CVE-containing React 19 versions.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3348",
+          "id": "3348"
+        },
+        {
+          "title": "Add visitorConsent support to @inContext directive",
+          "info": "Provides Storefront API 2025-10 parity for visitorConsent parameter in @inContext directives. Note: Most Hydrogen storefronts don't need this feature as consent is handled automatically by Hydrogen's analytics provider or Shopify's Customer Privacy API. The visitorConsent @inContext parameter is primarily intended for Checkout Kit and non-Hydrogen integrations managing consent outside Shopify's standard flow.",
+          "pr": "https://github.com/Shopify/hydrogen/commit/38f8a796",
+          "id": "3415"
+        },
+        {
+          "title": "Add parent prop to AddToCartButton for nested cart lines",
+          "info": "The AddToCartButton component now accepts an optional parent prop to add items as children of an existing cart line. Enables adding warranties, gift wrapping, or other add-ons associated with a parent product. Supports both parentLineId and merchandiseId references.",
+          "pr": "https://github.com/Shopify/hydrogen/commit/0e615228",
+          "id": "3414"
+        }
+      ]
+    },
+    {
+      "title": "New Shopify cookie system, React Router 7.12, and analytics improvements",
+      "version": "2025.7.1",
+      "date": "2026-01-08",
+      "hash": "67a817cc843d1be3c0ef5515b9a4b6b9e940b6fe",
+      "commit": "https://github.com/Shopify/hydrogen/commit/67a817cc843d1be3c0ef5515b9a4b6b9e940b6fe",
+      "pr": "https://github.com/Shopify/hydrogen/pull/3237",
+      "removeDependencies": [
+        "@shopify/hydrogen",
+        "react-router",
+        "react-router-dom"
+      ],
+      "removeDevDependencies": [
+        "@react-router/dev",
+        "@react-router/fs-routes"
+      ],
+      "dependencies": {
+        "@shopify/hydrogen": "2025.7.1",
+        "react-router": "7.12.0",
+        "react-router-dom": "7.12.0"
+      },
+      "devDependencies": {
+        "@react-router/dev": "7.12.0",
+        "@react-router/fs-routes": "7.12.0"
+      },
+      "fixes": [
+        {
+          "title": "Fix upgrade notice showing incorrect versions",
+          "info": "The shopify hydrogen dev command now correctly displays available upgrades using semver comparison when the current version doesn't exist in changelog.json.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3251",
+          "id": "3251"
+        },
+        {
+          "title": "Ensure SEO recommendations match Shopify Admin",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3303",
+          "id": "3303"
+        },
+        {
+          "title": "Fix Privacy Banner and analytics event issues",
+          "info": "Fixed irregular behaviors between Privacy Banner and Hydrogen's analytics events.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3309",
+          "id": "3309-privacy"
+        },
+        {
+          "title": "Remove regulation-specific privacy fields from public API",
+          "info": "The generalized privacy fields (analyticsAllowed, marketingAllowed, saleOfDataAllowed) remain available.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3236",
+          "id": "3236"
+        }
+      ],
+      "features": [
+        {
+          "title": "Migrate to Shopify's new cookie system",
+          "info": "Hydrogen now supports Shopify's new `_shopify_analytics` and `_shopify_marketing` http-only cookies while keeping the deprecated `_shopify_y` and `_shopify_s` cookies working as long as they remain active. This keeps analytics and privacy behavior aligned with Shopify Admin while preserving backward compatibility.",
+          "breaking": false,
+          "steps": [
+            {
+              "title": "Understand the new cookie model and compatibility story",
+              "info": "Shopify is deprecating `_shopify_y` and `_shopify_s` in favor of `_shopify_analytics` and `_shopify_marketing`, which are http-only cookies set via the Storefront API on your storefront domain. Hydrogen now reads and writes these cookies through a Storefront API proxy while still honoring the legacy cookies when present. You don't need to migrate values manually, but you must ensure that requests flow through the proxy so cookies are set before analytics run."
+            },
+            {
+              "title": "Set up a Storefront API proxy for your deployment",
+              "info": "Depending on how you host your app, you must ensure Storefront API calls go through a proxy on your storefront domain.",
+              "code": "IyMjIFJlYWN0IFJvdXRlciArIEh5ZHJvZ2VuIG9uIE94eWdlbgoKSWYgeW91IHNjYWZmb2xkZWQgZnJvbSB0aGUgZGVmYXVsdCBIeWRyb2dlbiBza2VsZXRvbiBhbmQgZGVwbG95IHRvIE94eWdlbiwgdGhlIGBjcmVhdGVSZXF1ZXN0SGFuZGxlcmAgdXRpbGl0eSBmcm9tIGBAc2hvcGlmeS9oeWRyb2dlbi9veHlnZW5gIChub3cgYWxzbyBleHBvcnRlZCBmcm9tIGBAc2hvcGlmeS9oeWRyb2dlbmApIGFscmVhZHkgc2V0cyB1cCBhIFN0b3JlZnJvbnQgQVBJIHByb3h5IG9uIHRoZSBzYW1lIGRvbWFpbiBhcyB5b3VyIHN0b3JlZnJvbnQuCgoqKkluIG1vc3QgY2FzZXMsIG5vIGNoYW5nZXMgYXJlIHJlcXVpcmVkKio7IGp1c3QgY29uZmlybSB5b3VyIHNlcnZlciBlbnRyeSBzdGlsbCB1c2VzIGl0OgoKYGBgdHMKLy8gc2VydmVyLnRzIChPeHlnZW4pCmltcG9ydCB7Y3JlYXRlUmVxdWVzdEhhbmRsZXIsIGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dH0gZnJvbSAnQHNob3BpZnkvaHlkcm9nZW4nOwoKZXhwb3J0IGRlZmF1bHQgewogIGFzeW5jIGZldGNoKHJlcXVlc3QsIGVudikgewogICAgY29uc3QgaHlkcm9nZW5Db250ZXh0ID0gY3JlYXRlSHlkcm9nZW5Db250ZXh0KHsKICAgICAgZW52LAogICAgICByZXF1ZXN0LAogICAgICAvKiAuLi4gKi8KICAgIH0pOwoKICAgIGNvbnN0IGhhbmRsZVJlcXVlc3QgPSBjcmVhdGVSZXF1ZXN0SGFuZGxlcih7CiAgICAgIC8qIC4uLiAqLwogICAgICBnZXRMb2FkQ29udGV4dDogKCkgPT4gaHlkcm9nZW5Db250ZXh0LAogICAgICAvLyBBbHRlcm5hdGl2ZWx5LCBwYXNzIGF0IGxlYXN0IHN0b3JlZnJvbnQgY2xpZW50OgogICAgICAvLyBnZXRMb2FkQ29udGV4dDogKCkgPT4gKHtzdG9yZWZyb250OiBjcmVhdGVTdG9yZWZyb250Q2xpZW50KC4uLil9KQogICAgfSk7CgogICAgcmV0dXJuIGhhbmRsZVJlcXVlc3QocmVxdWVzdCk7CiAgfSwKfTsKYGBgCgpLZWVwIHVzaW5nIGA8QW5hbHl0aWNzLlByb3ZpZGVyPmAgY29tcG9uZW50IG9yIGB1c2VDdXN0b21lclByaXZhY3lgIGhvb2sgdG8gZ2V0IGNvb2tpZXMgaW4gdGhlIGJyb3dzZXIgYXV0b21hdGljYWxseS4KCkZvciBhIGZ1bGwgZXhhbXBsZSwgcmVmZXIgdG8gb3VyIFtza2VsZXRvbiB0ZW1wbGF0ZV0oaHR0cHM6Ly9naXRodWIuY29tL1Nob3BpZnkvaHlkcm9nZW4vYmxvYi9tYWluL3RlbXBsYXRlcy9za2VsZXRvbi9zZXJ2ZXIudHMpLgoKIyMjIFJlYWN0IFJvdXRlciArIEh5ZHJvZ2VuIG9uIG90aGVyIGhvc3RzCgojIyMjIEhvc3RzIHRoYXQgc3VwcG9ydCBXZWIgRmV0Y2ggQVBJIChSZXF1ZXN0L1Jlc3BvbnNlKQoKT24gaG9zdHMgdGhhdCBzdXBwb3J0IHRoZSBzdGFuZGFyZCBXZWIgRmV0Y2ggQVBJIChXb3JrZXJzLXN0eWxlIGVudmlyb25tZW50cyksIGltcG9ydCBgY3JlYXRlUmVxdWVzdEhhbmRsZXJgIGZyb20gYEBzaG9waWZ5L2h5ZHJvZ2VuYCAoaW5zdGVhZCBvZiBgcmVhY3Qtcm91dGVyYCkgYW5kIHJvdXRlIHJlcXVlc3RzIHRocm91Z2ggaXQ6CgpgYGB0cwppbXBvcnQge2NyZWF0ZVJlcXVlc3RIYW5kbGVyLCBjcmVhdGVIeWRyb2dlbkNvbnRleHR9IGZyb20gJ0BzaG9waWZ5L2h5ZHJvZ2VuJzsKCmNvbnN0IGh5ZHJvZ2VuQ29udGV4dCA9IGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dCh7CiAgLyogLi4uICovCn0pOwoKY29uc3QgaGFuZGxlUmVxdWVzdCA9IGNyZWF0ZVJlcXVlc3RIYW5kbGVyKHsKICAvKiAuLi4gKi8KICBnZXRMb2FkQ29udGV4dDogKCkgPT4gaHlkcm9nZW5Db250ZXh0LAp9KTsKYGBgCgojIyMjIE5vZGUuanMgYW5kIG90aGVyIGhvc3RzCgpGb3IgTm9kZS1saWtlIGVudmlyb25tZW50cywgYWRhcHQgTm9kZSByZXF1ZXN0cyB0byBGZXRjaCB3aXRoIFtgQHJlbWl4LXJ1bi9ub2RlLWZldGNoLXNlcnZlcmBdKGh0dHBzOi8vd3d3Lm5wbWpzLmNvbS9wYWNrYWdlL0ByZW1peC1ydW4vbm9kZS1mZXRjaC1zZXJ2ZXIpLCB0aGVuIGRlbGVnYXRlIHRvIEh5ZHJvZ2VuJ3MgaGFuZGxlcjoKCmBgYHRzCmltcG9ydCB7Y3JlYXRlUmVxdWVzdEhhbmRsZXIsIGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dH0gZnJvbSAnQHNob3BpZnkvaHlkcm9nZW4nOwppbXBvcnQge2NyZWF0ZVJlcXVlc3RMaXN0ZW5lcn0gZnJvbSAnQHJlbWl4LXJ1bi9ub2RlLWZldGNoLXNlcnZlcic7CmltcG9ydCBodHRwIGZyb20gJ2h0dHAnOwoKY29uc3QgaGFuZGxlTm9kZVJlcXVlc3QgPSBjcmVhdGVSZXF1ZXN0TGlzdGVuZXIoKHJlcXVlc3QpID0+IHsKICBjb25zdCBoeWRyb2dlbkNvbnRleHQgPSBjcmVhdGVIeWRyb2dlbkNvbnRleHQoewogICAgLyogLi4uICovCiAgfSk7CgogIGNvbnN0IGhhbmRsZVdlYlJlcXVlc3QgPSBjcmVhdGVSZXF1ZXN0SGFuZGxlcih7CiAgICAvKiAuLi4gKi8KICAgIGdldExvYWRDb250ZXh0OiAoKSA9PiBoeWRyb2dlbkNvbnRleHQsCiAgfSk7CgogIHJldHVybiBoYW5kbGVXZWJSZXF1ZXN0KHJlcXVlc3QpOwp9KTsKCmh0dHAuY3JlYXRlU2VydmVyKGhhbmRsZU5vZGVSZXF1ZXN0KTsKYGBgCgpBbHRlcm5hdGl2ZWx5LCBpZiB5b3UgY2FuJ3QgZGVsZWdhdGUgdG8gSHlkcm9nZW4ncyBgY3JlYXRlUmVxdWVzdEhhbmRsZXJgLCB5b3UgY2FuIHByb3ZpZGUgYSBjdXN0b20gU3RvcmVmcm9udCBBUEkgcHJveHkgaW4geW91ciBzZXJ2ZXIuIFNlZSBbSHlkcm9nZW4ncyBpbXBsZW1lbnRhdGlvbl0oaHR0cHM6Ly9naXRodWIuY29tL1Nob3BpZnkvaHlkcm9nZW4vYmxvYi8yNzA2NmEyODU3NzQ4NGY0MDYyMjIxMTZhOTU5ZWI0NjNkMjU1Njg1L3BhY2thZ2VzL2h5ZHJvZ2VuL3NyYy9zdG9yZWZyb250LnRzI0w1NDYtTDYxMSkgYXMgYSByZWZlcmVuY2UuIEluIHRoaXMgY2FzZSwgZW5zdXJlIHlvdSBtYW51YWxseSBwYXNzIGBzYW1lRG9tYWluRm9yU3RvcmVmcm9udEFwaTogdHJ1ZWAgaW4gdGhlIGBjb25zZW50YCBvYmplY3QgZm9yIGA8QW5hbHl0aWNzLlByb3ZpZGVyPmAgb3IgYXMgYSBwcm9wIHRvIHRoZSBgdXNlQ3VzdG9tZXJQcml2YWN5YCBob29rLgo="
+            }
+          ],
+          "pr": "https://github.com/Shopify/hydrogen/pull/3309",
+          "id": "3309"
+        },
+        {
+          "title": "Improve development cold start time with static server build import",
+          "info": "Moved server build in server.ts from a dynamic import to a static import to speed up first rendering during local development (2s => 200ms).",
+          "breaking": false,
+          "steps": [
+            {
+              "title": "Update server.ts to use static import",
+              "info": "Replace the dynamic import with a static import at the top of the file.",
+              "code": "YGBgZGlmZgovLyBzZXJ2ZXIudHMKCitpbXBvcnQgKiBhcyBzZXJ2ZXJCdWlsZCBmcm9tICd2aXJ0dWFsOnJlYWN0LXJvdXRlci9zZXJ2ZXItYnVpbGQnOwoKY29uc3QgaGFuZGxlUmVxdWVzdCA9IGNyZWF0ZVJlcXVlc3RIYW5kbGVyKHsKLSAgYnVpbGQ6IGF3YWl0IGltcG9ydCgndmlydHVhbDpyZWFjdC1yb3V0ZXIvc2VydmVyLWJ1aWxkJyksCisgIGJ1aWxkOiBzZXJ2ZXJCdWlsZCwKICAgbW9kZTogcHJvY2Vzcy5lbnYuTk9ERV9FTlYsCiAgIGdldExvYWRDb250ZXh0OiAoKSA9PiBoeWRyb2dlbkNvbnRleHQsCn0pOwoKLy8gVGhpcyBjaGFuZ2UgaW1wcm92ZXMgY29sZCBzdGFydCB0aW1lIGluIGRldmVsb3BtZW50ICgycyA9PiAyMDBtcykKYGBgCg=="
+            },
+            {
+              "title": "Update ESLint config to allow virtual: imports",
+              "info": "Add the virtual: prefix to the import/no-unresolved ignore list.",
+              "code": "YGBgZGlmZgovLyBlc2xpbnQuY29uZmlnLmpzCgpydWxlczogeworICAnaW1wb3J0L25vLXVucmVzb2x2ZWQnOiBbJ2Vycm9yJywge2lnbm9yZTogWydedmlydHVhbDonXX1dLAp9CgovLyBBbGxvd3MgdmlydHVhbDogaW1wb3J0cyB1c2VkIGJ5IFJlYWN0IFJvdXRlcgpgYGAK"
+            }
+          ],
+          "pr": "https://github.com/Shopify/hydrogen/pull/3331",
+          "id": "3331"
+        },
+        {
+          "title": "React Router 7.12 stabilized APIs",
+          "info": "React Router 7.12 stabilizes several previously unstable APIs. The following future flags in `react-router.config.ts` have been renamed:\n\n- `future.unstable_splitRouteModules` → `future.v8_splitRouteModules`\n- `future.unstable_viteEnvironmentApi` → `future.v8_viteEnvironmentApi`\n\nIf you're using these flags, update your config to use the new names.",
+          "breaking": false,
+          "steps": [
+            {
+              "title": "Update fetcher reset calls",
+              "info": "The `fetcher.unstable_reset()` method is now stable as `fetcher.reset()`. Update any usages in your code.",
+              "code": "YGBgZGlmZgotIGZldGNoZXIudW5zdGFibGVfcmVzZXQoKQorIGZldGNoZXIucmVzZXQoKQpgYGAK"
+            },
+            {
+              "title": "Update RouterProvider onError prop",
+              "info": "The `unstable_onError` prop on `<RouterProvider>` and `<HydratedRouter>` is now stable as `onError`. Update any usages in your code.",
+              "code": "YGBgZGlmZgovLyBGb3IgUm91dGVyUHJvdmlkZXIKLSA8Um91dGVyUHJvdmlkZXIgdW5zdGFibGVfb25FcnJvcj17aGFuZGxlRXJyb3J9IC8+CisgPFJvdXRlclByb3ZpZGVyIG9uRXJyb3I9e2hhbmRsZUVycm9yfSAvPgoKLy8gRm9yIEh5ZHJhdGVkUm91dGVyCi0gPEh5ZHJhdGVkUm91dGVyIHVuc3RhYmxlX29uRXJyb3I9e2hhbmRsZUVycm9yfSAvPgorIDxIeWRyYXRlZFJvdXRlciBvbkVycm9yPXtoYW5kbGVFcnJvcn0gLz4KYGBgCg=="
+            }
+          ],
+          "pr": "https://github.com/Shopify/hydrogen/pull/3346",
+          "id": "3346"
+        }
+      ]
+    },
+    {
+      "title": "Migrate to React Router 7 and API version 2025-07",
+      "version": "2025.7.0",
+      "date": "2025-09-17",
+      "hash": "b09a1214b24251dbd48cd960d9ec8079a7c68d03",
+      "commit": "https://github.com/Shopify/hydrogen/commit/b09a1214b24251dbd48cd960d9ec8079a7c68d03",
+      "pr": "https://github.com/Shopify/hydrogen/pull/3166",
+      "dependencies": {
+        "@shopify/hydrogen": "2025.7.0",
+        "react-router": "7.9.2",
+        "react-router-dom": "7.9.2",
+        "react": "18.3.1",
+        "react-dom": "18.3.1"
+      },
+      "devDependencies": {
+        "@shopify/mini-oxygen": "4.0.0",
+        "@shopify/cli": "3.85.4",
+        "@react-router/dev": "7.9.2",
+        "@react-router/fs-routes": "7.9.2"
+      },
+      "removeDependencies": [
+        "@shopify/hydrogen",
+        "@shopify/remix-oxygen",
+        "@remix-run/react",
+        "@remix-run/server-runtime",
+        "react-router",
+        "react-router-dom",
+        "react",
+        "react-dom",
+        "@react-router/node"
+      ],
+      "removeDevDependencies": [
+        "@remix-run/dev",
+        "@remix-run/fs-routes",
+        "@remix-run/route-config",
+        "@react-router/fs-routes",
+        "@react-router/dev"
+      ],
+      "dependenciesMeta": {
+        "@shopify/cli": {
+          "required": true
+        },
+        "react-router": {
+          "required": true
+        },
+        "@react-router/dev": {
+          "required": true
+        },
+        "@react-router/fs-routes": {
+          "required": true
+        },
+        "@shopify/mini-oxygen": {
+          "required": true
+        },
+        "@shopify/remix-oxygen": {
+          "required": false
+        },
+        "@remix-run/react": {
+          "required": false
+        },
+        "@remix-run/server-runtime": {
+          "required": false
+        },
+        "@remix-run/dev": {
+          "required": false
+        },
+        "@remix-run/fs-routes": {
+          "required": false
+        },
+        "@remix-run/route-config": {
+          "required": false
+        }
+      },
+      "fixes": [
+        {
+          "title": "Use stable Customer Account API development flag",
+          "info": "The --customer-account-push flag is now stable. Use it to tunnel for local development with Customer Account API OAuth flows.",
+          "steps": [
+            {
+              "title": "Update command to use stable flag",
+              "info": "Remove the __unstable suffix from the customer-account-push command",
+              "code": "YGBgZGlmZgotIHNob3BpZnkgaHlkcm9nZW4gY3VzdG9tZXItYWNjb3VudC1wdXNoX191bnN0YWJsZSBbZmxhZ3NdCisgc2hvcGlmeSBoeWRyb2dlbiBjdXN0b21lci1hY2NvdW50LXB1c2ggW2ZsYWdzXQoKLy8gVGhlIC0tY3VzdG9tZXItYWNjb3VudC1wdXNoIGZsYWcgaXMgbm93IHN0YWJsZSBhbmQgbm8gbG9uZ2VyIHJlcXVpcmVzIF9fdW5zdGFibGUgc3VmZml4CmBgYAo="
+            }
+          ],
+          "pr": "https://github.com/Shopify/hydrogen/pull/3082",
+          "id": "3082-flag"
+        },
+        {
+          "title": "Fix streaming issues in development and preview",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3039",
+          "id": "3039"
+        },
+        {
+          "title": "Remove GraphQL client development warnings",
+          "info": "Removes sourcemap warnings and stops unnecessary page reloads during development.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3108",
+          "id": "3108"
+        },
+        {
+          "title": "Handle unsupported currencies in Money component",
+          "info": "The Money component now handles unsupported currency codes like USDC from Customer Account API.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3082",
+          "id": "3082-money"
+        },
+        {
+          "title": "Fix currency code format in parseMetafield",
+          "info": "Transforms currency_code from Storefront API to currencyCode format expected by MoneyV2 type.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3072",
+          "id": "3072"
+        },
+        {
+          "title": "Fix TypeScript enum compatibility between APIs",
+          "info": "Codegen now references Storefront API's LanguageCode and CurrencyCode enums for Customer Account API types.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3139",
+          "id": "3139"
+        },
+        {
+          "title": "Add TypeScript ESLint rules for promise handling",
+          "info": "Adds TypeScript ESLint rules for promise handling to prevent deployment errors on Oxygen and Cloudflare Workers.",
+          "steps": [
+            {
+              "title": "Add promise handling rules to ESLint config",
+              "info": "Enable no-floating-promises and no-misused-promises rules. These catch unhandled promises that cause deployment failures.",
+              "code": "YGBgZGlmZgovLyBlc2xpbnQuY29uZmlnLmpzCmV4cG9ydCBkZWZhdWx0IHRzZXNsaW50LmNvbmZpZygKICB7CiAgICBydWxlczogewogICAgICAvLyAuLi4gZXhpc3RpbmcgcnVsZXMgLi4uCisgICAgICdAdHlwZXNjcmlwdC1lc2xpbnQvbm8tZmxvYXRpbmctcHJvbWlzZXMnOiAnZXJyb3InLAorICAgICAnQHR5cGVzY3JpcHQtZXNsaW50L25vLW1pc3VzZWQtcHJvbWlzZXMnOiAnZXJyb3InLAogICAgfSwKICB9LAopOwoKLy8gVGhlc2UgcnVsZXMgcHJldmVudCB1bmhhbmRsZWQgcHJvbWlzZXMgYW5kIHByb21pc2UgbWlzdXNlCi8vIEhlbHBzIGF2b2lkICdUaGUgc2NyaXB0IHdpbGwgbmV2ZXIgZ2VuZXJhdGUgYSByZXNwb25zZScgZXJyb3JzIG9uIE94eWdlbi9DbG91ZGZsYXJlIFdvcmtlcnMKYGBgCg=="
+            }
+          ],
+          "pr": "https://github.com/Shopify/hydrogen/pull/3146",
+          "id": "3146"
+        },
+        {
+          "title": "Fix environment variable quoting in env pull command",
+          "info": "Handles shell metacharacters in environment variables correctly.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3050",
+          "id": "3050"
+        },
+        {
+          "title": "Add --force-client-sourcemap flag to deploy command",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3039",
+          "id": "3039-sourcemap"
+        },
+        {
+          "title": "Add Vite v7 exports support",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3039",
+          "id": "3039-vite"
+        },
+        {
+          "title": "Fix and upgrade GraphiQL route",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3039",
+          "id": "3039-graphiql"
+        },
+        {
+          "title": "Replace deprecated faker.internet.color()",
+          "info": "Uses faker.color.rgb() instead.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/2985",
+          "id": "2985"
+        }
+      ],
+      "features": [
+        {
+          "title": "Migrate to React Router 7.9.x",
+          "info": "Move your Hydrogen app to React Router 7.9.x. You'll get automatic type generation, better type safety, and new context infrastructure. This removes the @shopify/remix-oxygen package. Check the complete skeleton template for reference: https://github.com/Shopify/hydrogen/tree/main/templates/skeleton",
+          "breaking": true,
+          "steps": [
+            {
+              "title": "Run the automated migration codemod",
+              "info": "This codemod will automatically update most imports and references from Remix to React Router",
+              "code": "YGBgZGlmZgpucHggY29kZW1vZEBsYXRlc3QgcmVtaXgvMi9yZWFjdC1yb3V0ZXIvdXBncmFkZQpgYGAK"
+            },
+            {
+              "title": "Create react-router.config.ts with hydrogenPreset",
+              "info": "Create your React Router configuration file using Hydrogen's optimized preset. This enhances routing and build performance.",
+              "code": "YGBgdHlwZXNjcmlwdAovLyByZWFjdC1yb3V0ZXIuY29uZmlnLnRzCmltcG9ydCB0eXBlIHtDb25maWd9IGZyb20gIkByZWFjdC1yb3V0ZXIvZGV2L2NvbmZpZyI7CmltcG9ydCB7aHlkcm9nZW5QcmVzZXR9IGZyb20gIkBzaG9waWZ5L2h5ZHJvZ2VuL3JlYWN0LXJvdXRlci1wcmVzZXQiOwoKZXhwb3J0IGRlZmF1bHQgewogIHByZXNldHM6IFtoeWRyb2dlblByZXNldCgpXSwKfSBzYXRpc2ZpZXMgQ29uZmlnOwpgYGAK"
+            },
+            {
+              "title": "Update vite.config.ts to use React Router plugin",
+              "info": "Replace the Remix Vite plugin with React Router's plugin. Add vite-tsconfig-paths for better path resolution.",
+              "code": "YGBgZGlmZgovLyB2aXRlLmNvbmZpZy50cwppbXBvcnQge2RlZmluZUNvbmZpZ30gZnJvbSAndml0ZSc7Ci0gaW1wb3J0IHt2aXRlUGx1Z2luIGFzIHJlbWl4fSBmcm9tICdAcmVtaXgtcnVuL2Rldic7CisgaW1wb3J0IHtyZWFjdFJvdXRlcn0gZnJvbSAnQHJlYWN0LXJvdXRlci9kZXYvdml0ZSc7CmltcG9ydCB7aHlkcm9nZW59IGZyb20gJ0BzaG9waWZ5L2h5ZHJvZ2VuL3ZpdGUnOwppbXBvcnQge294eWdlbn0gZnJvbSAnQHNob3BpZnkvbWluaS1veHlnZW4vdml0ZSc7CisgaW1wb3J0IHRzY29uZmlnUGF0aHMgZnJvbSAndml0ZS10c2NvbmZpZy1wYXRocyc7CgpleHBvcnQgZGVmYXVsdCBkZWZpbmVDb25maWcoewogIHBsdWdpbnM6IFsKKyAgIGh5ZHJvZ2VuKCksCisgICBveHlnZW4oKSwKKyAgIHJlYWN0Um91dGVyKCksCisgICB0c2NvbmZpZ1BhdGhzKCkKLSAgIHJlbWl4KHsKLSAgICAgcHJlc2V0czogW2h5ZHJvZ2VuLnByZXNldCgpXSwKLSAgIH0pLAogIF0sCn0pOwpgYGAK"
+            },
+            {
+              "title": "Update tsconfig.json for React Router type generation",
+              "info": "Update your TypeScript configuration to include React Router's generated types. This optimizes type checking.",
+              "code": "YGBgZGlmZgovLyB0c2NvbmZpZy5qc29uCnsKICAiaW5jbHVkZSI6IFsKICAgICJlbnYuZC50cyIsCiAgICAiYXBwLyoqLyoudHMiLAogICAgImFwcC8qKi8qLnRzeCIsCisgICAiYXBwLyoqLyouZC50cyIsCisgICAiKi50cyIsCisgICAiKi50c3giLAorICAgIiouZC50cyIsCisgICAiLmdyYXBocWxyYy50cyIsCisgICAiLnJlYWN0LXJvdXRlci90eXBlcy8qKi8qIgotICAgIioqLyoudHMiLAotICAgIioqLyoudHN4IgogIF0sCiAgImNvbXBpbGVyT3B0aW9ucyI6IHsKICAgICJ0eXBlcyI6IFsKICAgICAgIkBzaG9waWZ5L294eWdlbi13b3JrZXJzLXR5cGVzIiwKKyAgICAgInJlYWN0LXJvdXRlciIsCisgICAgICJAc2hvcGlmeS9oeWRyb2dlbi9yZWFjdC1yb3V0ZXItdHlwZXMiLAorICAgICAidml0ZS9jbGllbnQiCi0gICAgICJAcmVtaXgtcnVuL25vZGUiLAotICAgICAidml0ZS9jbGllbnQiCiAgICBdLAorICAgInJvb3REaXJzIjogWyIuIiwgIi4vLnJlYWN0LXJvdXRlci90eXBlcyJdLAogICAgImJhc2VVcmwiOiAiLiIsCiAgICAicGF0aHMiOiB7CiAgICAgICJ+LyoiOiBbImFwcC8qIl0KICAgIH0KICB9Cn0KYGBgCg=="
+            },
+            {
+              "title": "Create app/lib/context.ts with createHydrogenRouterContext",
+              "info": "Create a new context file that exports the createHydrogenRouterContext function. This supports additional context properties and type augmentation.",
+              "code": "YGBgdHlwZXNjcmlwdAovLyBhcHAvbGliL2NvbnRleHQudHMKaW1wb3J0IHtjcmVhdGVIeWRyb2dlbkNvbnRleHR9IGZyb20gJ0BzaG9waWZ5L2h5ZHJvZ2VuJzsKaW1wb3J0IHtBcHBTZXNzaW9ufSBmcm9tICd+L2xpYi9zZXNzaW9uJzsKaW1wb3J0IHtDQVJUX1FVRVJZX0ZSQUdNRU5UfSBmcm9tICd+L2xpYi9mcmFnbWVudHMnOwoKY29uc3QgYWRkaXRpb25hbENvbnRleHQgPSB7CiAgLy8gQWRkaXRpb25hbCBjb250ZXh0IGZvciBjdXN0b20gcHJvcGVydGllcywgQ01TIGNsaWVudHMsIDNQIFNES3MsIGV0Yy4KfSBhcyBjb25zdDsKCnR5cGUgQWRkaXRpb25hbENvbnRleHRUeXBlID0gdHlwZW9mIGFkZGl0aW9uYWxDb250ZXh0OwoKZGVjbGFyZSBnbG9iYWwgewogIGludGVyZmFjZSBIeWRyb2dlbkFkZGl0aW9uYWxDb250ZXh0IGV4dGVuZHMgQWRkaXRpb25hbENvbnRleHRUeXBlIHt9Cn0KCmV4cG9ydCBhc3luYyBmdW5jdGlvbiBjcmVhdGVIeWRyb2dlblJvdXRlckNvbnRleHQoCiAgcmVxdWVzdDogUmVxdWVzdCwKICBlbnY6IEVudiwKICBleGVjdXRpb25Db250ZXh0OiBFeGVjdXRpb25Db250ZXh0LAopIHsKICBpZiAoIWVudj8uU0VTU0lPTl9TRUNSRVQpIHsKICAgIHRocm93IG5ldyBFcnJvcignU0VTU0lPTl9TRUNSRVQgZW52aXJvbm1lbnQgdmFyaWFibGUgaXMgbm90IHNldCcpOwogIH0KCiAgY29uc3Qgd2FpdFVudGlsID0gZXhlY3V0aW9uQ29udGV4dC53YWl0VW50aWwuYmluZChleGVjdXRpb25Db250ZXh0KTsKICBjb25zdCBbY2FjaGUsIHNlc3Npb25dID0gYXdhaXQgUHJvbWlzZS5hbGwoWwogICAgY2FjaGVzLm9wZW4oJ2h5ZHJvZ2VuJyksCiAgICBBcHBTZXNzaW9uLmluaXQocmVxdWVzdCwgW2Vudi5TRVNTSU9OX1NFQ1JFVF0pLAogIF0pOwoKICBjb25zdCBoeWRyb2dlbkNvbnRleHQgPSBjcmVhdGVIeWRyb2dlbkNvbnRleHQoCiAgICB7CiAgICAgIGVudiwKICAgICAgcmVxdWVzdCwKICAgICAgY2FjaGUsCiAgICAgIHdhaXRVbnRpbCwKICAgICAgc2Vzc2lvbiwKICAgICAgaTE4bjoge2xhbmd1YWdlOiAnRU4nLCBjb3VudHJ5OiAnVVMnfSwKICAgICAgY2FydDogewogICAgICAgIHF1ZXJ5RnJhZ21lbnQ6IENBUlRfUVVFUllfRlJBR01FTlQsCiAgICAgIH0sCiAgICB9LAogICAgYWRkaXRpb25hbENvbnRleHQsCiAgKTsKCiAgcmV0dXJuIGh5ZHJvZ2VuQ29udGV4dDsKfQpgYGAK"
+            },
+            {
+              "title": "Update server.ts to use createHydrogenRouterContext",
+              "info": "Replace @shopify/remix-oxygen with @shopify/hydrogen/oxygen. Use the new context creation function with session handling.",
+              "code": "YGBgZGlmZgovLyBzZXJ2ZXIudHMKLSBpbXBvcnQge2NyZWF0ZVJlcXVlc3RIYW5kbGVyfSBmcm9tICJAc2hvcGlmeS9yZW1peC1veHlnZW4iOworIGltcG9ydCB7Y3JlYXRlUmVxdWVzdEhhbmRsZXJ9IGZyb20gIkBzaG9waWZ5L2h5ZHJvZ2VuL294eWdlbiI7CisgaW1wb3J0IHtjcmVhdGVIeWRyb2dlblJvdXRlckNvbnRleHR9IGZyb20gIn4vbGliL2NvbnRleHQiOwoKZXhwb3J0IGRlZmF1bHQgewogIGFzeW5jIGZldGNoKHJlcXVlc3Q6IFJlcXVlc3QsIGVudjogRW52LCBleGVjdXRpb25Db250ZXh0OiBFeGVjdXRpb25Db250ZXh0KTogUHJvbWlzZTxSZXNwb25zZT4geworICAgY29uc3QgaHlkcm9nZW5Db250ZXh0ID0gYXdhaXQgY3JlYXRlSHlkcm9nZW5Sb3V0ZXJDb250ZXh0KAorICAgICByZXF1ZXN0LAorICAgICBlbnYsCisgICAgIGV4ZWN1dGlvbkNvbnRleHQsCisgICApOwoKICAgIGNvbnN0IGhhbmRsZVJlcXVlc3QgPSBjcmVhdGVSZXF1ZXN0SGFuZGxlcih7Ci0gICAgIGJ1aWxkOiBhd2FpdCBpbXBvcnQoJ3ZpcnR1YWw6cmVtaXgvc2VydmVyLWJ1aWxkJyksCisgICAgIGJ1aWxkOiBhd2FpdCBpbXBvcnQoJ3ZpcnR1YWw6cmVhY3Qtcm91dGVyL3NlcnZlci1idWlsZCcpLAogICAgICBtb2RlOiBwcm9jZXNzLmVudi5OT0RFX0VOViwKLSAgICAgZ2V0TG9hZENvbnRleHQ6ICgpID0+ICh7Li4ufSksCisgICAgIGdldExvYWRDb250ZXh0OiAoKSA9PiBoeWRyb2dlbkNvbnRleHQsCiAgICB9KTsKCiAgICBjb25zdCByZXNwb25zZSA9IGF3YWl0IGhhbmRsZVJlcXVlc3QocmVxdWVzdCk7CisKKyAgIGlmIChoeWRyb2dlbkNvbnRleHQuc2Vzc2lvbi5pc1BlbmRpbmcpIHsKKyAgICAgcmVzcG9uc2UuaGVhZGVycy5zZXQoJ1NldC1Db29raWUnLCBhd2FpdCBoeWRyb2dlbkNvbnRleHQuc2Vzc2lvbi5jb21taXQoKSk7CisgICB9CgogICAgcmV0dXJuIHJlc3BvbnNlOwogIH0KfTsKYGBgCg=="
+            },
+            {
+              "title": "Update entry.server.tsx with new context types",
+              "info": "Replace Remix types with React Router types. Use HydrogenRouterContextProvider for better type safety.",
+              "code": "YGBgZGlmZgovLyBhcHAvZW50cnkuc2VydmVyLnRzeAotIGltcG9ydCB0eXBlIHtBcHBMb2FkQ29udGV4dH0gZnJvbSAiQHNob3BpZnkvcmVtaXgtb3h5Z2VuIjsKLSBpbXBvcnQgdHlwZSB7RW50cnlDb250ZXh0fSBmcm9tICJAcmVtaXgtcnVuL3NlcnZlci1ydW50aW1lIjsKKyBpbXBvcnQgdHlwZSB7RW50cnlDb250ZXh0fSBmcm9tICJyZWFjdC1yb3V0ZXIiOwppbXBvcnQgewogIGNyZWF0ZUNvbnRlbnRTZWN1cml0eVBvbGljeSwKKyB0eXBlIEh5ZHJvZ2VuUm91dGVyQ29udGV4dFByb3ZpZGVyLAp9IGZyb20gIkBzaG9waWZ5L2h5ZHJvZ2VuIjsKCmV4cG9ydCBkZWZhdWx0IGFzeW5jIGZ1bmN0aW9uIGhhbmRsZVJlcXVlc3QoCiAgcmVxdWVzdDogUmVxdWVzdCwKICByZXNwb25zZVN0YXR1c0NvZGU6IG51bWJlciwKICByZXNwb25zZUhlYWRlcnM6IEhlYWRlcnMsCi0gcmVtaXhDb250ZXh0OiBFbnRyeUNvbnRleHQsCisgcmVhY3RSb3V0ZXJDb250ZXh0OiBFbnRyeUNvbnRleHQsCi0gY29udGV4dDogQXBwTG9hZENvbnRleHQsCisgY29udGV4dDogSHlkcm9nZW5Sb3V0ZXJDb250ZXh0UHJvdmlkZXIsCikgewogIGNvbnN0IHtub25jZSwgaGVhZGVyLCBOb25jZVByb3ZpZGVyfSA9IGNyZWF0ZUNvbnRlbnRTZWN1cml0eVBvbGljeSh7Li4ufSk7CgogIGNvbnN0IGJvZHkgPSBhd2FpdCByZW5kZXJUb1JlYWRhYmxlU3RyZWFtKAogICAgPE5vbmNlUHJvdmlkZXI+CiAgICAgIDxTZXJ2ZXJSb3V0ZXIKLSAgICAgICBjb250ZXh0PXtyZW1peENvbnRleHR9CisgICAgICAgY29udGV4dD17cmVhY3RSb3V0ZXJDb250ZXh0fQogICAgICAgIHVybD17cmVxdWVzdC51cmx9CiAgICAgICAgbm9uY2U9e25vbmNlfQogICAgICAvPgogICAgPC9Ob25jZVByb3ZpZGVyPiwKICApOwp9CmBgYAo="
+            },
+            {
+              "title": "Update entry.client.tsx with NonceProvider and HydratedRouter",
+              "info": "Replace RemixBrowser with HydratedRouter. Wrap with NonceProvider for CSP support during client-side hydration.",
+              "code": "YGBgZGlmZgovLyBhcHAvZW50cnkuY2xpZW50LnRzeAotIGltcG9ydCB7UmVtaXhCcm93c2VyfSBmcm9tICJAcmVtaXgtcnVuL3JlYWN0IjsKKyBpbXBvcnQge0h5ZHJhdGVkUm91dGVyfSBmcm9tICJyZWFjdC1yb3V0ZXIvZG9tIjsKaW1wb3J0IHtzdGFydFRyYW5zaXRpb24sIFN0cmljdE1vZGV9IGZyb20gInJlYWN0IjsKaW1wb3J0IHtoeWRyYXRlUm9vdH0gZnJvbSAicmVhY3QtZG9tL2NsaWVudCI7CisgaW1wb3J0IHtOb25jZVByb3ZpZGVyfSBmcm9tICJAc2hvcGlmeS9oeWRyb2dlbiI7CgppZiAoIXdpbmRvdy5sb2NhdGlvbi5vcmlnaW4uaW5jbHVkZXMoIndlYmNhY2hlLmdvb2dsZXVzZXJjb250ZW50LmNvbSIpKSB7CiAgc3RhcnRUcmFuc2l0aW9uKCgpID0+IHsKKyAgIGNvbnN0IGV4aXN0aW5nTm9uY2UgPSBkb2N1bWVudAorICAgICAucXVlcnlTZWxlY3RvcjxIVE1MU2NyaXB0RWxlbWVudD4oInNjcmlwdFtub25jZV0iKQorICAgICA/Lm5vbmNlOworCiAgICBoeWRyYXRlUm9vdCgKICAgICAgZG9jdW1lbnQsCiAgICAgIDxTdHJpY3RNb2RlPgotICAgICAgIDxSZW1peEJyb3dzZXIgLz4KKyAgICAgICA8Tm9uY2VQcm92aWRlciB2YWx1ZT17ZXhpc3RpbmdOb25jZX0+CisgICAgICAgICA8SHlkcmF0ZWRSb3V0ZXIgLz4KKyAgICAgICA8L05vbmNlUHJvdmlkZXI+CiAgICAgIDwvU3RyaWN0TW9kZT4sCiAgICApOwogIH0pOwp9CmBgYAo="
+            },
+            {
+              "title": "Update @shopify/remix-oxygen imports in route files",
+              "info": "Replace @shopify/remix-oxygen imports with react-router equivalents in your routes",
+              "code": "YGBgZGlmZgotIGltcG9ydCB7cmVkaXJlY3QsIHR5cGUgTG9hZGVyRnVuY3Rpb25BcmdzfSBmcm9tICJAc2hvcGlmeS9yZW1peC1veHlnZW4iOworIGltcG9ydCB7cmVkaXJlY3R9IGZyb20gInJlYWN0LXJvdXRlciI7CisgaW1wb3J0IHR5cGUge0xvYWRlckZ1bmN0aW9uQXJnc30gZnJvbSAiQHNob3BpZnkvaHlkcm9nZW4vb3h5Z2VuIjsKYGBgCg=="
+            },
+            {
+              "title": "Update @remix-run/react imports in route files",
+              "info": "Replace @remix-run/react imports with react-router equivalents in your routes",
+              "code": "YGBgZGlmZgotIGltcG9ydCB7dXNlTG9hZGVyRGF0YSwgdHlwZSBNZXRhRnVuY3Rpb259IGZyb20gIkByZW1peC1ydW4vcmVhY3QiOworIGltcG9ydCB7dXNlTG9hZGVyRGF0YX0gZnJvbSAicmVhY3Qtcm91dGVyIjsKYGBgCg=="
+            },
+            {
+              "title": "Add React Router 7 route type imports",
+              "info": "Import route-specific types from React Router 7's new type generation system",
+              "code": "YGBgZGlmZgorIGltcG9ydCB0eXBlIHtSb3V0ZX0gZnJvbSAiLi8rdHlwZXMvcm91dGUtbmFtZSI7CmBgYAo="
+            },
+            {
+              "title": "Add .react-router to .gitignore",
+              "info": "React Router 7 generates type files that should not be committed to version control",
+              "code": "YGBgZGlmZgplY2hvICIucmVhY3Qtcm91dGVyLyIgPj4gLmdpdGlnbm9yZQpgYGAK"
+            },
+            {
+              "title": "Update package.json scripts to use react-router typegen",
+              "info": "Add React Router type generation to your dev script. This automatically updates types during development.",
+              "code": "YGBgZGlmZgotICJkZXYiOiAic2hvcGlmeSBoeWRyb2dlbiBkZXYgLS1jb2RlZ2VuIiwKKyAiZGV2IjogInJlYWN0LXJvdXRlciB0eXBlZ2VuIC0td2F0Y2ggJiYgc2hvcGlmeSBoeWRyb2dlbiBkZXYgLS1jb2RlZ2VuIiwKYGBgCg=="
+            },
+            {
+              "title": "Verify your app starts and builds correctly",
+              "info": "Test that your application runs without errors after the migration",
+              "code": "YGBgZGlmZgpucG0gcnVuIGRldgpucG0gcnVuIGJ1aWxkCmBgYAo="
+            }
+          ],
+          "pr": "https://github.com/Shopify/hydrogen/pull/3141",
+          "id": "3141"
+        },
+        {
+          "title": "Update to Storefront API and Customer Account API version 2025-07",
+          "breaking": false,
+          "pr": "https://github.com/Shopify/hydrogen/pull/3082",
+          "id": "3082"
+        },
+        {
+          "title": "Add countryCode parameter to Customer Account API methods",
+          "info": "You can now pass the countryCode parameter to all Customer Account API methods for better localization support.",
+          "breaking": false,
+          "steps": [
+            {
+              "title": "Add countryCode parameter to Customer Account API method calls",
+              "info": "Pass the customer account country code to any Customer Account API method. See login method example.",
+              "code": "YGBgZGlmZgovLyBhcHAvcm91dGVzL2FjY291bnRfLmxvZ2luLnRzeCAoZXhhbXBsZSkKZXhwb3J0IGFzeW5jIGZ1bmN0aW9uIGxvYWRlcih7cmVxdWVzdCwgY29udGV4dH06IFJvdXRlLkxvYWRlckFyZ3MpIHsKICByZXR1cm4gY29udGV4dC5jdXN0b21lckFjY291bnQubG9naW4oeworICAgY291bnRyeUNvZGU6IGNvbnRleHQuY3VzdG9tZXJBY2NvdW50LmkxOG4uY291bnRyeSwKICB9KTsKfQoKLy8gVGhlIGNvdW50cnlDb2RlIHBhcmFtZXRlciBpcyBub3cgYXZhaWxhYmxlIG9uIGFsbCBDdXN0b21lciBBY2NvdW50IEFQSSBtZXRob2RzCi8vIGFuZCBjYW4gYmUgcGFzc2VkIGZyb20gY29udGV4dC5jdXN0b21lckFjY291bnQuaTE4bi5jb3VudHJ5CmBgYAo="
+            }
+          ],
+          "pr": "https://github.com/Shopify/hydrogen/pull/3148",
+          "id": "3148"
+        },
+        {
+          "title": "Remove individual gift cards from cart",
+          "info": "Use the new CartForm.ACTIONS.GiftCardCodesRemove action to remove individual gift cards by their IDs. You no longer need to replace all gift cards.",
+          "breaking": false,
+          "steps": [
+            {
+              "title": "Add GiftCardCodesRemove case to cart action handler",
+              "info": "Handle the new GiftCardCodesRemove action in your cart route. This enables individual gift card removal.",
+              "code": "YGBgZGlmZgovLyBhcHAvcm91dGVzL2NhcnQudHN4CmV4cG9ydCBhc3luYyBmdW5jdGlvbiBhY3Rpb24oe3JlcXVlc3QsIGNvbnRleHR9OiBSb3V0ZS5BY3Rpb25BcmdzKSB7CiAgY29uc3Qge2NhcnR9ID0gY29udGV4dDsKICBjb25zdCBmb3JtRGF0YSA9IGF3YWl0IHJlcXVlc3QuZm9ybURhdGEoKTsKICBjb25zdCB7YWN0aW9uLCBpbnB1dHN9ID0gQ2FydEZvcm0uZ2V0Rm9ybUlucHV0KGZvcm1EYXRhKTsKCiAgc3dpdGNoIChhY3Rpb24pIHsKICAgIC8vIC4uLiBleGlzdGluZyBjYXNlcyAuLi4KKyAgIGNhc2UgQ2FydEZvcm0uQUNUSU9OUy5HaWZ0Q2FyZENvZGVzUmVtb3ZlOiB7CisgICAgIGNvbnN0IGFwcGxpZWRHaWZ0Q2FyZElkcyA9IGlucHV0cy5naWZ0Q2FyZENvZGVzIGFzIHN0cmluZ1tdOworICAgICByZXN1bHQgPSBhd2FpdCBjYXJ0LnJlbW92ZUdpZnRDYXJkQ29kZXMoYXBwbGllZEdpZnRDYXJkSWRzKTsKKyAgICAgYnJlYWs7CisgICB9CiAgfQp9CmBgYAo="
+            },
+            {
+              "title": "Add RemoveGiftCardForm component",
+              "info": "Create a new form component to handle individual gift card removal",
+              "code": "YGBgZGlmZgovLyBhcHAvY29tcG9uZW50cy9DYXJ0U3VtbWFyeS50c3gKK2Z1bmN0aW9uIFJlbW92ZUdpZnRDYXJkRm9ybSh7CisgIGdpZnRDYXJkSWQsCisgIGNoaWxkcmVuLAorfTogeworICBnaWZ0Q2FyZElkOiBzdHJpbmc7CisgIGNoaWxkcmVuOiBSZWFjdC5SZWFjdE5vZGU7Cit9KSB7CisgIHJldHVybiAoCisgICAgPENhcnRGb3JtCisgICAgICByb3V0ZT0iL2NhcnQiCisgICAgICBhY3Rpb249e0NhcnRGb3JtLkFDVElPTlMuR2lmdENhcmRDb2Rlc1JlbW92ZX0KKyAgICAgIGlucHV0cz17eworICAgICAgICBnaWZ0Q2FyZENvZGVzOiBbZ2lmdENhcmRJZF0sCisgICAgICB9fQorICAgID4KKyAgICAgIHtjaGlsZHJlbn0KKyAgICA8L0NhcnRGb3JtPgorICApOworfQpgYGAK"
+            },
+            {
+              "title": "Update CartGiftCard to display gift cards with remove buttons",
+              "info": "Render applied gift cards with individual remove buttons. This improves user experience.",
+              "code": "YGBgZGlmZgovLyBhcHAvY29tcG9uZW50cy9DYXJ0U3VtbWFyeS50c3gKZnVuY3Rpb24gQ2FydEdpZnRDYXJkKHtnaWZ0Q2FyZENvZGVzfTogey4uLn0pIHsKICByZXR1cm4gKAogICAgPGRpdj4KKyAgICAge2dpZnRDYXJkQ29kZXMgJiYgZ2lmdENhcmRDb2Rlcy5sZW5ndGggPiAwICYmICgKKyAgICAgICA8ZGw+CisgICAgICAgICA8ZHQ+QXBwbGllZCBHaWZ0IENhcmQocyk8L2R0PgorICAgICAgICAge2dpZnRDYXJkQ29kZXMubWFwKChnaWZ0Q2FyZCkgPT4gKAorICAgICAgICAgICA8UmVtb3ZlR2lmdENhcmRGb3JtIGtleT17Z2lmdENhcmQuaWR9IGdpZnRDYXJkSWQ9e2dpZnRDYXJkLmlkfT4KKyAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT0iY2FydC1kaXNjb3VudCI+CisgICAgICAgICAgICAgICA8Y29kZT4qKip7Z2lmdENhcmQubGFzdENoYXJhY3RlcnN9PC9jb2RlPgorICAgICAgICAgICAgICAgPE1vbmV5IGRhdGE9e2dpZnRDYXJkLmFtb3VudFVzZWR9IC8+CisgICAgICAgICAgICAgICA8YnV0dG9uIHR5cGU9InN1Ym1pdCI+UmVtb3ZlPC9idXR0b24+CisgICAgICAgICAgICAgPC9kaXY+CisgICAgICAgICAgIDwvUmVtb3ZlR2lmdENhcmRGb3JtPgorICAgICAgICAgKSl9CisgICAgICAgPC9kbD4KKyAgICAgKX0KICAgIDwvZGl2PgogICk7Cn0KYGBgCg=="
+            }
+          ],
+          "pr": "https://github.com/Shopify/hydrogen/pull/3128",
+          "id": "3128"
+        },
+        {
+          "title": "Filter customer orders by number and confirmation",
+          "info": "Filter your customer orders by order number and confirmation number using Customer Account API query parameters.",
+          "breaking": false,
+          "steps": [
+            {
+              "title": "Create app/lib/orderFilters.ts utility",
+              "info": "Create helper functions to parse URL parameters and build Customer Account API search queries.",
+              "code": "YGBgdHlwZXNjcmlwdAovLyBhcHAvbGliL29yZGVyRmlsdGVycy50cwpleHBvcnQgY29uc3QgT1JERVJfRklMVEVSX0ZJRUxEUyA9IHsKICBOQU1FOiAnbmFtZScsCiAgQ09ORklSTUFUSU9OX05VTUJFUjogJ2NvbmZpcm1hdGlvbl9udW1iZXInLAp9IGFzIGNvbnN0OwoKZXhwb3J0IGludGVyZmFjZSBPcmRlckZpbHRlclBhcmFtcyB7CiAgbmFtZT86IHN0cmluZzsKICBjb25maXJtYXRpb25OdW1iZXI/OiBzdHJpbmc7Cn0KCmZ1bmN0aW9uIHNhbml0aXplRmlsdGVyVmFsdWUodmFsdWU6IHN0cmluZyk6IHN0cmluZyB7CiAgcmV0dXJuIHZhbHVlLnJlcGxhY2UoL1teYS16QS1aMC05X1wtXS9nLCAnJyk7Cn0KCmV4cG9ydCBmdW5jdGlvbiBidWlsZE9yZGVyU2VhcmNoUXVlcnkoCiAgZmlsdGVyczogT3JkZXJGaWx0ZXJQYXJhbXMsCik6IHN0cmluZyB8IHVuZGVmaW5lZCB7CiAgY29uc3QgcXVlcnlQYXJ0czogc3RyaW5nW10gPSBbXTsKCiAgaWYgKGZpbHRlcnMubmFtZSkgewogICAgY29uc3QgY2xlYW5OYW1lID0gZmlsdGVycy5uYW1lLnJlcGxhY2UoL14jLywgJycpLnRyaW0oKTsKICAgIGNvbnN0IHNhbml0aXplZE5hbWUgPSBzYW5pdGl6ZUZpbHRlclZhbHVlKGNsZWFuTmFtZSk7CiAgICBpZiAoc2FuaXRpemVkTmFtZSkgewogICAgICBxdWVyeVBhcnRzLnB1c2goYG5hbWU6JHtzYW5pdGl6ZWROYW1lfWApOwogICAgfQogIH0KCiAgaWYgKGZpbHRlcnMuY29uZmlybWF0aW9uTnVtYmVyKSB7CiAgICBjb25zdCBjbGVhbkNvbmZpcm1hdGlvbiA9IGZpbHRlcnMuY29uZmlybWF0aW9uTnVtYmVyLnRyaW0oKTsKICAgIGNvbnN0IHNhbml0aXplZENvbmZpcm1hdGlvbiA9IHNhbml0aXplRmlsdGVyVmFsdWUoY2xlYW5Db25maXJtYXRpb24pOwogICAgaWYgKHNhbml0aXplZENvbmZpcm1hdGlvbikgewogICAgICBxdWVyeVBhcnRzLnB1c2goYGNvbmZpcm1hdGlvbl9udW1iZXI6JHtzYW5pdGl6ZWRDb25maXJtYXRpb259YCk7CiAgICB9CiAgfQoKICByZXR1cm4gcXVlcnlQYXJ0cy5sZW5ndGggPiAwID8gcXVlcnlQYXJ0cy5qb2luKCcgQU5EICcpIDogdW5kZWZpbmVkOwp9CgpleHBvcnQgZnVuY3Rpb24gcGFyc2VPcmRlckZpbHRlcnMoCiAgc2VhcmNoUGFyYW1zOiBVUkxTZWFyY2hQYXJhbXMsCik6IE9yZGVyRmlsdGVyUGFyYW1zIHsKICBjb25zdCBmaWx0ZXJzOiBPcmRlckZpbHRlclBhcmFtcyA9IHt9OwoKICBjb25zdCBuYW1lID0gc2VhcmNoUGFyYW1zLmdldChPUkRFUl9GSUxURVJfRklFTERTLk5BTUUpOwogIGlmIChuYW1lKSBmaWx0ZXJzLm5hbWUgPSBuYW1lOwoKICBjb25zdCBjb25maXJtYXRpb25OdW1iZXIgPSBzZWFyY2hQYXJhbXMuZ2V0KE9SREVSX0ZJTFRFUl9GSUVMRFMuQ09ORklSTUFUSU9OX05VTUJFUik7CiAgaWYgKGNvbmZpcm1hdGlvbk51bWJlcikgZmlsdGVycy5jb25maXJtYXRpb25OdW1iZXIgPSBjb25maXJtYXRpb25OdW1iZXI7CgogIHJldHVybiBmaWx0ZXJzOwp9CmBgYAo="
+            },
+            {
+              "title": "Update loader to parse filters and build search query",
+              "info": "Parse URL search parameters and build the Customer Account API query string.",
+              "code": "YGBgZGlmZgovLyBhcHAvcm91dGVzL2FjY291bnQub3JkZXJzLl9pbmRleC50c3gKK2ltcG9ydCB7CisgIGJ1aWxkT3JkZXJTZWFyY2hRdWVyeSwKKyAgcGFyc2VPcmRlckZpbHRlcnMsCisgIHR5cGUgT3JkZXJGaWx0ZXJQYXJhbXMsCit9IGZyb20gJ34vbGliL29yZGVyRmlsdGVycyc7CgpleHBvcnQgYXN5bmMgZnVuY3Rpb24gbG9hZGVyKHtyZXF1ZXN0LCBjb250ZXh0fTogUm91dGUuTG9hZGVyQXJncykgewogIGNvbnN0IHtjdXN0b21lckFjY291bnR9ID0gY29udGV4dDsKICBjb25zdCBwYWdpbmF0aW9uVmFyaWFibGVzID0gZ2V0UGFnaW5hdGlvblZhcmlhYmxlcyhyZXF1ZXN0LCB7CiAgICBwYWdlQnk6IDIwLAogIH0pOwoKKyBjb25zdCB1cmwgPSBuZXcgVVJMKHJlcXVlc3QudXJsKTsKKyBjb25zdCBmaWx0ZXJzID0gcGFyc2VPcmRlckZpbHRlcnModXJsLnNlYXJjaFBhcmFtcyk7CisgY29uc3QgcXVlcnkgPSBidWlsZE9yZGVyU2VhcmNoUXVlcnkoZmlsdGVycyk7CgogIGNvbnN0IHtkYXRhLCBlcnJvcnN9ID0gYXdhaXQgY3VzdG9tZXJBY2NvdW50LnF1ZXJ5KENVU1RPTUVSX09SREVSU19RVUVSWSwgewogICAgdmFyaWFibGVzOiB7CiAgICAgIC4uLnBhZ2luYXRpb25WYXJpYWJsZXMsCisgICAgIHF1ZXJ5LAogICAgICBsYW5ndWFnZTogY3VzdG9tZXJBY2NvdW50LmkxOG4ubGFuZ3VhZ2UsCiAgICB9LAogIH0pOwoKICBpZiAoZXJyb3JzPy5sZW5ndGggfHwgIWRhdGE/LmN1c3RvbWVyKSB7CiAgICB0aHJvdyBFcnJvcignQ3VzdG9tZXIgb3JkZXJzIG5vdCBmb3VuZCcpOwogIH0KCi0gcmV0dXJuIHtjdXN0b21lcjogZGF0YS5jdXN0b21lcn07CisgcmV0dXJuIHtjdXN0b21lcjogZGF0YS5jdXN0b21lciwgZmlsdGVyc307Cn0KYGBgCg=="
+            },
+            {
+              "title": "Add OrderSearchForm component",
+              "info": "Create a search form with order number and confirmation number inputs",
+              "code": "YGBgZGlmZgovLyBhcHAvcm91dGVzL2FjY291bnQub3JkZXJzLl9pbmRleC50c3gKK2ltcG9ydCB7dXNlU2VhcmNoUGFyYW1zLCB1c2VOYXZpZ2F0aW9ufSBmcm9tICdyZWFjdC1yb3V0ZXInOworaW1wb3J0IHt1c2VSZWZ9IGZyb20gJ3JlYWN0JzsKK2ltcG9ydCB7T1JERVJfRklMVEVSX0ZJRUxEU30gZnJvbSAnfi9saWIvb3JkZXJGaWx0ZXJzJzsKCitmdW5jdGlvbiBPcmRlclNlYXJjaEZvcm0oe2N1cnJlbnRGaWx0ZXJzfToge2N1cnJlbnRGaWx0ZXJzOiBPcmRlckZpbHRlclBhcmFtc30pIHsKKyAgY29uc3QgW3NlYXJjaFBhcmFtcywgc2V0U2VhcmNoUGFyYW1zXSA9IHVzZVNlYXJjaFBhcmFtcygpOworICBjb25zdCBuYXZpZ2F0aW9uID0gdXNlTmF2aWdhdGlvbigpOworICBjb25zdCBpc1NlYXJjaGluZyA9IG5hdmlnYXRpb24uc3RhdGUgIT09ICdpZGxlJyAmJiBuYXZpZ2F0aW9uLmxvY2F0aW9uPy5wYXRobmFtZT8uaW5jbHVkZXMoJ29yZGVycycpOworICBjb25zdCBmb3JtUmVmID0gdXNlUmVmPEhUTUxGb3JtRWxlbWVudD4obnVsbCk7CisKKyAgY29uc3QgaGFuZGxlU3VibWl0ID0gKGV2ZW50OiBSZWFjdC5Gb3JtRXZlbnQ8SFRNTEZvcm1FbGVtZW50PikgPT4geworICAgIGV2ZW50LnByZXZlbnREZWZhdWx0KCk7CisgICAgY29uc3QgZm9ybURhdGEgPSBuZXcgRm9ybURhdGEoZXZlbnQuY3VycmVudFRhcmdldCk7CisgICAgY29uc3QgcGFyYW1zID0gbmV3IFVSTFNlYXJjaFBhcmFtcygpOworCisgICAgY29uc3QgbmFtZSA9IGZvcm1EYXRhLmdldChPUkRFUl9GSUxURVJfRklFTERTLk5BTUUpPy50b1N0cmluZygpLnRyaW0oKTsKKyAgICBjb25zdCBjb25maXJtYXRpb25OdW1iZXIgPSBmb3JtRGF0YS5nZXQoT1JERVJfRklMVEVSX0ZJRUxEUy5DT05GSVJNQVRJT05fTlVNQkVSKT8udG9TdHJpbmcoKS50cmltKCk7CisKKyAgICBpZiAobmFtZSkgcGFyYW1zLnNldChPUkRFUl9GSUxURVJfRklFTERTLk5BTUUsIG5hbWUpOworICAgIGlmIChjb25maXJtYXRpb25OdW1iZXIpIHBhcmFtcy5zZXQoT1JERVJfRklMVEVSX0ZJRUxEUy5DT05GSVJNQVRJT05fTlVNQkVSLCBjb25maXJtYXRpb25OdW1iZXIpOworCisgICAgc2V0U2VhcmNoUGFyYW1zKHBhcmFtcyk7CisgIH07CisKKyAgcmV0dXJuICgKKyAgICA8Zm9ybSByZWY9e2Zvcm1SZWZ9IG9uU3VibWl0PXtoYW5kbGVTdWJtaXR9PgorICAgICAgPGlucHV0IHR5cGU9InNlYXJjaCIgbmFtZT17T1JERVJfRklMVEVSX0ZJRUxEUy5OQU1FfSBwbGFjZWhvbGRlcj0iT3JkZXIgIyIgZGVmYXVsdFZhbHVlPXtjdXJyZW50RmlsdGVycy5uYW1lIHx8ICcnfSAvPgorICAgICAgPGlucHV0IHR5cGU9InNlYXJjaCIgbmFtZT17T1JERVJfRklMVEVSX0ZJRUxEUy5DT05GSVJNQVRJT05fTlVNQkVSfSBwbGFjZWhvbGRlcj0iQ29uZmlybWF0aW9uICMiIGRlZmF1bHRWYWx1ZT17Y3VycmVudEZpbHRlcnMuY29uZmlybWF0aW9uTnVtYmVyIHx8ICcnfSAvPgorICAgICAgPGJ1dHRvbiB0eXBlPSJzdWJtaXQiIGRpc2FibGVkPXtpc1NlYXJjaGluZ30+e2lzU2VhcmNoaW5nID8gJ1NlYXJjaGluZycgOiAnU2VhcmNoJ308L2J1dHRvbj4KKyAgICA8L2Zvcm0+CisgICk7Cit9CmBgYAo="
+            },
+            {
+              "title": "Update Orders component to use filters and add EmptyOrders",
+              "info": "Pass filters to components and add conditional empty state messaging.",
+              "code": "YGBgZGlmZgovLyBhcHAvcm91dGVzL2FjY291bnQub3JkZXJzLl9pbmRleC50c3gKZXhwb3J0IGRlZmF1bHQgZnVuY3Rpb24gT3JkZXJzKCkgewotIGNvbnN0IHtjdXN0b21lcn0gPSB1c2VMb2FkZXJEYXRhPE9yZGVyc0xvYWRlckRhdGE+KCk7CisgY29uc3Qge2N1c3RvbWVyLCBmaWx0ZXJzfSA9IHVzZUxvYWRlckRhdGE8T3JkZXJzTG9hZGVyRGF0YT4oKTsKICBjb25zdCB7b3JkZXJzfSA9IGN1c3RvbWVyOwoKICByZXR1cm4gKAogICAgPGRpdiBjbGFzc05hbWU9Im9yZGVycyI+CisgICAgIDxPcmRlclNlYXJjaEZvcm0gY3VycmVudEZpbHRlcnM9e2ZpbHRlcnN9IC8+Ci0gICAgIDxPcmRlcnNUYWJsZSBvcmRlcnM9e29yZGVyc30gLz4KKyAgICAgPE9yZGVyc1RhYmxlIG9yZGVycz17b3JkZXJzfSBmaWx0ZXJzPXtmaWx0ZXJzfSAvPgogICAgPC9kaXY+CiAgKTsKfQoKLWZ1bmN0aW9uIE9yZGVyc1RhYmxlKHtvcmRlcnN9OiB7b3JkZXJzOiBDdXN0b21lck9yZGVyc0ZyYWdtZW50WydvcmRlcnMnXX0pIHsKK2Z1bmN0aW9uIE9yZGVyc1RhYmxlKHtvcmRlcnMsIGZpbHRlcnN9OiB7b3JkZXJzOiBDdXN0b21lck9yZGVyc0ZyYWdtZW50WydvcmRlcnMnXTsgZmlsdGVyczogT3JkZXJGaWx0ZXJQYXJhbXN9KSB7CisgIGNvbnN0IGhhc0ZpbHRlcnMgPSAhIShmaWx0ZXJzLm5hbWUgfHwgZmlsdGVycy5jb25maXJtYXRpb25OdW1iZXIpOworCiAgcmV0dXJuICgKICAgIDxkaXY+CiAgICAgIHtvcmRlcnM/Lm5vZGVzLmxlbmd0aCA/ICgKICAgICAgICA8UGFnaW5hdGVkUmVzb3VyY2VTZWN0aW9uIGNvbm5lY3Rpb249e29yZGVyc30+CiAgICAgICAgICB7KHtub2RlOiBvcmRlcn0pID0+IDxPcmRlckl0ZW0ga2V5PXtvcmRlci5pZH0gb3JkZXI9e29yZGVyfSAvPn0KICAgICAgICA8L1BhZ2luYXRlZFJlc291cmNlU2VjdGlvbj4KICAgICAgKSA6ICgKLSAgICAgICA8cD5Zb3UgaGF2ZW4ndCBwbGFjZWQgYW55IG9yZGVycyB5ZXQuPC9wPgorICAgICAgIDxFbXB0eU9yZGVycyBoYXNGaWx0ZXJzPXtoYXNGaWx0ZXJzfSAvPgogICAgICApfQogICAgPC9kaXY+CiAgKTsKfQoKK2Z1bmN0aW9uIEVtcHR5T3JkZXJzKHtoYXNGaWx0ZXJzfToge2hhc0ZpbHRlcnM/OiBib29sZWFufSkgeworICByZXR1cm4gaGFzRmlsdGVycyA/ICgKKyAgICA8cD5ObyBvcmRlcnMgZm91bmQgbWF0Y2hpbmcgeW91ciBzZWFyY2guIDxMaW5rIHRvPSIvYWNjb3VudC9vcmRlcnMiPkNsZWFyIGZpbHRlcnM8L0xpbms+PC9wPgorICApIDogKAorICAgIDxwPllvdSBoYXZlbid0IHBsYWNlZCBhbnkgb3JkZXJzIHlldC48L3A+CisgICk7Cit9CmBgYAo="
+            }
+          ],
+          "pr": "https://github.com/Shopify/hydrogen/pull/3125",
+          "id": "3125"
+        },
+        {
+          "title": "Get order fulfillment status from Customer Account API",
+          "info": "You can now access fulfillmentStatus in your Order fragments for better order status tracking.",
+          "breaking": false,
+          "steps": [
+            {
+              "title": "Add fulfillmentStatus field to Order fragment",
+              "info": "Include fulfillmentStatus in your Customer Account API order queries.",
+              "code": "YGBgZGlmZgovLyBhcHAvZ3JhcGhxbC9jdXN0b21lci1hY2NvdW50L0N1c3RvbWVyT3JkZXJRdWVyeS50cwpmcmFnbWVudCBPcmRlciBvbiBPcmRlciB7CiAgaWQKICBuYW1lCiAgY29uZmlybWF0aW9uTnVtYmVyCiAgc3RhdHVzUGFnZVVybAorIGZ1bGZpbGxtZW50U3RhdHVzCiAgcHJvY2Vzc2VkQXQKICBmdWxmaWxsbWVudHMoZmlyc3Q6IDEpIHsKICAgIG5vZGVzIHsKICAgICAgc3RhdHVzCiAgICB9CiAgfQp9CmBgYAo="
+            }
+          ],
+          "pr": "https://github.com/Shopify/hydrogen/pull/3039",
+          "id": "3039-fulfillment"
+        },
+        {
+          "title": "Use language context in Customer Account API mutations",
+          "info": "Your Customer Account API queries and mutations now support language context through the @inContext directive. This gives you proper localization.",
+          "breaking": false,
+          "steps": [
+            {
+              "title": "Add @inContext directive to all Customer Account API operations",
+              "info": "Add $language parameter and @inContext directive to your queries and mutations for localized content.",
+              "code": "YGBgZGlmZgovLyBhcHAvZ3JhcGhxbC9jdXN0b21lci1hY2NvdW50LyoudHMgKGFwcGx5IHRvIGFsbCBxdWVyaWVzIGFuZCBtdXRhdGlvbnMpCi8vIEV4YW1wbGU6IEN1c3RvbWVyRGV0YWlsc1F1ZXJ5LnRzCi0gcXVlcnkgQ3VzdG9tZXJEZXRhaWxzIHsKKyBxdWVyeSBDdXN0b21lckRldGFpbHMoJGxhbmd1YWdlOiBMYW5ndWFnZUNvZGUpIEBpbkNvbnRleHQobGFuZ3VhZ2U6ICRsYW5ndWFnZSkgewogICAgY3VzdG9tZXIgewogICAgICAuLi5DdXN0b21lcgogICAgfQogIH0KCi8vIEV4YW1wbGU6IEN1c3RvbWVyQWRkcmVzc011dGF0aW9ucy50cyAgCiAgbXV0YXRpb24gQ3VzdG9tZXJBZGRyZXNzVXBkYXRlKAogICAgJGFkZHJlc3M6IE1haWxpbmdBZGRyZXNzSW5wdXQhCiAgICAkYWRkcmVzc0lkOiBJRCEKICAgICRkZWZhdWx0QWRkcmVzczogQm9vbGVhbgorICAgJGxhbmd1YWdlOiBMYW5ndWFnZUNvZGUKLSApIHsKKyApIEBpbkNvbnRleHQobGFuZ3VhZ2U6ICRsYW5ndWFnZSkgewogICAgY3VzdG9tZXJBZGRyZXNzVXBkYXRlKC4uLikKICB9CgovLyBBcHBseSB0aGlzIHBhdHRlcm4gdG8gYWxsIEN1c3RvbWVyIEFjY291bnQgQVBJIHF1ZXJpZXMgYW5kIG11dGF0aW9uczoKLy8gLSBDdXN0b21lckRldGFpbHNRdWVyeS50cwovLyAtIEN1c3RvbWVyT3JkZXJRdWVyeS50cwovLyAtIEN1c3RvbWVyT3JkZXJzUXVlcnkudHMKLy8gLSBDdXN0b21lclVwZGF0ZU11dGF0aW9uLnRzCi8vIC0gQ3VzdG9tZXJBZGRyZXNzTXV0YXRpb25zLnRzIChhbGwgMyBtdXRhdGlvbnMpCmBgYAo="
+            }
+          ],
+          "pr": "https://github.com/Shopify/hydrogen/pull/3039",
+          "id": "3039-incontext"
+        },
+        {
+          "title": "Defer non-critical fields with GraphQL @defer directive",
+          "info": "Your Storefront client now supports the @defer directive. Defer non-critical field loading to improve performance.",
+          "breaking": false,
+          "steps": [
+            {
+              "title": "Use @defer directive in Storefront API queries",
+              "info": "Wrap non-critical fields with @defer. This improves initial page load performance.",
+              "code": "YGBgZGlmZgovLyBhcHAvcm91dGVzL3lvdXItcm91dGUudHN4IChleGFtcGxlKQoraW1wb3J0IHtMb2FkZXJGdW5jdGlvbkFyZ3MsIHVzZUxvYWRlckRhdGF9IGZyb20gJ3JlYWN0LXJvdXRlcic7CgpleHBvcnQgYXN5bmMgZnVuY3Rpb24gbG9hZGVyKHtjb250ZXh0fTogTG9hZGVyRnVuY3Rpb25BcmdzKSB7CiAgY29uc3QgZGF0YSA9IGF3YWl0IGNvbnRleHQuc3RvcmVmcm9udC5xdWVyeSgKICAgIGAKICBxdWVyeSBQcm9kdWN0UXVlcnkoJGhhbmRsZTogU3RyaW5nKSB7CiAgICBwcm9kdWN0KGhhbmRsZTogJGhhbmRsZSkgewogICAgICBpZAogICAgICBoYW5kbGUKKyAgICAgLi4uIEBkZWZlcihsYWJlbDogImRlZmVycmVkRmllbGRzIikgeworICAgICAgIHRpdGxlCisgICAgICAgZGVzY3JpcHRpb24KKyAgICAgfQogICAgfQogIH0KYCwKICAgIHsKICAgICAgdmFyaWFibGVzOiB7CiAgICAgICAgaGFuZGxlOiAndjItc25vd2JvYXJkJywKICAgICAgfSwKICAgIH0sCiAgKTsKICByZXR1cm4gZGF0YTsKfQoKLy8gVGhlIEBkZWZlciBkaXJlY3RpdmUgYWxsb3dzIHlvdSB0byBkZWZlciBsb2FkaW5nIG9mIG5vbi1jcml0aWNhbCBmaWVsZHMKLy8gaW1wcm92aW5nIGluaXRpYWwgcGFnZSBsb2FkIHBlcmZvcm1hbmNlCmBgYAo="
+            }
+          ],
+          "pr": "https://github.com/Shopify/hydrogen/pull/2993",
+          "id": "2993"
+        },
+        {
+          "title": "Include cdn.shopify.com by default in CSP connectSrc",
+          "info": "Improves Content Security Policy defaults for Shopify CDN resources.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3172",
+          "id": "3172"
+        },
+        {
+          "title": "Upgrade Miniflare from v2 to v3",
+          "info": "Internal MiniOxygen API refactored to work with Miniflare v3's new architecture, improving development server performance and compatibility.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3039",
+          "id": "3039"
+        }
+      ]
+    },
+    {
+      "title": "[ONLY USE IF YOU ARE CURRENTLY ON 2025.5.0; ELSE SKIP TO >=2025.7.0 UPGRADE] New Shopify cookie system and analytics improvements",
+      "version": "2025.5.1",
+      "date": "2026-01-13",
+      "hash": "37373ce4903c32a215e7f1d22066634c7a909bab",
+      "commit": "https://github.com/Shopify/hydrogen/commit/37373ce4903c32a215e7f1d22066634c7a909bab",
+      "pr": "https://github.com/Shopify/hydrogen/pull/3368",
+      "dependencies": {
+        "@shopify/hydrogen": "2025.5.1"
+      },
+      "devDependencies": {
+        "@shopify/cli": "^3.83.3"
+      },
+      "fixes": [
+        {
+          "title": "Fix Privacy Banner and analytics event issues",
+          "info": "Fixed irregular behaviors between Privacy Banner and Hydrogen's analytics events.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3350",
+          "id": "3350-privacy"
+        }
+      ],
+      "features": [
+        {
+          "title": "Migrate to Shopify's new cookie system",
+          "info": "Hydrogen now supports Shopify's new `_shopify_analytics` and `_shopify_marketing` http-only cookies while keeping the deprecated `_shopify_y` and `_shopify_s` cookies working as long as they remain active. This keeps analytics and privacy behavior aligned with Shopify Admin while preserving backward compatibility.",
+          "breaking": false,
+          "steps": [
+            {
+              "title": "Understand the new cookie model and compatibility story",
+              "info": "Shopify is deprecating `_shopify_y` and `_shopify_s` in favor of `_shopify_analytics` and `_shopify_marketing`, which are http-only cookies set via the Storefront API on your storefront domain. Hydrogen now reads and writes these cookies through a Storefront API proxy while still honoring the legacy cookies when present. You don't need to migrate values manually, but you must ensure that requests flow through the proxy so cookies are set before analytics run."
+            },
+            {
+              "title": "Set up a Storefront API proxy for your deployment",
+              "info": "Depending on how you host your app, you must ensure Storefront API calls go through a proxy on your storefront domain.",
+              "code": "IyMjIFJlYWN0IFJvdXRlciArIEh5ZHJvZ2VuIG9uIE94eWdlbgoKSWYgeW91IHNjYWZmb2xkZWQgZnJvbSB0aGUgZGVmYXVsdCBIeWRyb2dlbiBza2VsZXRvbiBhbmQgZGVwbG95IHRvIE94eWdlbiwgdGhlIGBjcmVhdGVSZXF1ZXN0SGFuZGxlcmAgdXRpbGl0eSBmcm9tIGBAc2hvcGlmeS9oeWRyb2dlbi9veHlnZW5gIChub3cgYWxzbyBleHBvcnRlZCBmcm9tIGBAc2hvcGlmeS9oeWRyb2dlbmApIGFscmVhZHkgc2V0cyB1cCBhIFN0b3JlZnJvbnQgQVBJIHByb3h5IG9uIHRoZSBzYW1lIGRvbWFpbiBhcyB5b3VyIHN0b3JlZnJvbnQuCgoqKkluIG1vc3QgY2FzZXMsIG5vIGNoYW5nZXMgYXJlIHJlcXVpcmVkKio7IGp1c3QgY29uZmlybSB5b3VyIHNlcnZlciBlbnRyeSBzdGlsbCB1c2VzIGl0OgoKYGBgdHMKLy8gc2VydmVyLnRzIChPeHlnZW4pCmltcG9ydCB7Y3JlYXRlUmVxdWVzdEhhbmRsZXIsIGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dH0gZnJvbSAnQHNob3BpZnkvaHlkcm9nZW4nOwoKZXhwb3J0IGRlZmF1bHQgewogIGFzeW5jIGZldGNoKHJlcXVlc3QsIGVudikgewogICAgY29uc3QgaHlkcm9nZW5Db250ZXh0ID0gY3JlYXRlSHlkcm9nZW5Db250ZXh0KHsKICAgICAgZW52LAogICAgICByZXF1ZXN0LAogICAgICAvKiAuLi4gKi8KICAgIH0pOwoKICAgIGNvbnN0IGhhbmRsZVJlcXVlc3QgPSBjcmVhdGVSZXF1ZXN0SGFuZGxlcih7CiAgICAgIC8qIC4uLiAqLwogICAgICBnZXRMb2FkQ29udGV4dDogKCkgPT4gaHlkcm9nZW5Db250ZXh0LAogICAgICAvLyBBbHRlcm5hdGl2ZWx5LCBwYXNzIGF0IGxlYXN0IHN0b3JlZnJvbnQgY2xpZW50OgogICAgICAvLyBnZXRMb2FkQ29udGV4dDogKCkgPT4gKHtzdG9yZWZyb250OiBjcmVhdGVTdG9yZWZyb250Q2xpZW50KC4uLil9KQogICAgfSk7CgogICAgcmV0dXJuIGhhbmRsZVJlcXVlc3QocmVxdWVzdCk7CiAgfSwKfTsKYGBgCgpLZWVwIHVzaW5nIGA8QW5hbHl0aWNzLlByb3ZpZGVyPmAgY29tcG9uZW50IG9yIGB1c2VDdXN0b21lclByaXZhY3lgIGhvb2sgdG8gZ2V0IGNvb2tpZXMgaW4gdGhlIGJyb3dzZXIgYXV0b21hdGljYWxseS4KCkZvciBhIGZ1bGwgZXhhbXBsZSwgcmVmZXIgdG8gb3VyIFtza2VsZXRvbiB0ZW1wbGF0ZV0oaHR0cHM6Ly9naXRodWIuY29tL1Nob3BpZnkvaHlkcm9nZW4vYmxvYi9tYWluL3RlbXBsYXRlcy9za2VsZXRvbi9zZXJ2ZXIudHMpLgoKIyMjIFJlYWN0IFJvdXRlciArIEh5ZHJvZ2VuIG9uIG90aGVyIGhvc3RzCgojIyMjIEhvc3RzIHRoYXQgc3VwcG9ydCBXZWIgRmV0Y2ggQVBJIChSZXF1ZXN0L1Jlc3BvbnNlKQoKT24gaG9zdHMgdGhhdCBzdXBwb3J0IHRoZSBzdGFuZGFyZCBXZWIgRmV0Y2ggQVBJIChXb3JrZXJzLXN0eWxlIGVudmlyb25tZW50cyksIGltcG9ydCBgY3JlYXRlUmVxdWVzdEhhbmRsZXJgIGZyb20gYEBzaG9waWZ5L2h5ZHJvZ2VuYCAoaW5zdGVhZCBvZiBgcmVhY3Qtcm91dGVyYCkgYW5kIHJvdXRlIHJlcXVlc3RzIHRocm91Z2ggaXQ6CgpgYGB0cwppbXBvcnQge2NyZWF0ZVJlcXVlc3RIYW5kbGVyLCBjcmVhdGVIeWRyb2dlbkNvbnRleHR9IGZyb20gJ0BzaG9waWZ5L2h5ZHJvZ2VuJzsKCmNvbnN0IGh5ZHJvZ2VuQ29udGV4dCA9IGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dCh7CiAgLyogLi4uICovCn0pOwoKY29uc3QgaGFuZGxlUmVxdWVzdCA9IGNyZWF0ZVJlcXVlc3RIYW5kbGVyKHsKICAvKiAuLi4gKi8KICBnZXRMb2FkQ29udGV4dDogKCkgPT4gaHlkcm9nZW5Db250ZXh0LAp9KTsKYGBgCgojIyMjIE5vZGUuanMgYW5kIG90aGVyIGhvc3RzCgpGb3IgTm9kZS1saWtlIGVudmlyb25tZW50cywgYWRhcHQgTm9kZSByZXF1ZXN0cyB0byBGZXRjaCB3aXRoIFtgQHJlbWl4LXJ1bi9ub2RlLWZldGNoLXNlcnZlcmBdKGh0dHBzOi8vd3d3Lm5wbWpzLmNvbS9wYWNrYWdlL0ByZW1peC1ydW4vbm9kZS1mZXRjaC1zZXJ2ZXIpLCB0aGVuIGRlbGVnYXRlIHRvIEh5ZHJvZ2VuJ3MgaGFuZGxlcjoKCmBgYHRzCmltcG9ydCB7Y3JlYXRlUmVxdWVzdEhhbmRsZXIsIGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dH0gZnJvbSAnQHNob3BpZnkvaHlkcm9nZW4nOwppbXBvcnQge2NyZWF0ZVJlcXVlc3RMaXN0ZW5lcn0gZnJvbSAnQHJlbWl4LXJ1bi9ub2RlLWZldGNoLXNlcnZlcic7CmltcG9ydCBodHRwIGZyb20gJ2h0dHAnOwoKY29uc3QgaGFuZGxlTm9kZVJlcXVlc3QgPSBjcmVhdGVSZXF1ZXN0TGlzdGVuZXIoKHJlcXVlc3QpID0+IHsKICBjb25zdCBoeWRyb2dlbkNvbnRleHQgPSBjcmVhdGVIeWRyb2dlbkNvbnRleHQoewogICAgLyogLi4uICovCiAgfSk7CgogIGNvbnN0IGhhbmRsZVdlYlJlcXVlc3QgPSBjcmVhdGVSZXF1ZXN0SGFuZGxlcih7CiAgICAvKiAuLi4gKi8KICAgIGdldExvYWRDb250ZXh0OiAoKSA9PiBoeWRyb2dlbkNvbnRleHQsCiAgfSk7CgogIHJldHVybiBoYW5kbGVXZWJSZXF1ZXN0KHJlcXVlc3QpOwp9KTsKCmh0dHAuY3JlYXRlU2VydmVyKGhhbmRsZU5vZGVSZXF1ZXN0KTsKYGBgCgpBbHRlcm5hdGl2ZWx5LCBpZiB5b3UgY2FuJ3QgZGVsZWdhdGUgdG8gSHlkcm9nZW4ncyBgY3JlYXRlUmVxdWVzdEhhbmRsZXJgLCB5b3UgY2FuIHByb3ZpZGUgYSBjdXN0b20gU3RvcmVmcm9udCBBUEkgcHJveHkgaW4geW91ciBzZXJ2ZXIuIFNlZSBbSHlkcm9nZW4ncyBpbXBsZW1lbnRhdGlvbl0oaHR0cHM6Ly9naXRodWIuY29tL1Nob3BpZnkvaHlkcm9nZW4vYmxvYi8yNzA2NmEyODU3NzQ4NGY0MDYyMjIxMTZhOTU5ZWI0NjNkMjU1Njg1L3BhY2thZ2VzL2h5ZHJvZ2VuL3NyYy9zdG9yZWZyb250LnRzI0w1NDYtTDYxMSkgYXMgYSByZWZlcmVuY2UuIEluIHRoaXMgY2FzZSwgZW5zdXJlIHlvdSBtYW51YWxseSBwYXNzIGBzYW1lRG9tYWluRm9yU3RvcmVmcm9udEFwaTogdHJ1ZWAgaW4gdGhlIGBjb25zZW50YCBvYmplY3QgZm9yIGA8QW5hbHl0aWNzLlByb3ZpZGVyPmAgb3IgYXMgYSBwcm9wIHRvIHRoZSBgdXNlQ3VzdG9tZXJQcml2YWN5YCBob29rLgo="
+            }
+          ],
+          "pr": "https://github.com/Shopify/hydrogen/pull/3350",
+          "id": "3350"
+        }
+      ]
+    },
+    {
+      "title": "New Shopify cookie system and analytics improvements",
+      "version": "2025.4.2",
+      "date": "2026-01-14",
+      "hash": "6a8d5ff69b87a66c1ddb771d733ce7a4a0460001",
+      "commit": "https://github.com/Shopify/hydrogen/commit/6a8d5ff69b87a66c1ddb771d733ce7a4a0460001",
+      "pr": "https://github.com/Shopify/hydrogen/pull/3343",
+      "dependencies": {
+        "@shopify/hydrogen": "2025.4.2"
+      },
+      "devDependencies": {
+        "@shopify/cli": "^3.83.3"
+      },
+      "fixes": [
+        {
+          "title": "Fix Privacy Banner and analytics event issues",
+          "info": "Fixed irregular behaviors between Privacy Banner and Hydrogen's analytics events.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3332",
+          "id": "3332-privacy"
+        }
+      ],
+      "features": [
+        {
+          "title": "Migrate to Shopify's new cookie system",
+          "info": "Hydrogen now supports Shopify's new `_shopify_analytics` and `_shopify_marketing` http-only cookies while keeping the deprecated `_shopify_y` and `_shopify_s` cookies working as long as they remain active. This keeps analytics and privacy behavior aligned with Shopify Admin while preserving backward compatibility.",
+          "breaking": false,
+          "steps": [
+            {
+              "title": "Understand the new cookie model and compatibility story",
+              "info": "Shopify is deprecating `_shopify_y` and `_shopify_s` in favor of `_shopify_analytics` and `_shopify_marketing`, which are http-only cookies set via the Storefront API on your storefront domain. Hydrogen now reads and writes these cookies through a Storefront API proxy while still honoring the legacy cookies when present. You don't need to migrate values manually, but you must ensure that requests flow through the proxy so cookies are set before analytics run."
+            },
+            {
+              "title": "Set up a Storefront API proxy for your deployment",
+              "info": "Depending on how you host your app, you must ensure Storefront API calls go through a proxy on your storefront domain.",
+              "code": "IyMjIFJlbWl4ICsgSHlkcm9nZW4gb24gT3h5Z2VuCgpJZiB5b3Ugc2NhZmZvbGRlZCBmcm9tIHRoZSBkZWZhdWx0IEh5ZHJvZ2VuIHNrZWxldG9uIGFuZCBkZXBsb3kgdG8gT3h5Z2VuLCB0aGUgYGNyZWF0ZVJlcXVlc3RIYW5kbGVyYCB1dGlsaXR5IGZyb20gYEBzaG9waWZ5L3JlbWl4LW94eWdlbmAgYWxyZWFkeSBzZXRzIHVwIGEgU3RvcmVmcm9udCBBUEkgcHJveHkgb24gdGhlIHNhbWUgZG9tYWluIGFzIHlvdXIgc3RvcmVmcm9udC4KCioqSW4gbW9zdCBjYXNlcywgbm8gY2hhbmdlcyBhcmUgcmVxdWlyZWQqKjsganVzdCBjb25maXJtIHlvdXIgc2VydmVyIGVudHJ5IHN0aWxsIHVzZXMgaXQ6CgpgYGB0cwovLyBzZXJ2ZXIudHMgKE94eWdlbikKaW1wb3J0IHtjcmVhdGVSZXF1ZXN0SGFuZGxlcn0gZnJvbSAnQHNob3BpZnkvcmVtaXgtb3h5Z2VuJzsKaW1wb3J0IHtjcmVhdGVIeWRyb2dlbkNvbnRleHR9IGZyb20gJ0BzaG9waWZ5L2h5ZHJvZ2VuJzsKCmV4cG9ydCBkZWZhdWx0IHsKICBhc3luYyBmZXRjaChyZXF1ZXN0LCBlbnYpIHsKICAgIGNvbnN0IGh5ZHJvZ2VuQ29udGV4dCA9IGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dCh7CiAgICAgIGVudiwKICAgICAgcmVxdWVzdCwKICAgICAgLyogLi4uICovCiAgICB9KTsKCiAgICBjb25zdCBoYW5kbGVSZXF1ZXN0ID0gY3JlYXRlUmVxdWVzdEhhbmRsZXIoewogICAgICAvKiAuLi4gKi8KICAgICAgZ2V0TG9hZENvbnRleHQ6ICgpID0+IGh5ZHJvZ2VuQ29udGV4dCwKICAgIH0pOwoKICAgIHJldHVybiBoYW5kbGVSZXF1ZXN0KHJlcXVlc3QpOwogIH0sCn07CmBgYAoKS2VlcCB1c2luZyBgPEFuYWx5dGljcy5Qcm92aWRlcj5gIGNvbXBvbmVudCBvciBgdXNlQ3VzdG9tZXJQcml2YWN5YCBob29rIHRvIGdldCBjb29raWVzIGluIHRoZSBicm93c2VyIGF1dG9tYXRpY2FsbHkuCgpGb3IgYSBmdWxsIGV4YW1wbGUsIHJlZmVyIHRvIHlvdXIgc2tlbGV0b24gdGVtcGxhdGUncyBzZXJ2ZXIudHMuCgojIyMgUmVtaXggKyBIeWRyb2dlbiBvbiBvdGhlciBob3N0cwoKIyMjIyBIb3N0cyB0aGF0IHN1cHBvcnQgV2ViIEZldGNoIEFQSSAoUmVxdWVzdC9SZXNwb25zZSkKCk9uIGhvc3RzIHRoYXQgc3VwcG9ydCB0aGUgc3RhbmRhcmQgV2ViIEZldGNoIEFQSSAoV29ya2Vycy1zdHlsZSBlbnZpcm9ubWVudHMpLCBpbXBvcnQgYGNyZWF0ZVJlcXVlc3RIYW5kbGVyYCBmcm9tIGBAc2hvcGlmeS9oeWRyb2dlbmAgYW5kIHJvdXRlIHJlcXVlc3RzIHRocm91Z2ggaXQ6CgpgYGB0cwppbXBvcnQge2NyZWF0ZVJlcXVlc3RIYW5kbGVyLCBjcmVhdGVIeWRyb2dlbkNvbnRleHR9IGZyb20gJ0BzaG9waWZ5L2h5ZHJvZ2VuJzsKCmNvbnN0IGh5ZHJvZ2VuQ29udGV4dCA9IGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dCh7CiAgLyogLi4uICovCn0pOwoKY29uc3QgaGFuZGxlUmVxdWVzdCA9IGNyZWF0ZVJlcXVlc3RIYW5kbGVyKHsKICAvKiAuLi4gKi8KICBnZXRMb2FkQ29udGV4dDogKCkgPT4gaHlkcm9nZW5Db250ZXh0LAp9KTsKYGBgCgojIyMjIE5vZGUuanMgYW5kIG90aGVyIGhvc3RzCgpGb3IgTm9kZS1saWtlIGVudmlyb25tZW50cywgYWRhcHQgTm9kZSByZXF1ZXN0cyB0byBGZXRjaCB3aXRoIFtgQHJlbWl4LXJ1bi9ub2RlLWZldGNoLXNlcnZlcmBdKGh0dHBzOi8vd3d3Lm5wbWpzLmNvbS9wYWNrYWdlL0ByZW1peC1ydW4vbm9kZS1mZXRjaC1zZXJ2ZXIpLCB0aGVuIGRlbGVnYXRlIHRvIEh5ZHJvZ2VuJ3MgaGFuZGxlcjoKCmBgYHRzCmltcG9ydCB7Y3JlYXRlUmVxdWVzdEhhbmRsZXIsIGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dH0gZnJvbSAnQHNob3BpZnkvaHlkcm9nZW4nOwppbXBvcnQge2NyZWF0ZVJlcXVlc3RMaXN0ZW5lcn0gZnJvbSAnQHJlbWl4LXJ1bi9ub2RlLWZldGNoLXNlcnZlcic7CmltcG9ydCBodHRwIGZyb20gJ2h0dHAnOwoKY29uc3QgaGFuZGxlTm9kZVJlcXVlc3QgPSBjcmVhdGVSZXF1ZXN0TGlzdGVuZXIoKHJlcXVlc3QpID0+IHsKICBjb25zdCBoeWRyb2dlbkNvbnRleHQgPSBjcmVhdGVIeWRyb2dlbkNvbnRleHQoewogICAgLyogLi4uICovCiAgfSk7CgogIGNvbnN0IGhhbmRsZVdlYlJlcXVlc3QgPSBjcmVhdGVSZXF1ZXN0SGFuZGxlcih7CiAgICAvKiAuLi4gKi8KICAgIGdldExvYWRDb250ZXh0OiAoKSA9PiBoeWRyb2dlbkNvbnRleHQsCiAgfSk7CgogIHJldHVybiBoYW5kbGVXZWJSZXF1ZXN0KHJlcXVlc3QpOwp9KTsKCmh0dHAuY3JlYXRlU2VydmVyKGhhbmRsZU5vZGVSZXF1ZXN0KTsKYGBgCgpBbHRlcm5hdGl2ZWx5LCBpZiB5b3UgY2FuJ3QgZGVsZWdhdGUgdG8gSHlkcm9nZW4ncyBgY3JlYXRlUmVxdWVzdEhhbmRsZXJgLCB5b3UgY2FuIHByb3ZpZGUgYSBjdXN0b20gU3RvcmVmcm9udCBBUEkgcHJveHkgaW4geW91ciBzZXJ2ZXIuIFNlZSBbSHlkcm9nZW4ncyBpbXBsZW1lbnRhdGlvbl0oaHR0cHM6Ly9naXRodWIuY29tL1Nob3BpZnkvaHlkcm9nZW4vYmxvYi8yNzA2NmEyODU3NzQ4NGY0MDYyMjIxMTZhOTU5ZWI0NjNkMjU1Njg1L3BhY2thZ2VzL2h5ZHJvZ2VuL3NyYy9zdG9yZWZyb250LnRzI0w1NDYtTDYxMSkgYXMgYSByZWZlcmVuY2UuIEluIHRoaXMgY2FzZSwgZW5zdXJlIHlvdSBtYW51YWxseSBwYXNzIGBzYW1lRG9tYWluRm9yU3RvcmVmcm9udEFwaTogdHJ1ZWAgaW4gdGhlIGBjb25zZW50YCBvYmplY3QgZm9yIGA8QW5hbHl0aWNzLlByb3ZpZGVyPmAgb3IgYXMgYSBwcm9wIHRvIHRoZSBgdXNlQ3VzdG9tZXJQcml2YWN5YCBob29rLgo="
+            }
+          ],
+          "pr": "https://github.com/Shopify/hydrogen/pull/3332",
+          "id": "3332"
+        }
+      ]
+    },
+    {
+      "title": "[COMPLETE BEFORE ATTEMPTING 2025.7.0 UPGRADE] Bump Shopify CLI version",
+      "version": "2025.4.1",
+      "hash": "e4f44954a5dc53e6dfccd1b7e96de593bbb0887a",
+      "commit": "https://github.com/Shopify/hydrogen/commit/e4f44954a5dc53e6dfccd1b7e96de593bbb0887a",
+      "dependencies": {
+        "@shopify/hydrogen": "2025.4.1"
+      },
+      "devDependencies": {
+        "@shopify/cli": "~3.83.3",
+        "vite": "^6.2.7"
+      },
+      "dependenciesMeta": {
+        "@shopify/cli": {
+          "required": true
+        },
+        "@remix-run/react": {
+          "required": true
+        },
+        "@remix-run/server-runtime": {
+          "required": true
+        },
+        "@remix-run/dev": {
+          "required": true
+        },
+        "@shopify/mini-oxygen": {
+          "required": true
+        },
+        "@shopify/remix-oxygen": {
+          "required": true
+        },
+        "@remix-run/fs-routes": {
+          "required": true
+        },
+        "@remix-run/route-config": {
+          "required": true
+        }
+      },
+      "fixes": [
+        {
+          "title": "Improve upgrade command to handle removal of dependencies",
+          "desc": "Enhanced the CLI upgrade command to properly handle the removal of dependencies during upgrades. This improvement is essential for the next Hydrogen upgrade (from Remix to React Router 7) where certain dependencies need to be removed as part of the upgrade process.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3023",
+          "id": "3023"
+        }
+      ],
+      "features": []
+    },
+    {
+      "title": "New tokenless Storefront API route, add buyerIdentity to create handlers",
+      "version": "2025.4.1",
+      "hash": "fc2ad21f92c0125b29b0f51dc1c52353f42228dd",
+      "commit": "https://github.com/Shopify/hydrogen/pull/2950/commits/fc2ad21f92c0125b29b0f51dc1c52353f42228dd",
+      "dependencies": {
+        "@remix-run/react": "^2.16.1",
+        "@remix-run/server-runtime": "^2.16.1",
+        "@shopify/hydrogen": "2025.4.1",
+        "@shopify/remix-oxygen": "^2.0.12"
+      },
+      "devDependencies": {
+        "@remix-run/dev": "^2.16.1",
+        "@shopify/cli": "~3.79.2",
+        "@remix-run/route-config": "^2.16.1",
+        "@remix-run/fs-routes": "^2.16.1",
+        "@shopify/mini-oxygen": "^3.2.1",
+        "@shopify/hydrogen-codegen": "^0.3.3",
+        "@shopify/oxygen-workers-types": "^4.1.6",
+        "vite": "^6.2.4"
+      },
+      "dependenciesMeta": {
+        "@shopify/cli": {
+          "required": true
+        },
+        "@remix-run/react": {
+          "required": true
+        },
+        "@remix-run/server-runtime": {
+          "required": true
+        },
+        "@remix-run/dev": {
+          "required": true
+        },
+        "@shopify/mini-oxygen": {
+          "required": true
+        },
+        "@shopify/remix-oxygen": {
+          "required": true
+        },
+        "@remix-run/fs-routes": {
+          "required": true
+        },
+        "@remix-run/route-config": {
+          "required": true
+        }
+      },
+      "fixes": [
+        {
+          "title": "Add a `buyerIdentity` parameter to `createHydrogenContext` and `createCartHandler`.",
+          "desc": "This buyer identity will be used as the default buyer identity for all new cart creations. This allows you to create carts without needing a token, which is useful for anonymous users or when you want to create a cart without authentication.",
+          "code": "YGBgZGlmZgogIGNvbnN0IGh5ZHJvZ2VuQ29udGV4dCA9IGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dCh7CiAgICAvLyAuLi4KKyAgICBidXllcklkZW50aXR5OiB7CisgICAgIGNvbXBhbnlMb2NhdGlvbklkOiAnLi4uJywKKyAgICB9LAogIH0pOwpgYGA=",
+          "pr": "https://github.com/Shopify/hydrogen/pull/2927",
+          "id": "2927"
+        },
+        {
+          "title": "Bump skeleton @shopify/cli and @shopify/mini-oxygen versions",
+          "pr": "https://github.com/Shopify/hydrogen/pull/2883",
+          "id": "2883"
+        }
+      ],
+      "features": [
+        {
+          "title": "Add a new tokenless Storefront API route to the starter template",
+          "pr": "https://github.com/Shopify/hydrogen/pull/2948",
+          "id": "2948"
+        }
+      ]
+    },
+    {
+      "title": "Update Storefront and Customer Account API to 2025.4, new recipes and fixes",
+      "version": "2025.4.0",
+      "hash": "7eec679161a925538c7f905a090d756cb9ffbd7f",
+      "commit": "https://github.com/Shopify/hydrogen/pull/2898/commits/7eec679161a925538c7f905a090d756cb9ffbd7f",
+      "dependencies": {
+        "@remix-run/react": "^2.16.1",
+        "@remix-run/server-runtime": "^2.16.1",
+        "@shopify/hydrogen": "2025.4.0",
+        "@shopify/remix-oxygen": "^2.0.12"
+      },
+      "devDependencies": {
+        "@remix-run/dev": "^2.16.1",
+        "@shopify/cli": "~3.79.2",
+        "@remix-run/route-config": "^2.16.1",
+        "@remix-run/fs-routes": "^2.16.1",
+        "@shopify/mini-oxygen": "^3.2.1",
+        "@shopify/hydrogen-codegen": "^0.3.3",
+        "@shopify/oxygen-workers-types": "^4.1.6",
+        "vite": "^6.2.4"
+      },
+      "dependenciesMeta": {
+        "@shopify/cli": {
+          "required": true
+        },
+        "@remix-run/react": {
+          "required": true
+        },
+        "@remix-run/server-runtime": {
+          "required": true
+        },
+        "@remix-run/dev": {
+          "required": true
+        },
+        "@shopify/mini-oxygen": {
+          "required": true
+        },
+        "@shopify/remix-oxygen": {
+          "required": true
+        },
+        "@remix-run/fs-routes": {
+          "required": true
+        },
+        "@remix-run/route-config": {
+          "required": true
+        }
+      },
+      "fixes": [
+        {
+          "title": "Moved the Cursor rules into more generic LLM prompt files.",
+          "desc": "If you were using the Cursor rules, you will find the prompts in the cookbook/llms folder and they can be put into your .cursor/rules folder manually. LLM prompt files will be maintained moving forward, while previous Cursor rules will not be updated anymore",
+          "pr": "https://github.com/Shopify/hydrogen/pull/2936",
+          "id": "2936"
+        },
+        {
+          "title": "Bump skeleton @shopify/cli and @shopify/mini-oxygen versions",
+          "pr": "https://github.com/Shopify/hydrogen/pull/2883",
+          "id": "2883"
+        }
+      ],
+      "features": [
+        {
+          "title": "Added bundles recipe",
+          "pr": "https://github.com/Shopify/hydrogen/pull/2915",
+          "id": "2915",
+          "desc": "CartForm and createCartHandler now support `addDeliveryAddresses`, `updateDeliveryAddresses` and `removeDeliveryAddresses`"
+        },
+        {
+          "title": "Add markets recipe",
+          "pr": "https://github.com/Shopify/hydrogen/pull/2930",
+          "id": "2930"
+        },
+        {
+          "title": "Add combined-listings recipe",
+          "pr": "https://github.com/Shopify/hydrogen/pull/2876",
+          "id": "2876"
+        },
+        {
+          "title": "Update SFAPI and CAAPI versions to 2025.04",
+          "pr": "https://github.com/Shopify/hydrogen/pull/2886",
+          "id": "2886"
+        }
+      ]
+    },
+    {
+      "title": "New Shopify cookie system and analytics improvements",
+      "version": "2025.1.5",
+      "date": "2026-01-14",
+      "hash": "dba02cc0f67cef4f2495b6bb042f7a76e4149d4b",
+      "commit": "https://github.com/Shopify/hydrogen/commit/dba02cc0f67cef4f2495b6bb042f7a76e4149d4b",
+      "pr": "https://github.com/Shopify/hydrogen/pull/3369",
+      "dependencies": {
+        "@shopify/hydrogen": "2025.1.5"
+      },
+      "devDependencies": {},
+      "fixes": [
+        {
+          "title": "Fix Privacy Banner and analytics event issues",
+          "info": "Fixed irregular behaviors between Privacy Banner and Hydrogen's analytics events.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3354",
+          "id": "3354-privacy"
+        }
+      ],
+      "features": [
+        {
+          "title": "Migrate to Shopify's new cookie system",
+          "info": "Hydrogen now supports Shopify's new `_shopify_analytics` and `_shopify_marketing` http-only cookies while keeping the deprecated `_shopify_y` and `_shopify_s` cookies working as long as they remain active. This keeps analytics and privacy behavior aligned with Shopify Admin while preserving backward compatibility.",
+          "breaking": false,
+          "steps": [
+            {
+              "title": "Understand the new cookie model and compatibility story",
+              "info": "Shopify is deprecating `_shopify_y` and `_shopify_s` in favor of `_shopify_analytics` and `_shopify_marketing`, which are http-only cookies set via the Storefront API on your storefront domain. Hydrogen now reads and writes these cookies through a Storefront API proxy while still honoring the legacy cookies when present. You don't need to migrate values manually, but you must ensure that requests flow through the proxy so cookies are set before analytics run."
+            },
+            {
+              "title": "Set up a Storefront API proxy for your deployment",
+              "info": "Depending on how you host your app, you must ensure Storefront API calls go through a proxy on your storefront domain.",
+              "code": "IyMjIFJlbWl4ICsgSHlkcm9nZW4gb24gT3h5Z2VuCgpJZiB5b3Ugc2NhZmZvbGRlZCBmcm9tIHRoZSBkZWZhdWx0IEh5ZHJvZ2VuIHNrZWxldG9uIGFuZCBkZXBsb3kgdG8gT3h5Z2VuLCB0aGUgYGNyZWF0ZVJlcXVlc3RIYW5kbGVyYCB1dGlsaXR5IGZyb20gYEBzaG9waWZ5L3JlbWl4LW94eWdlbmAgYWxyZWFkeSBzZXRzIHVwIGEgU3RvcmVmcm9udCBBUEkgcHJveHkgb24gdGhlIHNhbWUgZG9tYWluIGFzIHlvdXIgc3RvcmVmcm9udC4KCioqSW4gbW9zdCBjYXNlcywgbm8gY2hhbmdlcyBhcmUgcmVxdWlyZWQqKjsganVzdCBjb25maXJtIHlvdXIgc2VydmVyIGVudHJ5IHN0aWxsIHVzZXMgaXQ6CgpgYGB0cwovLyBzZXJ2ZXIudHMgKE94eWdlbikKaW1wb3J0IHtjcmVhdGVSZXF1ZXN0SGFuZGxlcn0gZnJvbSAnQHNob3BpZnkvcmVtaXgtb3h5Z2VuJzsKaW1wb3J0IHtjcmVhdGVIeWRyb2dlbkNvbnRleHR9IGZyb20gJ0BzaG9waWZ5L2h5ZHJvZ2VuJzsKCmV4cG9ydCBkZWZhdWx0IHsKICBhc3luYyBmZXRjaChyZXF1ZXN0LCBlbnYpIHsKICAgIGNvbnN0IGh5ZHJvZ2VuQ29udGV4dCA9IGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dCh7CiAgICAgIGVudiwKICAgICAgcmVxdWVzdCwKICAgICAgLyogLi4uICovCiAgICB9KTsKCiAgICBjb25zdCBoYW5kbGVSZXF1ZXN0ID0gY3JlYXRlUmVxdWVzdEhhbmRsZXIoewogICAgICAvKiAuLi4gKi8KICAgICAgZ2V0TG9hZENvbnRleHQ6ICgpID0+IGh5ZHJvZ2VuQ29udGV4dCwKICAgIH0pOwoKICAgIHJldHVybiBoYW5kbGVSZXF1ZXN0KHJlcXVlc3QpOwogIH0sCn07CmBgYAoKS2VlcCB1c2luZyBgPEFuYWx5dGljcy5Qcm92aWRlcj5gIGNvbXBvbmVudCBvciBgdXNlQ3VzdG9tZXJQcml2YWN5YCBob29rIHRvIGdldCBjb29raWVzIGluIHRoZSBicm93c2VyIGF1dG9tYXRpY2FsbHkuCgpGb3IgYSBmdWxsIGV4YW1wbGUsIHJlZmVyIHRvIHlvdXIgc2tlbGV0b24gdGVtcGxhdGUncyBzZXJ2ZXIudHMuCgojIyMgUmVtaXggKyBIeWRyb2dlbiBvbiBvdGhlciBob3N0cwoKIyMjIyBIb3N0cyB0aGF0IHN1cHBvcnQgV2ViIEZldGNoIEFQSSAoUmVxdWVzdC9SZXNwb25zZSkKCk9uIGhvc3RzIHRoYXQgc3VwcG9ydCB0aGUgc3RhbmRhcmQgV2ViIEZldGNoIEFQSSAoV29ya2Vycy1zdHlsZSBlbnZpcm9ubWVudHMpLCBpbXBvcnQgYGNyZWF0ZVJlcXVlc3RIYW5kbGVyYCBmcm9tIGBAc2hvcGlmeS9oeWRyb2dlbmAgYW5kIHJvdXRlIHJlcXVlc3RzIHRocm91Z2ggaXQ6CgpgYGB0cwppbXBvcnQge2NyZWF0ZVJlcXVlc3RIYW5kbGVyLCBjcmVhdGVIeWRyb2dlbkNvbnRleHR9IGZyb20gJ0BzaG9waWZ5L2h5ZHJvZ2VuJzsKCmNvbnN0IGh5ZHJvZ2VuQ29udGV4dCA9IGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dCh7CiAgLyogLi4uICovCn0pOwoKY29uc3QgaGFuZGxlUmVxdWVzdCA9IGNyZWF0ZVJlcXVlc3RIYW5kbGVyKHsKICAvKiAuLi4gKi8KICBnZXRMb2FkQ29udGV4dDogKCkgPT4gaHlkcm9nZW5Db250ZXh0LAp9KTsKYGBgCgojIyMjIE5vZGUuanMgYW5kIG90aGVyIGhvc3RzCgpGb3IgTm9kZS1saWtlIGVudmlyb25tZW50cywgYWRhcHQgTm9kZSByZXF1ZXN0cyB0byBGZXRjaCB3aXRoIFtgQHJlbWl4LXJ1bi9ub2RlLWZldGNoLXNlcnZlcmBdKGh0dHBzOi8vd3d3Lm5wbWpzLmNvbS9wYWNrYWdlL0ByZW1peC1ydW4vbm9kZS1mZXRjaC1zZXJ2ZXIpLCB0aGVuIGRlbGVnYXRlIHRvIEh5ZHJvZ2VuJ3MgaGFuZGxlcjoKCmBgYHRzCmltcG9ydCB7Y3JlYXRlUmVxdWVzdEhhbmRsZXIsIGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dH0gZnJvbSAnQHNob3BpZnkvaHlkcm9nZW4nOwppbXBvcnQge2NyZWF0ZVJlcXVlc3RMaXN0ZW5lcn0gZnJvbSAnQHJlbWl4LXJ1bi9ub2RlLWZldGNoLXNlcnZlcic7CmltcG9ydCBodHRwIGZyb20gJ2h0dHAnOwoKY29uc3QgaGFuZGxlTm9kZVJlcXVlc3QgPSBjcmVhdGVSZXF1ZXN0TGlzdGVuZXIoKHJlcXVlc3QpID0+IHsKICBjb25zdCBoeWRyb2dlbkNvbnRleHQgPSBjcmVhdGVIeWRyb2dlbkNvbnRleHQoewogICAgLyogLi4uICovCiAgfSk7CgogIGNvbnN0IGhhbmRsZVdlYlJlcXVlc3QgPSBjcmVhdGVSZXF1ZXN0SGFuZGxlcih7CiAgICAvKiAuLi4gKi8KICAgIGdldExvYWRDb250ZXh0OiAoKSA9PiBoeWRyb2dlbkNvbnRleHQsCiAgfSk7CgogIHJldHVybiBoYW5kbGVXZWJSZXF1ZXN0KHJlcXVlc3QpOwp9KTsKCmh0dHAuY3JlYXRlU2VydmVyKGhhbmRsZU5vZGVSZXF1ZXN0KTsKYGBgCgpBbHRlcm5hdGl2ZWx5LCBpZiB5b3UgY2FuJ3QgZGVsZWdhdGUgdG8gSHlkcm9nZW4ncyBgY3JlYXRlUmVxdWVzdEhhbmRsZXJgLCB5b3UgY2FuIHByb3ZpZGUgYSBjdXN0b20gU3RvcmVmcm9udCBBUEkgcHJveHkgaW4geW91ciBzZXJ2ZXIuIFNlZSBbSHlkcm9nZW4ncyBpbXBsZW1lbnRhdGlvbl0oaHR0cHM6Ly9naXRodWIuY29tL1Nob3BpZnkvaHlkcm9nZW4vYmxvYi8yNzA2NmEyODU3NzQ4NGY0MDYyMjIxMTZhOTU5ZWI0NjNkMjU1Njg1L3BhY2thZ2VzL2h5ZHJvZ2VuL3NyYy9zdG9yZWZyb250LnRzI0w1NDYtTDYxMSkgYXMgYSByZWZlcmVuY2UuIEluIHRoaXMgY2FzZSwgZW5zdXJlIHlvdSBtYW51YWxseSBwYXNzIGBzYW1lRG9tYWluRm9yU3RvcmVmcm9udEFwaTogdHJ1ZWAgaW4gdGhlIGBjb25zZW50YCBvYmplY3QgZm9yIGA8QW5hbHl0aWNzLlByb3ZpZGVyPmAgb3IgYXMgYSBwcm9wIHRvIHRoZSBgdXNlQ3VzdG9tZXJQcml2YWN5YCBob29rLgo="
+            }
+          ],
+          "pr": "https://github.com/Shopify/hydrogen/pull/3354",
+          "id": "3354"
+        }
+      ]
+    },
+    {
+      "title": "Cart delivery adddress support, fixes in Vite 6 SSR conditions, Skeleton & Customer Accounts session",
+      "version": "2025.1.4",
+      "hash": "3be68ae72730e6780aa04fcd02ba586816b7f613",
+      "commit": "https://github.com/Shopify/hydrogen/pull/2842/commits/3be68ae72730e6780aa04fcd02ba586816b7f613",
+      "dependencies": {
+        "@remix-run/react": "^2.16.1",
+        "@remix-run/server-runtime": "^2.16.1",
+        "@shopify/hydrogen": "2025.1.4",
+        "@shopify/remix-oxygen": "^2.0.12"
+      },
+      "devDependencies": {
+        "@remix-run/dev": "^2.16.1",
+        "@shopify/cli": "~3.79.0",
+        "@remix-run/route-config": "^2.16.1",
+        "@remix-run/fs-routes": "^2.16.1",
+        "@shopify/mini-oxygen": "^3.2.1",
+        "@shopify/hydrogen-codegen": "^0.3.3",
+        "@shopify/oxygen-workers-types": "^4.1.6",
+        "vite": "^6.2.4"
+      },
+      "dependenciesMeta": {
+        "@shopify/cli": {
+          "required": true
+        },
+        "@remix-run/react": {
+          "required": true
+        },
+        "@remix-run/server-runtime": {
+          "required": true
+        },
+        "@remix-run/dev": {
+          "required": true
+        },
+        "@shopify/mini-oxygen": {
+          "required": true
+        },
+        "@shopify/remix-oxygen": {
+          "required": true
+        },
+        "@remix-run/fs-routes": {
+          "required": true
+        },
+        "@remix-run/route-config": {
+          "required": true
+        }
+      },
+      "fixes": [
+        {
+          "title": "Fix Vite 6 SSR resolve conditions",
+          "desc": "Fixes the SSR condition in mini-oxygen Vite causing some packages to import the wrong browser export",
+          "pr": "https://github.com/Shopify/hydrogen/pull/2863",
+          "id": "2863"
+        },
+        {
+          "title": "Fix duplicate urls in localized skeleton starter",
+          "desc": "Fix an issue with our starter template where duplicate content can exist on URLs that use internationalized handles. For example, if you have a product handle in english of `the-havoc` and translate it to `das-chaos` in German, duplicate content exists at both: 1. https://hydrogen.shop/de-de/products/das-chaos 2. https://hydrogen.shop/de-de/products/the-havoc We've changed the starter template to make the second redirect to the first.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/2821",
+          "id": "2821"
+        },
+        {
+          "title": "Fix the customer account implementation to clear all session data on logout",
+          "desc": "Previously we would only clear customer account credentials on logout. This change also clears any custom data in the session as well",
+          "steps": [
+            {
+              "title": "You can opt out and keep custom data in the session by passing the `keepSession` option to logout",
+              "code": "YGBganMKZXhwb3J0IGFzeW5jIGZ1bmN0aW9uIGFjdGlvbih7Y29udGV4dH06IEFjdGlvbkZ1bmN0aW9uQXJncykgewogIHJldHVybiBjb250ZXh0LmN1c3RvbWVyQWNjb3VudC5sb2dvdXQoewogICAga2VlcFNlc3Npb246IHRydWUKICB9KTsKfQpgYGA="
+            }
+          ],
+          "pr": "https://github.com/Shopify/hydrogen/pull/2843",
+          "id": "2843"
+        },
+        {
+          "title": "Fix faulty truthiness check for cart quantity",
+          "pr": "https://github.com/Shopify/hydrogen/pull/2855",
+          "id": "2855"
+        },
+        {
+          "title": "Deprecate `<VariantSelector />",
+          "desc": "VariantSelector is deprecated because it does not supports 2k variants or combined listing products. Use `getProductOptions` for a streamlined migration to a modern scalable product form.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/2837",
+          "id": "2837",
+          "steps": [
+            {
+              "title": "Update the SFAPI product query to request the new required fields encodedVariantExistence and encodedVariantAvailability. This will allow the product form to determine which variants are available for selection.",
+              "code": "YGBgZGlmZgpjb25zdCBQUk9EVUNUX0ZSQUdNRU5UID0gYCNncmFwaHFsCiAgZnJhZ21lbnQgUHJvZHVjdCBvbiBQcm9kdWN0IHsKICAgIGlkCiAgICB0aXRsZQogICAgdmVuZG9yCiAgICBoYW5kbGUKICAgIGRlc2NyaXB0aW9uSHRtbAogICAgZGVzY3JpcHRpb24KKyAgICBlbmNvZGVkVmFyaWFudEV4aXN0ZW5jZQorICAgIGVuY29kZWRWYXJpYW50QXZhaWxhYmlsaXR5CiAgICBvcHRpb25zIHsKICAgICAgbmFtZQogICAgICBvcHRpb25WYWx1ZXMgewogICAgICAgIG5hbWUKKyAgICAgICAgZmlyc3RTZWxlY3RhYmxlVmFyaWFudCB7CisgICAgICAgICAgLi4uUHJvZHVjdFZhcmlhbnQKKyAgICAgICAgfQorICAgICAgICBzd2F0Y2ggeworICAgICAgICAgIGNvbG9yCisgICAgICAgICAgaW1hZ2UgeworICAgICAgICAgICAgcHJldmlld0ltYWdlIHsKKyAgICAgICAgICAgICAgdXJsCisgICAgICAgICAgICB9CisgICAgICAgICAgfQorICAgICAgICB9CiAgICAgIH0KICAgIH0KLSAgICBzZWxlY3RlZFZhcmlhbnQ6IHNlbGVjdGVkT3JGaXJzdEF2YWlsYWJsZVZhcmlhbnQoc2VsZWN0ZWRPcHRpb25zOiAkc2VsZWN0ZWRPcHRpb25zLCBpZ25vcmVVbmtub3duT3B0aW9uczogdHJ1ZSwgY2FzZUluc2Vuc2l0aXZlTWF0Y2g6IHRydWUpIHsKKyAgICBzZWxlY3RlZE9yRmlyc3RBdmFpbGFibGVWYXJpYW50KHNlbGVjdGVkT3B0aW9uczogJHNlbGVjdGVkT3B0aW9ucywgaWdub3JlVW5rbm93bk9wdGlvbnM6IHRydWUsIGNhc2VJbnNlbnNpdGl2ZU1hdGNoOiB0cnVlKSB7CisgICAgICAuLi5Qcm9kdWN0VmFyaWFudAorICAgIH0KKyAgICBhZGphY2VudFZhcmlhbnRzIChzZWxlY3RlZE9wdGlvbnM6ICRzZWxlY3RlZE9wdGlvbnMpIHsKKyAgICAgIC4uLlByb2R1Y3RWYXJpYW50CisgICAgfQotICAgIHZhcmlhbnRzKGZpcnN0OiAxKSB7Ci0gICAgICBub2RlcyB7Ci0gICAgICAgIC4uLlByb2R1Y3RWYXJpYW50Ci0gICAgICB9Ci0gICAgfQogICAgc2VvIHsKICAgICAgZGVzY3JpcHRpb24KICAgICAgdGl0bGUKICAgIH0KICB9CiAgJHtQUk9EVUNUX1ZBUklBTlRfRlJBR01FTlR9CmAgYXMgY29uc3Q7CmBgYA=="
+            },
+            {
+              "title": "Remove the `VARIANTS_QUERY` and related logic from `loadDeferredData`, as querying all variants is no longer necessary. Simplifies the function to return an empty object.",
+              "code": "YGBgZGlmZgpmdW5jdGlvbiBsb2FkRGVmZXJyZWREYXRhKHtjb250ZXh0LCBwYXJhbXN9OiBMb2FkZXJGdW5jdGlvbkFyZ3MpIHsKKyAgLy8gUHV0IGFueSBBUEkgY2FsbHMgdGhhdCBpcyBub3QgY3JpdGljYWwgdG8gYmUgYXZhaWxhYmxlIG9uIGZpcnN0IHBhZ2UgcmVuZGVyCisgIC8vIEZvciBleGFtcGxlOiBwcm9kdWN0IHJldmlld3MsIHByb2R1Y3QgcmVjb21tZW5kYXRpb25zLCBzb2NpYWwgZmVlZHMuCi0gIC8vIEluIG9yZGVyIHRvIHNob3cgd2hpY2ggdmFyaWFudHMgYXJlIGF2YWlsYWJsZSBpbiB0aGUgVUksIHdlIG5lZWQgdG8gcXVlcnkKLSAgLy8gYWxsIG9mIHRoZW0uIEJ1dCB0aGVyZSBtaWdodCBiZSBhICpsb3QqLCBzbyBpbnN0ZWFkIHNlcGFyYXRlIHRoZSB2YXJpYW50cwotICAvLyBpbnRvIGl0J3Mgb3duIHNlcGFyYXRlIHF1ZXJ5IHRoYXQgaXMgZGVmZXJyZWQuIFNvIHRoZXJlJ3MgYSBicmllZiBtb21lbnQKLSAgLy8gd2hlcmUgdmFyaWFudCBvcHRpb25zIG1pZ2h0IHNob3cgYXMgYXZhaWxhYmxlIHdoZW4gdGhleSdyZSBub3QsIGJ1dCBhZnRlcgotICAvLyB0aGlzIGRlZmVycmVkIHF1ZXJ5IHJlc29sdmVzLCB0aGUgVUkgd2lsbCB1cGRhdGUuCi0gIGNvbnN0IHZhcmlhbnRzID0gY29udGV4dC5zdG9yZWZyb250Ci0gICAgLnF1ZXJ5KFZBUklBTlRTX1FVRVJZLCB7Ci0gICAgICB2YXJpYWJsZXM6IHtoYW5kbGU6IHBhcmFtcy5oYW5kbGUhfSwKLSAgICB9KQotICAgIC5jYXRjaCgoZXJyb3IpID0+IHsKLSAgICAgIC8vIExvZyBxdWVyeSBlcnJvcnMsIGJ1dCBkb24ndCB0aHJvdyB0aGVtIHNvIHRoZSBwYWdlIGNhbiBzdGlsbCByZW5kZXIKLSAgICAgIGNvbnNvbGUuZXJyb3IoZXJyb3IpOwotICAgICAgcmV0dXJuIG51bGw7Ci0gICAgfSk7CgorICByZXR1cm4ge30KLSAgcmV0dXJuIHsKLSAgICB2YXJpYW50cywKLSAgfTsKfQpgYGA="
+            },
+            {
+              "title": "Update the `Product` component to use `getAdjacentAndFirstAvailableVariants` for determining the selected variant, improving handling of adjacent and available variants.",
+              "code": "YGBgZGlmZgppbXBvcnQgewogIGdldFNlbGVjdGVkUHJvZHVjdE9wdGlvbnMsCiAgQW5hbHl0aWNzLAogIHVzZU9wdGltaXN0aWNWYXJpYW50LAorICBnZXRBZGphY2VudEFuZEZpcnN0QXZhaWxhYmxlVmFyaWFudHMsCn0gZnJvbSAnQHNob3BpZnkvaHlkcm9nZW4nOwoKZXhwb3J0IGRlZmF1bHQgZnVuY3Rpb24gUHJvZHVjdCgpIHsKKyAgY29uc3Qge3Byb2R1Y3R9ID0gdXNlTG9hZGVyRGF0YTx0eXBlb2YgbG9hZGVyPigpOwotICBjb25zdCB7cHJvZHVjdCwgdmFyaWFudHN9ID0gdXNlTG9hZGVyRGF0YTx0eXBlb2YgbG9hZGVyPigpOwoKKyAgLy8gT3B0aW1pc3RpY2FsbHkgc2VsZWN0cyBhIHZhcmlhbnQgd2l0aCBnaXZlbiBhdmFpbGFibGUgdmFyaWFudCBpbmZvcm1hdGlvbgorICBjb25zdCBzZWxlY3RlZFZhcmlhbnQgPSB1c2VPcHRpbWlzdGljVmFyaWFudCgKKyAgICBwcm9kdWN0LnNlbGVjdGVkT3JGaXJzdEF2YWlsYWJsZVZhcmlhbnQsCisgICAgZ2V0QWRqYWNlbnRBbmRGaXJzdEF2YWlsYWJsZVZhcmlhbnRzKHByb2R1Y3QpLAorICApOwotICBjb25zdCBzZWxlY3RlZFZhcmlhbnQgPSB1c2VPcHRpbWlzdGljVmFyaWFudCgKLSAgICBwcm9kdWN0LnNlbGVjdGVkVmFyaWFudCwKLSAgICB2YXJpYW50cywKLSAgKTsKYGBg"
+            },
+            {
+              "title": "Automatically update the URL with search parameters based on the selected product variant's options when no search parameters are present, ensuring the URL reflects the current selection without triggering navigation.",
+              "code": "YGBgZGlmZgppbXBvcnQgewogIGdldFNlbGVjdGVkUHJvZHVjdE9wdGlvbnMsCiAgQW5hbHl0aWNzLAogIHVzZU9wdGltaXN0aWNWYXJpYW50LAogIGdldEFkamFjZW50QW5kRmlyc3RBdmFpbGFibGVWYXJpYW50cywKKyAgbWFwU2VsZWN0ZWRQcm9kdWN0T3B0aW9uVG9PYmplY3QsCn0gZnJvbSAnQHNob3BpZnkvaHlkcm9nZW4nOwoKZXhwb3J0IGRlZmF1bHQgZnVuY3Rpb24gUHJvZHVjdCgpIHsKICBjb25zdCB7cHJvZHVjdH0gPSB1c2VMb2FkZXJEYXRhPHR5cGVvZiBsb2FkZXI+KCk7CgogIC8vIE9wdGltaXN0aWNhbGx5IHNlbGVjdHMgYSB2YXJpYW50IHdpdGggZ2l2ZW4gYXZhaWxhYmxlIHZhcmlhbnQgaW5mb3JtYXRpb24KICBjb25zdCBzZWxlY3RlZFZhcmlhbnQgPSB1c2VPcHRpbWlzdGljVmFyaWFudCgKICAgIHByb2R1Y3Quc2VsZWN0ZWRPckZpcnN0QXZhaWxhYmxlVmFyaWFudCwKICAgIGdldEFkamFjZW50QW5kRmlyc3RBdmFpbGFibGVWYXJpYW50cyhwcm9kdWN0KSwKICApOwoKKyAgLy8gU2V0cyB0aGUgc2VhcmNoIHBhcmFtIHRvIHRoZSBzZWxlY3RlZCB2YXJpYW50IHdpdGhvdXQgbmF2aWdhdGlvbgorICAvLyBvbmx5IHdoZW4gbm8gc2VhcmNoIHBhcmFtcyBhcmUgc2V0IGluIHRoZSB1cmwKKyAgdXNlRWZmZWN0KCgpID0+IHsKKyAgICBjb25zdCBzZWFyY2hQYXJhbXMgPSBuZXcgVVJMU2VhcmNoUGFyYW1zKAorICAgICAgbWFwU2VsZWN0ZWRQcm9kdWN0T3B0aW9uVG9PYmplY3QoCisgICAgICAgIHNlbGVjdGVkVmFyaWFudC5zZWxlY3RlZE9wdGlvbnMgfHwgW10sCisgICAgICApLAorICAgICk7CgorICAgIGlmICh3aW5kb3cubG9jYXRpb24uc2VhcmNoID09PSAnJyAmJiBzZWFyY2hQYXJhbXMudG9TdHJpbmcoKSAhPT0gJycpIHsKKyAgICAgIHdpbmRvdy5oaXN0b3J5LnJlcGxhY2VTdGF0ZSgKKyAgICAgICAge30sCisgICAgICAgICcnLAorICAgICAgICBgJHtsb2NhdGlvbi5wYXRobmFtZX0/JHtzZWFyY2hQYXJhbXMudG9TdHJpbmcoKX1gLAorICAgICAgKTsKKyAgICB9CisgIH0sIFsKKyAgICBKU09OLnN0cmluZ2lmeShzZWxlY3RlZFZhcmlhbnQuc2VsZWN0ZWRPcHRpb25zKSwKKyAgXSk7CmBgYA=="
+            },
+            {
+              "title": "Retrieve the product options array using `getProductOptions`, enabling efficient handling of product variants and their associated options.",
+              "code": "YGBgZGlmZgppbXBvcnQgewogIGdldFNlbGVjdGVkUHJvZHVjdE9wdGlvbnMsCiAgQW5hbHl0aWNzLAogIHVzZU9wdGltaXN0aWNWYXJpYW50LAorICBnZXRQcm9kdWN0T3B0aW9ucywKICBnZXRBZGphY2VudEFuZEZpcnN0QXZhaWxhYmxlVmFyaWFudHMsCiAgbWFwU2VsZWN0ZWRQcm9kdWN0T3B0aW9uVG9PYmplY3QsCn0gZnJvbSAnQHNob3BpZnkvaHlkcm9nZW4nOwoKZXhwb3J0IGRlZmF1bHQgZnVuY3Rpb24gUHJvZHVjdCgpIHsKICBjb25zdCB7cHJvZHVjdH0gPSB1c2VMb2FkZXJEYXRhPHR5cGVvZiBsb2FkZXI+KCk7CgogIC8vIE9wdGltaXN0aWNhbGx5IHNlbGVjdHMgYSB2YXJpYW50IHdpdGggZ2l2ZW4gYXZhaWxhYmxlIHZhcmlhbnQgaW5mb3JtYXRpb24KICBjb25zdCBzZWxlY3RlZFZhcmlhbnQgPSB1c2VPcHRpbWlzdGljVmFyaWFudCgKICAgIHByb2R1Y3Quc2VsZWN0ZWRPckZpcnN0QXZhaWxhYmxlVmFyaWFudCwKICAgIGdldEFkamFjZW50QW5kRmlyc3RBdmFpbGFibGVWYXJpYW50cyhwcm9kdWN0KSwKICApOwoKICAvLyBTZXRzIHRoZSBzZWFyY2ggcGFyYW0gdG8gdGhlIHNlbGVjdGVkIHZhcmlhbnQgd2l0aG91dCBuYXZpZ2F0aW9uCiAgLy8gb25seSB3aGVuIG5vIHNlYXJjaCBwYXJhbXMgYXJlIHNldCBpbiB0aGUgdXJsCiAgdXNlRWZmZWN0KCgpID0+IHsKICAgIC8vIC4uLgogIH0sIFsKICAgIEpTT04uc3RyaW5naWZ5KHNlbGVjdGVkVmFyaWFudC5zZWxlY3RlZE9wdGlvbnMpLAogIF0pOwoKKyAgLy8gR2V0IHRoZSBwcm9kdWN0IG9wdGlvbnMgYXJyYXkKKyAgY29uc3QgcHJvZHVjdE9wdGlvbnMgPSBnZXRQcm9kdWN0T3B0aW9ucyh7CisgICAgLi4ucHJvZHVjdCwKKyAgICBzZWxlY3RlZE9yRmlyc3RBdmFpbGFibGVWYXJpYW50OiBzZWxlY3RlZFZhcmlhbnQsCisgIH0pOwpgYGA="
+            },
+            {
+              "title": "Remove `Await` and `Suspense` from `ProductForm` as there are no longer any asynchronous queries to wait for, simplifying the component structure.",
+              "code": "YGBgZGlmZgpleHBvcnQgZGVmYXVsdCBmdW5jdGlvbiBQcm9kdWN0KCkgewogIC4uLgogIHJldHVybiAoCiAgICAuLi4KKyAgICAgICAgPFByb2R1Y3RGb3JtCisgICAgICAgICAgcHJvZHVjdE9wdGlvbnM9e3Byb2R1Y3RPcHRpb25zfQorICAgICAgICAgIHNlbGVjdGVkVmFyaWFudD17c2VsZWN0ZWRWYXJpYW50fQorICAgICAgICAvPgotICAgICAgICA8U3VzcGVuc2UKLSAgICAgICAgICBmYWxsYmFjaz17Ci0gICAgICAgICAgICA8UHJvZHVjdEZvcm0KLSAgICAgICAgICAgICAgcHJvZHVjdD17cHJvZHVjdH0KLSAgICAgICAgICAgICAgc2VsZWN0ZWRWYXJpYW50PXtzZWxlY3RlZFZhcmlhbnR9Ci0gICAgICAgICAgICAgIHZhcmlhbnRzPXtbXX0KLSAgICAgICAgICAgIC8+Ci0gICAgICAgICAgfQotICAgICAgICA+Ci0gICAgICAgICAgPEF3YWl0Ci0gICAgICAgICAgICBlcnJvckVsZW1lbnQ9IlRoZXJlIHdhcyBhIHByb2JsZW0gbG9hZGluZyBwcm9kdWN0IHZhcmlhbnRzIgotICAgICAgICAgICAgcmVzb2x2ZT17dmFyaWFudHN9Ci0gICAgICAgICAgPgotICAgICAgICAgICAgeyhkYXRhKSA9PiAoCi0gICAgICAgICAgICAgIDxQcm9kdWN0Rm9ybQotICAgICAgICAgICAgICAgIHByb2R1Y3Q9e3Byb2R1Y3R9Ci0gICAgICAgICAgICAgICAgc2VsZWN0ZWRWYXJpYW50PXtzZWxlY3RlZFZhcmlhbnR9Ci0gICAgICAgICAgICAgICAgdmFyaWFudHM9e2RhdGE/LnByb2R1Y3Q/LnZhcmlhbnRzLm5vZGVzIHx8IFtdfQotICAgICAgICAgICAgICAvPgotICAgICAgICAgICAgKX0KLSAgICAgICAgICA8L0F3YWl0PgotICAgICAgICA8L1N1c3BlbnNlPgpgYGA="
+            },
+            {
+              "title": "Refactor `ProductForm` to handle combined listing products and variants efficiently. It uses links for different product URLs and buttons for variant updates, improving SEO and user experience.",
+              "code": "YGBgdHN4CmltcG9ydCB7TGluaywgdXNlTmF2aWdhdGV9IGZyb20gJ0ByZW1peC1ydW4vcmVhY3QnOwppbXBvcnQge3R5cGUgTWFwcGVkUHJvZHVjdE9wdGlvbnN9IGZyb20gJ0BzaG9waWZ5L2h5ZHJvZ2VuJzsKaW1wb3J0IHR5cGUgewogIE1heWJlLAogIFByb2R1Y3RPcHRpb25WYWx1ZVN3YXRjaCwKfSBmcm9tICdAc2hvcGlmeS9oeWRyb2dlbi9zdG9yZWZyb250LWFwaS10eXBlcyc7CmltcG9ydCB7QWRkVG9DYXJ0QnV0dG9ufSBmcm9tICcuL0FkZFRvQ2FydEJ1dHRvbic7CmltcG9ydCB7dXNlQXNpZGV9IGZyb20gJy4vQXNpZGUnOwppbXBvcnQgdHlwZSB7UHJvZHVjdEZyYWdtZW50fSBmcm9tICdzdG9yZWZyb250YXBpLmdlbmVyYXRlZCc7CgpleHBvcnQgZnVuY3Rpb24gUHJvZHVjdEZvcm0oewogIHByb2R1Y3RPcHRpb25zLAogIHNlbGVjdGVkVmFyaWFudCwKfTogewogIHByb2R1Y3RPcHRpb25zOiBNYXBwZWRQcm9kdWN0T3B0aW9uc1tdOwogIHNlbGVjdGVkVmFyaWFudDogUHJvZHVjdEZyYWdtZW50WydzZWxlY3RlZE9yRmlyc3RBdmFpbGFibGVWYXJpYW50J107Cn0pIHsKICBjb25zdCBuYXZpZ2F0ZSA9IHVzZU5hdmlnYXRlKCk7CiAgY29uc3Qge29wZW59ID0gdXNlQXNpZGUoKTsKICByZXR1cm4gKAogICAgPGRpdiBjbGFzc05hbWU9InByb2R1Y3QtZm9ybSI+CiAgICAgIHtwcm9kdWN0T3B0aW9ucy5tYXAoKG9wdGlvbikgPT4gKAogICAgICAgIDxkaXYgY2xhc3NOYW1lPSJwcm9kdWN0LW9wdGlvbnMiIGtleT17b3B0aW9uLm5hbWV9PgogICAgICAgICAgPGg1PntvcHRpb24ubmFtZX08L2g1PgogICAgICAgICAgPGRpdiBjbGFzc05hbWU9InByb2R1Y3Qtb3B0aW9ucy1ncmlkIj4KICAgICAgICAgICAge29wdGlvbi5vcHRpb25WYWx1ZXMubWFwKCh2YWx1ZSkgPT4gewogICAgICAgICAgICAgIGNvbnN0IHsKICAgICAgICAgICAgICAgIG5hbWUsCiAgICAgICAgICAgICAgICBoYW5kbGUsCiAgICAgICAgICAgICAgICB2YXJpYW50VXJpUXVlcnksCiAgICAgICAgICAgICAgICBzZWxlY3RlZCwKICAgICAgICAgICAgICAgIGF2YWlsYWJsZSwKICAgICAgICAgICAgICAgIGV4aXN0cywKICAgICAgICAgICAgICAgIGlzRGlmZmVyZW50UHJvZHVjdCwKICAgICAgICAgICAgICAgIHN3YXRjaCwKICAgICAgICAgICAgICB9ID0gdmFsdWU7CgogICAgICAgICAgICAgIGlmIChpc0RpZmZlcmVudFByb2R1Y3QpIHsKICAgICAgICAgICAgICAgIC8vIFNFTwogICAgICAgICAgICAgICAgLy8gV2hlbiB0aGUgdmFyaWFudCBpcyBhIGNvbWJpbmVkIGxpc3RpbmcgY2hpbGQgcHJvZHVjdAogICAgICAgICAgICAgICAgLy8gdGhhdCBsZWFkcyB0byBhIGRpZmZlcmVudCBVUkwsIHdlIG5lZWQgdG8gcmVuZGVyIGl0CiAgICAgICAgICAgICAgICAvLyBhcyBhbiBhbmNob3IgdGFnCiAgICAgICAgICAgICAgICByZXR1cm4gKAogICAgICAgICAgICAgICAgICA8TGluawogICAgICAgICAgICAgICAgICAgIGNsYXNzTmFtZT0icHJvZHVjdC1vcHRpb25zLWl0ZW0iCiAgICAgICAgICAgICAgICAgICAga2V5PXtvcHRpb24ubmFtZSArIG5hbWV9CiAgICAgICAgICAgICAgICAgICAgcHJlZmV0Y2g9ImludGVudCIKICAgICAgICAgICAgICAgICAgICBwcmV2ZW50U2Nyb2xsUmVzZXQKICAgICAgICAgICAgICAgICAgICByZXBsYWNlCiAgICAgICAgICAgICAgICAgICAgdG89e2AvcHJvZHVjdHMvJHtoYW5kbGV9PyR7dmFyaWFudFVyaVF1ZXJ5fWB9CiAgICAgICAgICAgICAgICAgICAgc3R5bGU9e3sKICAgICAgICAgICAgICAgICAgICAgIGJvcmRlcjogc2VsZWN0ZWQKICAgICAgICAgICAgICAgICAgICAgICAgPyAnMXB4IHNvbGlkIGJsYWNrJwogICAgICAgICAgICAgICAgICAgICAgICA6ICcxcHggc29saWQgdHJhbnNwYXJlbnQnLAogICAgICAgICAgICAgICAgICAgICAgb3BhY2l0eTogYXZhaWxhYmxlID8gMSA6IDAuMywKICAgICAgICAgICAgICAgICAgICB9fQogICAgICAgICAgICAgICAgICA+CiAgICAgICAgICAgICAgICAgICAgPFByb2R1Y3RPcHRpb25Td2F0Y2ggc3dhdGNoPXtzd2F0Y2h9IG5hbWU9e25hbWV9IC8+CiAgICAgICAgICAgICAgICAgIDwvTGluaz4KICAgICAgICAgICAgICAgICk7CiAgICAgICAgICAgICAgfSBlbHNlIHsKICAgICAgICAgICAgICAgIC8vIFNFTwogICAgICAgICAgICAgICAgLy8gV2hlbiB0aGUgdmFyaWFudCBpcyBhbiB1cGRhdGUgdG8gdGhlIHNlYXJjaCBwYXJhbSwKICAgICAgICAgICAgICAgIC8vIHJlbmRlciBpdCBhcyBhIGJ1dHRvbiB3aXRoIEphdmFTY3JpcHQgbmF2aWdhdGluZyB0bwogICAgICAgICAgICAgICAgLy8gdGhlIHZhcmlhbnQgc28gdGhhdCBTRU8gYm90cyBkbyBub3QgaW5kZXggdGhlc2UgYXMKICAgICAgICAgICAgICAgIC8vIGR1cGxpY2F0ZWQgbGlua3MKICAgICAgICAgICAgICAgIHJldHVybiAoCiAgICAgICAgICAgICAgICAgIDxidXR0b24KICAgICAgICAgICAgICAgICAgICB0eXBlPSJidXR0b24iCiAgICAgICAgICAgICAgICAgICAgY2xhc3NOYW1lPXtgcHJvZHVjdC1vcHRpb25zLWl0ZW0kewogICAgICAgICAgICAgICAgICAgICAgZXhpc3RzICYmICFzZWxlY3RlZCA/ICcgbGluaycgOiAnJwogICAgICAgICAgICAgICAgICAgIH1gfQogICAgICAgICAgICAgICAgICAgIGtleT17b3B0aW9uLm5hbWUgKyBuYW1lfQogICAgICAgICAgICAgICAgICAgIHN0eWxlPXt7CiAgICAgICAgICAgICAgICAgICAgICBib3JkZXI6IHNlbGVjdGVkCiAgICAgICAgICAgICAgICAgICAgICAgID8gJzFweCBzb2xpZCBibGFjaycKICAgICAgICAgICAgICAgICAgICAgICAgOiAnMXB4IHNvbGlkIHRyYW5zcGFyZW50JywKICAgICAgICAgICAgICAgICAgICAgIG9wYWNpdHk6IGF2YWlsYWJsZSA/IDEgOiAwLjMsCiAgICAgICAgICAgICAgICAgICAgfX0KICAgICAgICAgICAgICAgICAgICBkaXNhYmxlZD17IWV4aXN0c30KICAgICAgICAgICAgICAgICAgICBvbkNsaWNrPXsoKSA9PiB7CiAgICAgICAgICAgICAgICAgICAgICBpZiAoIXNlbGVjdGVkKSB7CiAgICAgICAgICAgICAgICAgICAgICAgIG5hdmlnYXRlKGA/JHt2YXJpYW50VXJpUXVlcnl9YCwgewogICAgICAgICAgICAgICAgICAgICAgICAgIHJlcGxhY2U6IHRydWUsCiAgICAgICAgICAgICAgICAgICAgICAgIH0pOwogICAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgICAgIH19CiAgICAgICAgICAgICAgICAgID4KICAgICAgICAgICAgICAgICAgICA8UHJvZHVjdE9wdGlvblN3YXRjaCBzd2F0Y2g9e3N3YXRjaH0gbmFtZT17bmFtZX0gLz4KICAgICAgICAgICAgICAgICAgPC9idXR0b24+CiAgICAgICAgICAgICAgICApOwogICAgICAgICAgICAgIH0KICAgICAgICAgICAgfSl9CiAgICAgICAgICA8L2Rpdj4KICAgICAgICAgIDxiciAvPgogICAgICAgIDwvZGl2PgogICAgICApKX0KICAgICAgPEFkZFRvQ2FydEJ1dHRvbgogICAgICAgIGRpc2FibGVkPXshc2VsZWN0ZWRWYXJpYW50IHx8ICFzZWxlY3RlZFZhcmlhbnQuYXZhaWxhYmxlRm9yU2FsZX0KICAgICAgICBvbkNsaWNrPXsoKSA9PiB7CiAgICAgICAgICBvcGVuKCdjYXJ0Jyk7CiAgICAgICAgfX0KICAgICAgICBsaW5lcz17CiAgICAgICAgICBzZWxlY3RlZFZhcmlhbnQKICAgICAgICAgICAgPyBbCiAgICAgICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAgIG1lcmNoYW5kaXNlSWQ6IHNlbGVjdGVkVmFyaWFudC5pZCwKICAgICAgICAgICAgICAgICAgcXVhbnRpdHk6IDEsCiAgICAgICAgICAgICAgICAgIHNlbGVjdGVkVmFyaWFudCwKICAgICAgICAgICAgICAgIH0sCiAgICAgICAgICAgICAgXQogICAgICAgICAgICA6IFtdCiAgICAgICAgfQogICAgICA+CiAgICAgICAge3NlbGVjdGVkVmFyaWFudD8uYXZhaWxhYmxlRm9yU2FsZSA/ICdBZGQgdG8gY2FydCcgOiAnU29sZCBvdXQnfQogICAgICA8L0FkZFRvQ2FydEJ1dHRvbj4KICAgIDwvZGl2PgogICk7Cn0KCmZ1bmN0aW9uIFByb2R1Y3RPcHRpb25Td2F0Y2goewogIHN3YXRjaCwKICBuYW1lLAp9OiB7CiAgc3dhdGNoPzogTWF5YmU8UHJvZHVjdE9wdGlvblZhbHVlU3dhdGNoPiB8IHVuZGVmaW5lZDsKICBuYW1lOiBzdHJpbmc7Cn0pIHsKICBjb25zdCBpbWFnZSA9IHN3YXRjaD8uaW1hZ2U/LnByZXZpZXdJbWFnZT8udXJsOwogIGNvbnN0IGNvbG9yID0gc3dhdGNoPy5jb2xvcjsKCiAgaWYgKCFpbWFnZSAmJiAhY29sb3IpIHJldHVybiBuYW1lOwoKICByZXR1cm4gKAogICAgPGRpdgogICAgICBhcmlhLWxhYmVsPXtuYW1lfQogICAgICBjbGFzc05hbWU9InByb2R1Y3Qtb3B0aW9uLWxhYmVsLXN3YXRjaCIKICAgICAgc3R5bGU9e3sKICAgICAgICBiYWNrZ3JvdW5kQ29sb3I6IGNvbG9yIHx8ICd0cmFuc3BhcmVudCcsCiAgICAgIH19CiAgICA+CiAgICAgIHshIWltYWdlICYmIDxpbWcgc3JjPXtpbWFnZX0gYWx0PXtuYW1lfSAvPn0KICAgIDwvZGl2PgogICk7Cn0KYGBg"
+            },
+            {
+              "title": "Make `useVariantUrl` and `getVariantUrl` functions more flexible by allowing `selectedOptions` to be optional. This ensures compatibility with cases where no options are provided.",
+              "code": "YGBgZGlmZgpleHBvcnQgZnVuY3Rpb24gdXNlVmFyaWFudFVybCgKICBoYW5kbGU6IHN0cmluZywKLSAgc2VsZWN0ZWRPcHRpb25zOiBTZWxlY3RlZE9wdGlvbltdLAorICBzZWxlY3RlZE9wdGlvbnM/OiBTZWxlY3RlZE9wdGlvbltdLAopIHsKICBjb25zdCB7cGF0aG5hbWV9ID0gdXNlTG9jYXRpb24oKTsKCiAgcmV0dXJuIHVzZU1lbW8oKCkgPT4gewogICAgcmV0dXJuIGdldFZhcmlhbnRVcmwoewogICAgICBoYW5kbGUsCiAgICAgIHBhdGhuYW1lLAogICAgICBzZWFyY2hQYXJhbXM6IG5ldyBVUkxTZWFyY2hQYXJhbXMoKSwKICAgICAgc2VsZWN0ZWRPcHRpb25zLAogICAgfSk7CiAgfSwgW2hhbmRsZSwgc2VsZWN0ZWRPcHRpb25zLCBwYXRobmFtZV0pOwp9CmV4cG9ydCBmdW5jdGlvbiBnZXRWYXJpYW50VXJsKHsKICBoYW5kbGUsCiAgcGF0aG5hbWUsCiAgc2VhcmNoUGFyYW1zLAogIHNlbGVjdGVkT3B0aW9ucywKfTogewogIGhhbmRsZTogc3RyaW5nOwogIHBhdGhuYW1lOiBzdHJpbmc7CiAgc2VhcmNoUGFyYW1zOiBVUkxTZWFyY2hQYXJhbXM7Ci0gIHNlbGVjdGVkT3B0aW9uczogU2VsZWN0ZWRPcHRpb25bXTsKKyAgc2VsZWN0ZWRPcHRpb25zPzogU2VsZWN0ZWRPcHRpb25bXSwKfSkgewogIGNvbnN0IG1hdGNoID0gLyhcL1thLXpBLVpdezJ9LVthLXpBLVpdezJ9XC8pL2cuZXhlYyhwYXRobmFtZSk7CiAgY29uc3QgaXNMb2NhbGVQYXRobmFtZSA9IG1hdGNoICYmIG1hdGNoLmxlbmd0aCA+IDA7CiAgY29uc3QgcGF0aCA9IGlzTG9jYWxlUGF0aG5hbWUKICAgID8gYCR7bWF0Y2ghWzBdfXByb2R1Y3RzLyR7aGFuZGxlfWAKICAgIDogYC9wcm9kdWN0cy8ke2hhbmRsZX1gOwoKLSAgc2VsZWN0ZWRPcHRpb25zLmZvckVhY2goKG9wdGlvbikgPT4geworICBzZWxlY3RlZE9wdGlvbnM/LmZvckVhY2goKG9wdGlvbikgPT4gewogICAgc2VhcmNoUGFyYW1zLnNldChvcHRpb24ubmFtZSwgb3B0aW9uLnZhbHVlKTsKICB9KTsKYGBg"
+            },
+            {
+              "title": "Remove unnecessary variant queries and references in `routes/collections.$handle.tsx`, simplifying the code by relying on the product route to fetch the first available variant.",
+              "code": "YGBgZGlmZgpjb25zdCBQUk9EVUNUX0lURU1fRlJBR01FTlQgPSBgI2dyYXBocWwKICBmcmFnbWVudCBNb25leVByb2R1Y3RJdGVtIG9uIE1vbmV5VjIgewogICAgYW1vdW50CiAgICBjdXJyZW5jeUNvZGUKICB9CiAgZnJhZ21lbnQgUHJvZHVjdEl0ZW0gb24gUHJvZHVjdCB7CiAgICBpZAogICAgaGFuZGxlCiAgICB0aXRsZQogICAgZmVhdHVyZWRJbWFnZSB7CiAgICAgIGlkCiAgICAgIGFsdFRleHQKICAgICAgdXJsCiAgICAgIHdpZHRoCiAgICAgIGhlaWdodAogICAgfQogICAgcHJpY2VSYW5nZSB7CiAgICAgIG1pblZhcmlhbnRQcmljZSB7CiAgICAgICAgLi4uTW9uZXlQcm9kdWN0SXRlbQogICAgICB9CiAgICAgIG1heFZhcmlhbnRQcmljZSB7CiAgICAgICAgLi4uTW9uZXlQcm9kdWN0SXRlbQogICAgICB9CiAgICB9Ci0gICAgdmFyaWFudHMoZmlyc3Q6IDEpIHsKLSAgICAgIG5vZGVzIHsKLSAgICAgICAgc2VsZWN0ZWRPcHRpb25zIHsKLSAgICAgICAgICBuYW1lCi0gICAgICAgICAgdmFsdWUKLSAgICAgICAgfQotICAgICAgfQotICAgIH0KICB9CmAgYXMgY29uc3Q7CmBgYAoKYW5kIHJlbW92ZSB0aGUgdmFyaWFudCByZWZlcmVuY2UKCmBgYGRpZmYKZnVuY3Rpb24gUHJvZHVjdEl0ZW0oewogIHByb2R1Y3QsCiAgbG9hZGluZywKfTogewogIHByb2R1Y3Q6IFByb2R1Y3RJdGVtRnJhZ21lbnQ7CiAgbG9hZGluZz86ICdlYWdlcicgfCAnbGF6eSc7Cn0pIHsKLSAgY29uc3QgdmFyaWFudCA9IHByb2R1Y3QudmFyaWFudHMubm9kZXNbMF07Ci0gIGNvbnN0IHZhcmlhbnRVcmwgPSB1c2VWYXJpYW50VXJsKHByb2R1Y3QuaGFuZGxlLCB2YXJpYW50LnNlbGVjdGVkT3B0aW9ucyk7CisgIGNvbnN0IHZhcmlhbnRVcmwgPSB1c2VWYXJpYW50VXJsKHByb2R1Y3QuaGFuZGxlKTsKICByZXR1cm4gKApgYGA="
+            },
+            {
+              "title": "Simplify the `ProductItem` component by removing variant-specific queries and logic. The `useVariantUrl` function now generates URLs without relying on variant options, reducing complexity.",
+              "code": "YGBgZGlmZgpjb25zdCBQUk9EVUNUX0lURU1fRlJBR01FTlQgPSBgI2dyYXBocWwKICBmcmFnbWVudCBNb25leVByb2R1Y3RJdGVtIG9uIE1vbmV5VjIgewogICAgYW1vdW50CiAgICBjdXJyZW5jeUNvZGUKICB9CiAgZnJhZ21lbnQgUHJvZHVjdEl0ZW0gb24gUHJvZHVjdCB7CiAgICBpZAogICAgaGFuZGxlCiAgICB0aXRsZQogICAgZmVhdHVyZWRJbWFnZSB7CiAgICAgIGlkCiAgICAgIGFsdFRleHQKICAgICAgdXJsCiAgICAgIHdpZHRoCiAgICAgIGhlaWdodAogICAgfQogICAgcHJpY2VSYW5nZSB7CiAgICAgIG1pblZhcmlhbnRQcmljZSB7CiAgICAgICAgLi4uTW9uZXlQcm9kdWN0SXRlbQogICAgICB9CiAgICAgIG1heFZhcmlhbnRQcmljZSB7CiAgICAgICAgLi4uTW9uZXlQcm9kdWN0SXRlbQogICAgICB9CiAgICB9Ci0gICAgdmFyaWFudHMoZmlyc3Q6IDEpIHsKLSAgICAgIG5vZGVzIHsKLSAgICAgICAgc2VsZWN0ZWRPcHRpb25zIHsKLSAgICAgICAgICBuYW1lCi0gICAgICAgICAgdmFsdWUKLSAgICAgICAgfQotICAgICAgfQotICAgIH0KICB9CmAgYXMgY29uc3Q7CmBgYAoKYW5kIHJlbW92ZSB0aGUgdmFyaWFudCByZWZlcmVuY2UKCmBgYGRpZmYKZnVuY3Rpb24gUHJvZHVjdEl0ZW0oewogIHByb2R1Y3QsCiAgbG9hZGluZywKfTogewogIHByb2R1Y3Q6IFByb2R1Y3RJdGVtRnJhZ21lbnQ7CiAgbG9hZGluZz86ICdlYWdlcicgfCAnbGF6eSc7Cn0pIHsKLSAgY29uc3QgdmFyaWFudCA9IHByb2R1Y3QudmFyaWFudHMubm9kZXNbMF07Ci0gIGNvbnN0IHZhcmlhbnRVcmwgPSB1c2VWYXJpYW50VXJsKHByb2R1Y3QuaGFuZGxlLCB2YXJpYW50LnNlbGVjdGVkT3B0aW9ucyk7CisgIGNvbnN0IHZhcmlhbnRVcmwgPSB1c2VWYXJpYW50VXJsKHByb2R1Y3QuaGFuZGxlKTsKICByZXR1cm4gKApgYGA="
+            },
+            {
+              "title": "Replace `variants(first: 1)` with `selectedOrFirstAvailableVariant` in GraphQL fragments to directly fetch the most relevant variant, improving query efficiency and clarity.",
+              "code": "YGBgZGlmZgpjb25zdCBTRUFSQ0hfUFJPRFVDVF9GUkFHTUVOVCA9IGAjZ3JhcGhxbAogIGZyYWdtZW50IFNlYXJjaFByb2R1Y3Qgb24gUHJvZHVjdCB7CiAgICBfX3R5cGVuYW1lCiAgICBoYW5kbGUKICAgIGlkCiAgICBwdWJsaXNoZWRBdAogICAgdGl0bGUKICAgIHRyYWNraW5nUGFyYW1ldGVycwogICAgdmVuZG9yCi0gICAgdmFyaWFudHMoZmlyc3Q6IDEpIHsKLSAgICAgIG5vZGVzIHsKKyAgICBzZWxlY3RlZE9yRmlyc3RBdmFpbGFibGVWYXJpYW50KAorICAgICAgc2VsZWN0ZWRPcHRpb25zOiBbXQorICAgICAgaWdub3JlVW5rbm93bk9wdGlvbnM6IHRydWUKKyAgICAgIGNhc2VJbnNlbnNpdGl2ZU1hdGNoOiB0cnVlCisgICAgKSB7CiAgICAgICAgaWQKICAgICAgICBpbWFnZSB7CiAgICAgICAgICB1cmwKICAgICAgICAgIGFsdFRleHQKICAgICAgICAgIHdpZHRoCiAgICAgICAgICBoZWlnaHQKICAgICAgICB9CiAgICAgICAgcHJpY2UgewogICAgICAgICAgYW1vdW50CiAgICAgICAgICBjdXJyZW5jeUNvZGUKICAgICAgICB9CiAgICAgICAgY29tcGFyZUF0UHJpY2UgewogICAgICAgICAgYW1vdW50CiAgICAgICAgICBjdXJyZW5jeUNvZGUKICAgICAgICB9CiAgICAgICAgc2VsZWN0ZWRPcHRpb25zIHsKICAgICAgICAgIG5hbWUKICAgICAgICAgIHZhbHVlCiAgICAgICAgfQogICAgICAgIHByb2R1Y3QgewogICAgICAgICAgaGFuZGxlCiAgICAgICAgICB0aXRsZQogICAgICAgIH0KICAgICB9Ci0gICAgfQogIH0KYCBhcyBjb25zdDsKYGBgCgpgYGBkaWZmCmNvbnN0IFBSRURJQ1RJVkVfU0VBUkNIX1BST0RVQ1RfRlJBR01FTlQgPSBgI2dyYXBocWwKICBmcmFnbWVudCBQcmVkaWN0aXZlUHJvZHVjdCBvbiBQcm9kdWN0IHsKICAgIF9fdHlwZW5hbWUKICAgIGlkCiAgICB0aXRsZQogICAgaGFuZGxlCiAgICB0cmFja2luZ1BhcmFtZXRlcnMKLSAgICB2YXJpYW50cyhmaXJzdDogMSkgewotICAgICAgbm9kZXMgeworICAgIHNlbGVjdGVkT3JGaXJzdEF2YWlsYWJsZVZhcmlhbnQoCisgICAgICBzZWxlY3RlZE9wdGlvbnM6IFtdCisgICAgICBpZ25vcmVVbmtub3duT3B0aW9uczogdHJ1ZQorICAgICAgY2FzZUluc2Vuc2l0aXZlTWF0Y2g6IHRydWUKKyAgICApIHsKICAgICAgICBpZAogICAgICAgIGltYWdlIHsKICAgICAgICAgIHVybAogICAgICAgICAgYWx0VGV4dAogICAgICAgICAgd2lkdGgKICAgICAgICAgIGhlaWdodAogICAgICAgIH0KICAgICAgICBwcmljZSB7CiAgICAgICAgICBhbW91bnQKICAgICAgICAgIGN1cnJlbmN5Q29kZQogICAgICAgIH0KICAgICB9Ci0gICAgfQogIH0KYGBg"
+            },
+            {
+              "title": "Refactor `SearchResultsProducts` to use `selectedOrFirstAvailableVariant` for fetching product price and image, simplifying the logic and improving performance.",
+              "code": "YGBgZGlmZgpmdW5jdGlvbiBTZWFyY2hSZXN1bHRzUHJvZHVjdHMoewogIHRlcm0sCiAgcHJvZHVjdHMsCn06IFBhcnRpYWxTZWFyY2hSZXN1bHQ8J3Byb2R1Y3RzJz4pIHsKICBpZiAoIXByb2R1Y3RzPy5ub2Rlcy5sZW5ndGgpIHsKICAgIHJldHVybiBudWxsOwogIH0KCiAgcmV0dXJuICgKICAgIDxkaXYgY2xhc3NOYW1lPSJzZWFyY2gtcmVzdWx0Ij4KICAgICAgPGgyPlByb2R1Y3RzPC9oMj4KICAgICAgPFBhZ2luYXRpb24gY29ubmVjdGlvbj17cHJvZHVjdHN9PgogICAgICAgIHsoe25vZGVzLCBpc0xvYWRpbmcsIE5leHRMaW5rLCBQcmV2aW91c0xpbmt9KSA9PiB7CiAgICAgICAgICBjb25zdCBJdGVtc01hcmt1cCA9IG5vZGVzLm1hcCgocHJvZHVjdCkgPT4gewogICAgICAgICAgICBjb25zdCBwcm9kdWN0VXJsID0gdXJsV2l0aFRyYWNraW5nUGFyYW1zKHsKICAgICAgICAgICAgICBiYXNlVXJsOiBgL3Byb2R1Y3RzLyR7cHJvZHVjdC5oYW5kbGV9YCwKICAgICAgICAgICAgICB0cmFja2luZ1BhcmFtczogcHJvZHVjdC50cmFja2luZ1BhcmFtZXRlcnMsCiAgICAgICAgICAgICAgdGVybSwKICAgICAgICAgICAgfSk7CgorICAgICAgICAgICAgY29uc3QgcHJpY2UgPSBwcm9kdWN0Py5zZWxlY3RlZE9yRmlyc3RBdmFpbGFibGVWYXJpYW50Py5wcmljZTsKKyAgICAgICAgICAgIGNvbnN0IGltYWdlID0gcHJvZHVjdD8uc2VsZWN0ZWRPckZpcnN0QXZhaWxhYmxlVmFyaWFudD8uaW1hZ2U7CgogICAgICAgICAgICByZXR1cm4gKAogICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPSJzZWFyY2gtcmVzdWx0cy1pdGVtIiBrZXk9e3Byb2R1Y3QuaWR9PgogICAgICAgICAgICAgICAgPExpbmsgcHJlZmV0Y2g9ImludGVudCIgdG89e3Byb2R1Y3RVcmx9PgotICAgICAgICAgICAgICAgICAge3Byb2R1Y3QudmFyaWFudHMubm9kZXNbMF0uaW1hZ2UgJiYgKAorICAgICAgICAgICAgICAgICAge2ltYWdlICYmICgKICAgICAgICAgICAgICAgICAgICA8SW1hZ2UKLSAgICAgICAgICAgICAgICAgICAgICBkYXRhPXtwcm9kdWN0LnZhcmlhbnRzLm5vZGVzWzBdLmltYWdlfQorICAgICAgICAgICAgICAgICAgICAgIGRhdGE9e2ltYWdlfQogICAgICAgICAgICAgICAgICAgICAgYWx0PXtwcm9kdWN0LnRpdGxlfQogICAgICAgICAgICAgICAgICAgICAgd2lkdGg9ezUwfQogICAgICAgICAgICAgICAgICAgIC8+CiAgICAgICAgICAgICAgICAgICl9CiAgICAgICAgICAgICAgICAgIDxkaXY+CiAgICAgICAgICAgICAgICAgICAgPHA+e3Byb2R1Y3QudGl0bGV9PC9wPgogICAgICAgICAgICAgICAgICAgIDxzbWFsbD4KLSAgICAgICAgICAgICAgICAgICAgICA8TW9uZXkgZGF0YT17cHJvZHVjdC52YXJpYW50cy5ub2Rlc1swXS5wcmljZX0gLz4KKyAgICAgICAgICAgICAgICAgICAgICB7cHJpY2UgJiYKKyAgICAgICAgICAgICAgICAgICAgICAgIDxNb25leSBkYXRhPXtwcmljZX0gLz4KKyAgICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICAgICAgPC9zbWFsbD4KICAgICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICAgICA8L0xpbms+CiAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICk7CiAgICAgICAgICB9KTsKYGBg"
+            },
+            {
+              "title": "Update `SearchResultsPredictive` to use `selectedOrFirstAvailableVariant` for fetching product price and image, ensuring accurate and efficient data retrieval.",
+              "code": "YGBgZGlmZgpmdW5jdGlvbiBTZWFyY2hSZXN1bHRzUHJlZGljdGl2ZVByb2R1Y3RzKHsKICB0ZXJtLAogIHByb2R1Y3RzLAogIGNsb3NlU2VhcmNoLAp9OiBQYXJ0aWFsUHJlZGljdGl2ZVNlYXJjaFJlc3VsdDwncHJvZHVjdHMnPikgewogIGlmICghcHJvZHVjdHMubGVuZ3RoKSByZXR1cm4gbnVsbDsKCiAgcmV0dXJuICgKICAgIDxkaXYgY2xhc3NOYW1lPSJwcmVkaWN0aXZlLXNlYXJjaC1yZXN1bHQiIGtleT0icHJvZHVjdHMiPgogICAgICA8aDU+UHJvZHVjdHM8L2g1PgogICAgICA8dWw+CiAgICAgICAge3Byb2R1Y3RzLm1hcCgocHJvZHVjdCkgPT4gewogICAgICAgICAgY29uc3QgcHJvZHVjdFVybCA9IHVybFdpdGhUcmFja2luZ1BhcmFtcyh7CiAgICAgICAgICAgIGJhc2VVcmw6IGAvcHJvZHVjdHMvJHtwcm9kdWN0LmhhbmRsZX1gLAogICAgICAgICAgICB0cmFja2luZ1BhcmFtczogcHJvZHVjdC50cmFja2luZ1BhcmFtZXRlcnMsCiAgICAgICAgICAgIHRlcm06IHRlcm0uY3VycmVudCwKICAgICAgICAgIH0pOwoKKyAgICAgICAgICBjb25zdCBwcmljZSA9IHByb2R1Y3Q/LnNlbGVjdGVkT3JGaXJzdEF2YWlsYWJsZVZhcmlhbnQ/LnByaWNlOwotICAgICAgICAgIGNvbnN0IGltYWdlID0gcHJvZHVjdD8udmFyaWFudHM/Lm5vZGVzPy5bMF0uaW1hZ2U7CisgICAgICAgICAgY29uc3QgaW1hZ2UgPSBwcm9kdWN0Py5zZWxlY3RlZE9yRmlyc3RBdmFpbGFibGVWYXJpYW50Py5pbWFnZTsKICAgICAgICAgIHJldHVybiAoCiAgICAgICAgICAgIDxsaSBjbGFzc05hbWU9InByZWRpY3RpdmUtc2VhcmNoLXJlc3VsdC1pdGVtIiBrZXk9e3Byb2R1Y3QuaWR9PgogICAgICAgICAgICAgIDxMaW5rIHRvPXtwcm9kdWN0VXJsfSBvbkNsaWNrPXtjbG9zZVNlYXJjaH0+CiAgICAgICAgICAgICAgICB7aW1hZ2UgJiYgKAogICAgICAgICAgICAgICAgICA8SW1hZ2UKICAgICAgICAgICAgICAgICAgICBhbHQ9e2ltYWdlLmFsdFRleHQgPz8gJyd9CiAgICAgICAgICAgICAgICAgICAgc3JjPXtpbWFnZS51cmx9CiAgICAgICAgICAgICAgICAgICAgd2lkdGg9ezUwfQogICAgICAgICAgICAgICAgICAgIGhlaWdodD17NTB9CiAgICAgICAgICAgICAgICAgIC8+CiAgICAgICAgICAgICAgICApfQogICAgICAgICAgICAgICAgPGRpdj4KICAgICAgICAgICAgICAgICAgPHA+e3Byb2R1Y3QudGl0bGV9PC9wPgogICAgICAgICAgICAgICAgICA8c21hbGw+Ci0gICAgICAgICAgICAgICAgICAgIHtwcm9kdWN0Py52YXJpYW50cz8ubm9kZXM/LlswXS5wcmljZSAmJiAoCisgICAgICAgICAgICAgICAgICAgIHtwcmljZSAmJiAoCi0gICAgICAgICAgICAgICAgICAgICAgPE1vbmV5IGRhdGE9e3Byb2R1Y3QudmFyaWFudHMubm9kZXNbMF0ucHJpY2V9IC8+CisgICAgICAgICAgICAgICAgICAgICAgPE1vbmV5IGRhdGE9e3ByaWNlfSAvPgogICAgICAgICAgICAgICAgICAgICl9CiAgICAgICAgICAgICAgICAgIDwvc21hbGw+CiAgICAgICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgICA8L0xpbms+CiAgICAgICAgICAgIDwvbGk+CiAgICAgICAgICApOwogICAgICAgIH0pfQogICAgICA8L3VsPgogICAgPC9kaXY+CiAgKTsKfQpgYGA="
+            }
+          ]
+        },
+        {
+          "title": "Refactor ProductItem into a separate component in Skeleton",
+          "pr": "https://github.com/Shopify/hydrogen/pull/2872",
+          "id": "2872"
+        }
+      ],
+      "features": [
+        {
+          "title": "Add support for CartDeliveryAddresses mutations to CartForm and context.cart",
+          "pr": "https://github.com/Shopify/hydrogen/pull/2850",
+          "id": "2850",
+          "desc": "CartForm and createCartHandler now support `addDeliveryAddresses`, `updateDeliveryAddresses` and `removeDeliveryAddresses`"
+        }
+      ]
+    },
+    {
       "title": "Remix routeConfig support, Remix and Vite updates.",
       "version": "2025.1.3",
       "hash": "d06cdc0442ac382fa37c3c572f0890499daa0c6d",
@@ -86,12 +1188,8 @@
               "code": "ImRldkRlcGVuZGVuY2llcyI6IHsKICAuLi4KICAiQHJlbWl4LXJ1bi9mcy1yb3V0ZXMiOiAiXjIuMTYuMSIsCiAgIkByZW1peC1ydW4vcm91dGUtY29uZmlnIjogIl4yLjE2LjEiLA=="
             },
             {
-              "title": "Move the `Layout` component export from `root.tsx` into its own file. Make sure to supply an `<Outlet>` so Remix knows where to inject your route content.",
-              "code": "Ly8gL2FwcC9sYXlvdXQudHN4CmltcG9ydCB7T3V0bGV0fSBmcm9tICdAcmVtaXgtcnVuL3JlYWN0JzsKCmV4cG9ydCBkZWZhdWx0IGZ1bmN0aW9uIExheW91dCgpIHsKIGNvbnN0IG5vbmNlID0gdXNlTm9uY2UoKTsKIGNvbnN0IGRhdGEgPSB1c2VSb3V0ZUxvYWRlckRhdGE8Um9vdExvYWRlcj4oJ3Jvb3QnKTsKCiByZXR1cm4gKAogICA8aHRtbCBsYW5nPSJlbiI+CiAgICAgLi4uCiAgICAgPE91dGxldCAvPgogICAgIC4uLgogICA8L2h0bWw+CiApOwp9CgovLyBSZW1lbWJlciB0byByZW1vdmUgdGhlIExheW91dCBleHBvcnQgZnJvbSB5b3VyIHJvb3QudHN4Cg=="
-            },
-            {
               "title": "Add a `routes.ts` file. This is your new Remix route configuration file.",
-              "code": "aW1wb3J0IHtmbGF0Um91dGVzfSBmcm9tICdAcmVtaXgtcnVuL2ZzLXJvdXRlcyc7CmltcG9ydCB7bGF5b3V0LCB0eXBlIFJvdXRlQ29uZmlnfSBmcm9tICdAcmVtaXgtcnVuL3JvdXRlLWNvbmZpZyc7CmltcG9ydCB7aHlkcm9nZW5Sb3V0ZXN9IGZyb20gJ0BzaG9waWZ5L2h5ZHJvZ2VuJzsKCmV4cG9ydCBkZWZhdWx0IGh5ZHJvZ2VuUm91dGVzKFsKIC8vIFlvdXIgZW50aXJlIGFwcCByZWFkaW5nIGZyb20gcm91dGVzIGZvbGRlciB1c2luZyBMYXlvdXQgZnJvbSBsYXlvdXQudHN4CiBsYXlvdXQoJy4vbGF5b3V0LnRzeCcsIChhd2FpdCBmbGF0Um91dGVzKCkpKSwKXSkgc2F0aXNmaWVzIFJvdXRlQ29uZmlnOw=="
+              "code": "aW1wb3J0IHtmbGF0Um91dGVzfSBmcm9tICdAcmVtaXgtcnVuL2ZzLXJvdXRlcyc7CmltcG9ydCB7dHlwZSBSb3V0ZUNvbmZpZ30gZnJvbSAnQHJlbWl4LXJ1bi9yb3V0ZS1jb25maWcnOwppbXBvcnQge2h5ZHJvZ2VuUm91dGVzfSBmcm9tICdAc2hvcGlmeS9oeWRyb2dlbic7CgpleHBvcnQgZGVmYXVsdCBoeWRyb2dlblJvdXRlcyhbCiAgLi4uKGF3YWl0IGZsYXRSb3V0ZXMoKSksCiAgLy8gTWFudWFsIHJvdXRlIGRlZmluaXRpb25zIGNhbiBiZSBhZGRlZCB0byB0aGlzIGFycmF5LCBpbiBhZGRpdGlvbiB0byBvciBpbnN0ZWFkIG9mIHVzaW5nIHRoZSBgZmxhdFJvdXRlc2AgZmlsZS1iYXNlZCByb3V0aW5nIGNvbnZlbnRpb24uCiAgLy8gU2VlIGh0dHBzOi8vcmVtaXgucnVuL2RvY3MvZW4vbWFpbi9ndWlkZXMvcm91dGluZyBmb3IgbW9yZSBkZXRhaWxzCl0pIHNhdGlzZmllcyBSb3V0ZUNvbmZpZzs="
             }
           ]
         }
@@ -402,6 +1500,46 @@
       ]
     },
     {
+      "title": "New Shopify cookie system and analytics improvements",
+      "version": "2024.10.2",
+      "date": "2026-01-14",
+      "hash": "d1aac68acbb53c875acf94788b91c38a009e24f2",
+      "commit": "https://github.com/Shopify/hydrogen/commit/d1aac68acbb53c875acf94788b91c38a009e24f2",
+      "pr": "https://github.com/Shopify/hydrogen/pull/3375",
+      "dependencies": {
+        "@shopify/hydrogen": "2024.10.2"
+      },
+      "devDependencies": {},
+      "fixes": [
+        {
+          "title": "Fix Privacy Banner and analytics event issues",
+          "info": "Fixed irregular behaviors between Privacy Banner and Hydrogen's analytics events.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3342",
+          "id": "3342-privacy"
+        }
+      ],
+      "features": [
+        {
+          "title": "Migrate to Shopify's new cookie system",
+          "info": "Hydrogen now supports Shopify's new `_shopify_analytics` and `_shopify_marketing` http-only cookies while keeping the deprecated `_shopify_y` and `_shopify_s` cookies working as long as they remain active. This keeps analytics and privacy behavior aligned with Shopify Admin while preserving backward compatibility.",
+          "breaking": false,
+          "steps": [
+            {
+              "title": "Understand the new cookie model and compatibility story",
+              "info": "Shopify is deprecating `_shopify_y` and `_shopify_s` in favor of `_shopify_analytics` and `_shopify_marketing`, which are http-only cookies set via the Storefront API on your storefront domain. Hydrogen now reads and writes these cookies through a Storefront API proxy while still honoring the legacy cookies when present. You don't need to migrate values manually, but you must ensure that requests flow through the proxy so cookies are set before analytics run."
+            },
+            {
+              "title": "Set up a Storefront API proxy for your deployment",
+              "info": "Depending on how you host your app, you must ensure Storefront API calls go through a proxy on your storefront domain.",
+              "code": "IyMjIFJlbWl4ICsgSHlkcm9nZW4gb24gT3h5Z2VuCgpJZiB5b3Ugc2NhZmZvbGRlZCBmcm9tIHRoZSBkZWZhdWx0IEh5ZHJvZ2VuIHNrZWxldG9uIGFuZCBkZXBsb3kgdG8gT3h5Z2VuLCB0aGUgYGNyZWF0ZVJlcXVlc3RIYW5kbGVyYCB1dGlsaXR5IGZyb20gYEBzaG9waWZ5L3JlbWl4LW94eWdlbmAgYWxyZWFkeSBzZXRzIHVwIGEgU3RvcmVmcm9udCBBUEkgcHJveHkgb24gdGhlIHNhbWUgZG9tYWluIGFzIHlvdXIgc3RvcmVmcm9udC4KCioqSW4gbW9zdCBjYXNlcywgbm8gY2hhbmdlcyBhcmUgcmVxdWlyZWQqKjsganVzdCBjb25maXJtIHlvdXIgc2VydmVyIGVudHJ5IHN0aWxsIHVzZXMgaXQ6CgpgYGB0cwovLyBzZXJ2ZXIudHMgKE94eWdlbikKaW1wb3J0IHtjcmVhdGVSZXF1ZXN0SGFuZGxlcn0gZnJvbSAnQHNob3BpZnkvcmVtaXgtb3h5Z2VuJzsKaW1wb3J0IHtjcmVhdGVIeWRyb2dlbkNvbnRleHR9IGZyb20gJ0BzaG9waWZ5L2h5ZHJvZ2VuJzsKCmV4cG9ydCBkZWZhdWx0IHsKICBhc3luYyBmZXRjaChyZXF1ZXN0LCBlbnYpIHsKICAgIGNvbnN0IGh5ZHJvZ2VuQ29udGV4dCA9IGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dCh7CiAgICAgIGVudiwKICAgICAgcmVxdWVzdCwKICAgICAgLyogLi4uICovCiAgICB9KTsKCiAgICBjb25zdCBoYW5kbGVSZXF1ZXN0ID0gY3JlYXRlUmVxdWVzdEhhbmRsZXIoewogICAgICAvKiAuLi4gKi8KICAgICAgZ2V0TG9hZENvbnRleHQ6ICgpID0+IGh5ZHJvZ2VuQ29udGV4dCwKICAgIH0pOwoKICAgIHJldHVybiBoYW5kbGVSZXF1ZXN0KHJlcXVlc3QpOwogIH0sCn07CmBgYAoKS2VlcCB1c2luZyBgPEFuYWx5dGljcy5Qcm92aWRlcj5gIGNvbXBvbmVudCBvciBgdXNlQ3VzdG9tZXJQcml2YWN5YCBob29rIHRvIGdldCBjb29raWVzIGluIHRoZSBicm93c2VyIGF1dG9tYXRpY2FsbHkuCgpGb3IgYSBmdWxsIGV4YW1wbGUsIHJlZmVyIHRvIHlvdXIgc2tlbGV0b24gdGVtcGxhdGUncyBzZXJ2ZXIudHMuCgojIyMgUmVtaXggKyBIeWRyb2dlbiBvbiBvdGhlciBob3N0cwoKIyMjIyBIb3N0cyB0aGF0IHN1cHBvcnQgV2ViIEZldGNoIEFQSSAoUmVxdWVzdC9SZXNwb25zZSkKCk9uIGhvc3RzIHRoYXQgc3VwcG9ydCB0aGUgc3RhbmRhcmQgV2ViIEZldGNoIEFQSSAoV29ya2Vycy1zdHlsZSBlbnZpcm9ubWVudHMpLCBpbXBvcnQgYGNyZWF0ZVJlcXVlc3RIYW5kbGVyYCBmcm9tIGBAc2hvcGlmeS9oeWRyb2dlbmAgYW5kIHJvdXRlIHJlcXVlc3RzIHRocm91Z2ggaXQ6CgpgYGB0cwppbXBvcnQge2NyZWF0ZVJlcXVlc3RIYW5kbGVyLCBjcmVhdGVIeWRyb2dlbkNvbnRleHR9IGZyb20gJ0BzaG9waWZ5L2h5ZHJvZ2VuJzsKCmNvbnN0IGh5ZHJvZ2VuQ29udGV4dCA9IGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dCh7CiAgLyogLi4uICovCn0pOwoKY29uc3QgaGFuZGxlUmVxdWVzdCA9IGNyZWF0ZVJlcXVlc3RIYW5kbGVyKHsKICAvKiAuLi4gKi8KICBnZXRMb2FkQ29udGV4dDogKCkgPT4gaHlkcm9nZW5Db250ZXh0LAp9KTsKYGBgCgojIyMjIE5vZGUuanMgYW5kIG90aGVyIGhvc3RzCgpGb3IgTm9kZS1saWtlIGVudmlyb25tZW50cywgYWRhcHQgTm9kZSByZXF1ZXN0cyB0byBGZXRjaCB3aXRoIFtgQHJlbWl4LXJ1bi9ub2RlLWZldGNoLXNlcnZlcmBdKGh0dHBzOi8vd3d3Lm5wbWpzLmNvbS9wYWNrYWdlL0ByZW1peC1ydW4vbm9kZS1mZXRjaC1zZXJ2ZXIpLCB0aGVuIGRlbGVnYXRlIHRvIEh5ZHJvZ2VuJ3MgaGFuZGxlcjoKCmBgYHRzCmltcG9ydCB7Y3JlYXRlUmVxdWVzdEhhbmRsZXIsIGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dH0gZnJvbSAnQHNob3BpZnkvaHlkcm9nZW4nOwppbXBvcnQge2NyZWF0ZVJlcXVlc3RMaXN0ZW5lcn0gZnJvbSAnQHJlbWl4LXJ1bi9ub2RlLWZldGNoLXNlcnZlcic7CmltcG9ydCBodHRwIGZyb20gJ2h0dHAnOwoKY29uc3QgaGFuZGxlTm9kZVJlcXVlc3QgPSBjcmVhdGVSZXF1ZXN0TGlzdGVuZXIoKHJlcXVlc3QpID0+IHsKICBjb25zdCBoeWRyb2dlbkNvbnRleHQgPSBjcmVhdGVIeWRyb2dlbkNvbnRleHQoewogICAgLyogLi4uICovCiAgfSk7CgogIGNvbnN0IGhhbmRsZVdlYlJlcXVlc3QgPSBjcmVhdGVSZXF1ZXN0SGFuZGxlcih7CiAgICAvKiAuLi4gKi8KICAgIGdldExvYWRDb250ZXh0OiAoKSA9PiBoeWRyb2dlbkNvbnRleHQsCiAgfSk7CgogIHJldHVybiBoYW5kbGVXZWJSZXF1ZXN0KHJlcXVlc3QpOwp9KTsKCmh0dHAuY3JlYXRlU2VydmVyKGhhbmRsZU5vZGVSZXF1ZXN0KTsKYGBgCgpBbHRlcm5hdGl2ZWx5LCBpZiB5b3UgY2FuJ3QgZGVsZWdhdGUgdG8gSHlkcm9nZW4ncyBgY3JlYXRlUmVxdWVzdEhhbmRsZXJgLCB5b3UgY2FuIHByb3ZpZGUgYSBjdXN0b20gU3RvcmVmcm9udCBBUEkgcHJveHkgaW4geW91ciBzZXJ2ZXIuIFNlZSBbSHlkcm9nZW4ncyBpbXBsZW1lbnRhdGlvbl0oaHR0cHM6Ly9naXRodWIuY29tL1Nob3BpZnkvaHlkcm9nZW4vYmxvYi8yNzA2NmEyODU3NzQ4NGY0MDYyMjIxMTZhOTU5ZWI0NjNkMjU1Njg1L3BhY2thZ2VzL2h5ZHJvZ2VuL3NyYy9zdG9yZWZyb250LnRzI0w1NDYtTDYxMSkgYXMgYSByZWZlcmVuY2UuIEluIHRoaXMgY2FzZSwgZW5zdXJlIHlvdSBtYW51YWxseSBwYXNzIGBzYW1lRG9tYWluRm9yU3RvcmVmcm9udEFwaTogdHJ1ZWAgaW4gdGhlIGBjb25zZW50YCBvYmplY3QgZm9yIGA8QW5hbHl0aWNzLlByb3ZpZGVyPmAgb3IgYXMgYSBwcm9wIHRvIHRoZSBgdXNlQ3VzdG9tZXJQcml2YWN5YCBob29rLgo="
+            }
+          ],
+          "pr": "https://github.com/Shopify/hydrogen/pull/3342",
+          "id": "3342"
+        }
+      ]
+    },
+    {
       "title": "Support for 2,000 variants and combined listings",
       "version": "2024.10.1",
       "hash": "c915b67d81ff01e25eeefce8cf0510805d620d64",
@@ -611,6 +1749,46 @@
               "desc": "Starting from this major version, on each deploy to Oxygen, Hydrogen will be on Cloudflare worker compatibility date `2024-10-01`. Onwards, Hydrogen will update worker compatibility date on every SFAPI release. There is no specific project update that needs to be done in order to get this feature. However, please ensure your project is working properly in an Oxygen deployment when updating to this Hydrogen version."
             }
           ]
+        }
+      ]
+    },
+    {
+      "title": "New Shopify cookie system and analytics improvements",
+      "version": "2024.7.10",
+      "date": "2026-01-14",
+      "hash": "9568a1f71a924c56d0cc0c2a30803a773b731ad6",
+      "commit": "https://github.com/Shopify/hydrogen/commit/9568a1f71a924c56d0cc0c2a30803a773b731ad6",
+      "pr": "https://github.com/Shopify/hydrogen/pull/3374",
+      "dependencies": {
+        "@shopify/hydrogen": "2024.7.10"
+      },
+      "devDependencies": {},
+      "fixes": [
+        {
+          "title": "Fix Privacy Banner and analytics event issues",
+          "info": "Fixed irregular behaviors between Privacy Banner and Hydrogen's analytics events.",
+          "pr": "https://github.com/Shopify/hydrogen/pull/3355",
+          "id": "3355-privacy"
+        }
+      ],
+      "features": [
+        {
+          "title": "Migrate to Shopify's new cookie system",
+          "info": "Hydrogen now supports Shopify's new `_shopify_analytics` and `_shopify_marketing` http-only cookies while keeping the deprecated `_shopify_y` and `_shopify_s` cookies working as long as they remain active. This keeps analytics and privacy behavior aligned with Shopify Admin while preserving backward compatibility.",
+          "breaking": false,
+          "steps": [
+            {
+              "title": "Understand the new cookie model and compatibility story",
+              "info": "Shopify is deprecating `_shopify_y` and `_shopify_s` in favor of `_shopify_analytics` and `_shopify_marketing`, which are http-only cookies set via the Storefront API on your storefront domain. Hydrogen now reads and writes these cookies through a Storefront API proxy while still honoring the legacy cookies when present. You don't need to migrate values manually, but you must ensure that requests flow through the proxy so cookies are set before analytics run."
+            },
+            {
+              "title": "Set up a Storefront API proxy for your deployment",
+              "info": "Depending on how you host your app, you must ensure Storefront API calls go through a proxy on your storefront domain.",
+              "code": "IyMjIFJlbWl4ICsgSHlkcm9nZW4gb24gT3h5Z2VuCgpJZiB5b3Ugc2NhZmZvbGRlZCBmcm9tIHRoZSBkZWZhdWx0IEh5ZHJvZ2VuIHNrZWxldG9uIGFuZCBkZXBsb3kgdG8gT3h5Z2VuLCB0aGUgYGNyZWF0ZVJlcXVlc3RIYW5kbGVyYCB1dGlsaXR5IGZyb20gYEBzaG9waWZ5L3JlbWl4LW94eWdlbmAgYWxyZWFkeSBzZXRzIHVwIGEgU3RvcmVmcm9udCBBUEkgcHJveHkgb24gdGhlIHNhbWUgZG9tYWluIGFzIHlvdXIgc3RvcmVmcm9udC4KCioqSW4gbW9zdCBjYXNlcywgbm8gY2hhbmdlcyBhcmUgcmVxdWlyZWQqKjsganVzdCBjb25maXJtIHlvdXIgc2VydmVyIGVudHJ5IHN0aWxsIHVzZXMgaXQ6CgpgYGB0cwovLyBzZXJ2ZXIudHMgKE94eWdlbikKaW1wb3J0IHtjcmVhdGVSZXF1ZXN0SGFuZGxlcn0gZnJvbSAnQHNob3BpZnkvcmVtaXgtb3h5Z2VuJzsKaW1wb3J0IHtjcmVhdGVIeWRyb2dlbkNvbnRleHR9IGZyb20gJ0BzaG9waWZ5L2h5ZHJvZ2VuJzsKCmV4cG9ydCBkZWZhdWx0IHsKICBhc3luYyBmZXRjaChyZXF1ZXN0LCBlbnYpIHsKICAgIGNvbnN0IGh5ZHJvZ2VuQ29udGV4dCA9IGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dCh7CiAgICAgIGVudiwKICAgICAgcmVxdWVzdCwKICAgICAgLyogLi4uICovCiAgICB9KTsKCiAgICBjb25zdCBoYW5kbGVSZXF1ZXN0ID0gY3JlYXRlUmVxdWVzdEhhbmRsZXIoewogICAgICAvKiAuLi4gKi8KICAgICAgZ2V0TG9hZENvbnRleHQ6ICgpID0+IGh5ZHJvZ2VuQ29udGV4dCwKICAgIH0pOwoKICAgIHJldHVybiBoYW5kbGVSZXF1ZXN0KHJlcXVlc3QpOwogIH0sCn07CmBgYAoKS2VlcCB1c2luZyBgPEFuYWx5dGljcy5Qcm92aWRlcj5gIGNvbXBvbmVudCBvciBgdXNlQ3VzdG9tZXJQcml2YWN5YCBob29rIHRvIGdldCBjb29raWVzIGluIHRoZSBicm93c2VyIGF1dG9tYXRpY2FsbHkuCgpGb3IgYSBmdWxsIGV4YW1wbGUsIHJlZmVyIHRvIHlvdXIgc2tlbGV0b24gdGVtcGxhdGUncyBzZXJ2ZXIudHMuCgojIyMgUmVtaXggKyBIeWRyb2dlbiBvbiBvdGhlciBob3N0cwoKIyMjIyBIb3N0cyB0aGF0IHN1cHBvcnQgV2ViIEZldGNoIEFQSSAoUmVxdWVzdC9SZXNwb25zZSkKCk9uIGhvc3RzIHRoYXQgc3VwcG9ydCB0aGUgc3RhbmRhcmQgV2ViIEZldGNoIEFQSSAoV29ya2Vycy1zdHlsZSBlbnZpcm9ubWVudHMpLCBpbXBvcnQgYGNyZWF0ZVJlcXVlc3RIYW5kbGVyYCBmcm9tIGBAc2hvcGlmeS9oeWRyb2dlbmAgYW5kIHJvdXRlIHJlcXVlc3RzIHRocm91Z2ggaXQ6CgpgYGB0cwppbXBvcnQge2NyZWF0ZVJlcXVlc3RIYW5kbGVyLCBjcmVhdGVIeWRyb2dlbkNvbnRleHR9IGZyb20gJ0BzaG9waWZ5L2h5ZHJvZ2VuJzsKCmNvbnN0IGh5ZHJvZ2VuQ29udGV4dCA9IGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dCh7CiAgLyogLi4uICovCn0pOwoKY29uc3QgaGFuZGxlUmVxdWVzdCA9IGNyZWF0ZVJlcXVlc3RIYW5kbGVyKHsKICAvKiAuLi4gKi8KICBnZXRMb2FkQ29udGV4dDogKCkgPT4gaHlkcm9nZW5Db250ZXh0LAp9KTsKYGBgCgojIyMjIE5vZGUuanMgYW5kIG90aGVyIGhvc3RzCgpGb3IgTm9kZS1saWtlIGVudmlyb25tZW50cywgYWRhcHQgTm9kZSByZXF1ZXN0cyB0byBGZXRjaCB3aXRoIFtgQHJlbWl4LXJ1bi9ub2RlLWZldGNoLXNlcnZlcmBdKGh0dHBzOi8vd3d3Lm5wbWpzLmNvbS9wYWNrYWdlL0ByZW1peC1ydW4vbm9kZS1mZXRjaC1zZXJ2ZXIpLCB0aGVuIGRlbGVnYXRlIHRvIEh5ZHJvZ2VuJ3MgaGFuZGxlcjoKCmBgYHRzCmltcG9ydCB7Y3JlYXRlUmVxdWVzdEhhbmRsZXIsIGNyZWF0ZUh5ZHJvZ2VuQ29udGV4dH0gZnJvbSAnQHNob3BpZnkvaHlkcm9nZW4nOwppbXBvcnQge2NyZWF0ZVJlcXVlc3RMaXN0ZW5lcn0gZnJvbSAnQHJlbWl4LXJ1bi9ub2RlLWZldGNoLXNlcnZlcic7CmltcG9ydCBodHRwIGZyb20gJ2h0dHAnOwoKY29uc3QgaGFuZGxlTm9kZVJlcXVlc3QgPSBjcmVhdGVSZXF1ZXN0TGlzdGVuZXIoKHJlcXVlc3QpID0+IHsKICBjb25zdCBoeWRyb2dlbkNvbnRleHQgPSBjcmVhdGVIeWRyb2dlbkNvbnRleHQoewogICAgLyogLi4uICovCiAgfSk7CgogIGNvbnN0IGhhbmRsZVdlYlJlcXVlc3QgPSBjcmVhdGVSZXF1ZXN0SGFuZGxlcih7CiAgICAvKiAuLi4gKi8KICAgIGdldExvYWRDb250ZXh0OiAoKSA9PiBoeWRyb2dlbkNvbnRleHQsCiAgfSk7CgogIHJldHVybiBoYW5kbGVXZWJSZXF1ZXN0KHJlcXVlc3QpOwp9KTsKCmh0dHAuY3JlYXRlU2VydmVyKGhhbmRsZU5vZGVSZXF1ZXN0KTsKYGBgCgpBbHRlcm5hdGl2ZWx5LCBpZiB5b3UgY2FuJ3QgZGVsZWdhdGUgdG8gSHlkcm9nZW4ncyBgY3JlYXRlUmVxdWVzdEhhbmRsZXJgLCB5b3UgY2FuIHByb3ZpZGUgYSBjdXN0b20gU3RvcmVmcm9udCBBUEkgcHJveHkgaW4geW91ciBzZXJ2ZXIuIFNlZSBbSHlkcm9nZW4ncyBpbXBsZW1lbnRhdGlvbl0oaHR0cHM6Ly9naXRodWIuY29tL1Nob3BpZnkvaHlkcm9nZW4vYmxvYi8yNzA2NmEyODU3NzQ4NGY0MDYyMjIxMTZhOTU5ZWI0NjNkMjU1Njg1L3BhY2thZ2VzL2h5ZHJvZ2VuL3NyYy9zdG9yZWZyb250LnRzI0w1NDYtTDYxMSkgYXMgYSByZWZlcmVuY2UuIEluIHRoaXMgY2FzZSwgZW5zdXJlIHlvdSBtYW51YWxseSBwYXNzIGBzYW1lRG9tYWluRm9yU3RvcmVmcm9udEFwaTogdHJ1ZWAgaW4gdGhlIGBjb25zZW50YCBvYmplY3QgZm9yIGA8QW5hbHl0aWNzLlByb3ZpZGVyPmAgb3IgYXMgYSBwcm9wIHRvIHRoZSBgdXNlQ3VzdG9tZXJQcml2YWN5YCBob29rLgo="
+            }
+          ],
+          "pr": "https://github.com/Shopify/hydrogen/pull/3355",
+          "id": "3355"
         }
       ]
     },

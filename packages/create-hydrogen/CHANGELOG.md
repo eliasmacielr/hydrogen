@@ -1,5 +1,151 @@
 # @shopify/create-hydrogen
 
+## 5.0.29
+
+### Patch Changes
+
+- Updated to Storefront API 2026-01 and Customer Account API 2026-01. ([#3434](https://github.com/Shopify/hydrogen/pull/3434)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  This is a quarterly API version update aligned with Shopify's API release schedule.
+
+  **Action Required**: The `cartDiscountCodesUpdate` mutation now requires the `discountCodes` argument. If you have custom cart discount code logic, verify your mutations include this field.
+
+  Review the changelogs for other changes that may affect your storefront:
+  - [Storefront API 2026-01 changelog](https://shopify.dev/changelog?filter=api&api_version=2026-01&api_type=storefront-graphql)
+  - [Customer Account API 2026-01 changelog](https://shopify.dev/changelog?filter=api&api_version=2026-01&api_type=customer-account-graphql)
+
+## 5.0.28
+
+### Patch Changes
+
+- Update Storefront API and Customer Account API to version 2025-10 ([#3430](https://github.com/Shopify/hydrogen/pull/3430)) by [@kdaviduik](https://github.com/kdaviduik)
+
+- Add support for Bun's text-based lockfile (`bun.lock`) introduced in Bun 1.2, and npm's shrinkwrap lockfile (`npm-shrinkwrap.json`), as alternatives to their respective primary lockfiles (`bun.lockb` and `package-lock.json`). ([#3430](https://github.com/Shopify/hydrogen/pull/3430)) by [@kdaviduik](https://github.com/kdaviduik)
+
+- Add `cartGiftCardCodesAdd` mutation ([#3430](https://github.com/Shopify/hydrogen/pull/3430)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  ## New Feature: cartGiftCardCodesAdd
+
+  The skeleton template has been updated to use the new `cartGiftCardCodesAdd` mutation:
+  - Removed `UpdateGiftCardForm` component from `CartSummary.tsx`
+  - Added `AddGiftCardForm` component using `CartForm.ACTIONS.GiftCardCodesAdd`
+
+  If you customized the gift card form in your project, you may want to migrate to the new `Add` action for simpler code.
+
+  ## Usage
+
+  ```typescript
+  import {CartForm} from '@shopify/hydrogen';
+
+  <CartForm action={CartForm.ACTIONS.GiftCardCodesAdd} inputs={{giftCardCodes: ['CODE1', 'CODE2']}}>
+    <button>Add Gift Cards</button>
+  </CartForm>
+  ```
+
+  Or with createCartHandler:
+
+  ```typescript
+  const cart = createCartHandler({storefront, getCartId, setCartId});
+  await cart.addGiftCardCodes(['SUMMER2025', 'WELCOME10']);
+  ```
+
+- Add support for nested cart line items (warranties, gift wrapping, etc.) ([#3430](https://github.com/Shopify/hydrogen/pull/3430)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  Storefront API 2025-10 introduces `parentRelationship` on cart line items, enabling parent-child relationships for add-ons. This update displays nested line items in the cart.
+
+  ### Changes
+  - Updates GraphQL fragments to include `parentRelationship` and `lineComponents` fields
+  - Updates `CartMain` and `CartLineItem` to render child line items with visual hierarchy
+
+  ### Note
+
+  This update focuses on **displaying** nested line items. To add both a product and its child (e.g., warranty) in a single action:
+
+  ```tsx
+  <AddToCartButton
+    lines={[
+      {merchandiseId: 'gid://shopify/ProductVariant/laptop-456', quantity: 1},
+      {
+        merchandiseId: 'gid://shopify/ProductVariant/warranty-123',
+        quantity: 1,
+        parent: {merchandiseId: 'gid://shopify/ProductVariant/laptop-456'},
+      },
+    ]}
+  >
+    Add to Cart with Warranty
+  </AddToCartButton>
+  ```
+
+## 5.0.27
+
+### Patch Changes
+
+- Support OAuth parameters via URL query strings in skeleton login route ([#3391](https://github.com/Shopify/hydrogen/pull/3391)) by [@kdaviduik](https://github.com/kdaviduik)
+
+  The skeleton template's login route (`account_.login.tsx`) now reads OAuth parameters from the URL and forwards them to `customerAccount.login()`. This enables deep linking to the login page with pre-configured authentication options.
+
+  ### Supported Query Parameters
+
+  | Query Parameter   | Description                                                                        |
+  | ----------------- | ---------------------------------------------------------------------------------- |
+  | `acr_values`      | Direct users to a specific login method (e.g., `provider:google` for social login) |
+  | `login_hint`      | Pre-fill the email address field                                                   |
+  | `login_hint_mode` | When set to `submit` with `login_hint`, auto-submits the login form                |
+  | `locale`          | Display the login page in a specific language (e.g., `fr`, `zh-CN`)                |
+
+  ### Usage Examples
+
+  ```
+  /account/login?login_hint=user@example.com
+  /account/login?login_hint=user@example.com&login_hint_mode=submit
+  /account/login?acr_values=provider:google
+  /account/login?locale=fr
+  ```
+
+## 5.0.26
+
+### Patch Changes
+
+- Update skeleton and create-hydrogen for @shopify/cli@3.85.4 incl @shopify/cli-hydrogen@11.1.4 ([#3232](https://github.com/Shopify/hydrogen/pull/3232)) by [@juanpprieto](https://github.com/juanpprieto)
+
+## 5.0.25
+
+### Patch Changes
+
+- Upgrade Miniflare from v2 to v4 in mini-oxygen package. ([#3039](https://github.com/Shopify/hydrogen/pull/3039)) by [@kdaviduik](https://github.com/kdaviduik)
+  - Internal MiniOxygen API has been refactored to work with Miniflare v4's new architecture.
+  - Simplified MiniOxygen class - no longer extends MiniflareCore.
+  - Updated global fetch handling to use Miniflare v4's `outboundService` API.
+  - Fixed test infrastructure to use project-relative temporary directories.
+  - Added support for Oxygen compatibility parameters (`compatibilityDate`, `compatibilityFlags`).
+  - Removed dependency on multiple `@miniflare/*` packages in favor of the consolidated `miniflare` package.
+
+- Update and pin react-router to 7.9.2 for 2025.7.0 ([#3138](https://github.com/Shopify/hydrogen/pull/3138)) by [@juanpprieto](https://github.com/juanpprieto)
+
+- Add `fulfillmentStatus` to CAAPI order query and route ([#3039](https://github.com/Shopify/hydrogen/pull/3039)) by [@kdaviduik](https://github.com/kdaviduik)
+
+- Unpin react-router and react-router-dom versions in the skeleton template ([#3039](https://github.com/Shopify/hydrogen/pull/3039)) by [@kdaviduik](https://github.com/kdaviduik)
+
+- Add `@inContext` language support to Customer Account API mutations ([#3039](https://github.com/Shopify/hydrogen/pull/3039)) by [@kdaviduik](https://github.com/kdaviduik)
+
+## 5.0.24
+
+### Patch Changes
+
+- Bumping the cli to 3.80.4 ([#2956](https://github.com/Shopify/hydrogen/pull/2956)) by [@balazsbajorics](https://github.com/balazsbajorics)
+
+## 5.0.23
+
+### Patch Changes
+
+- Migrating to React Router 7 ([#2866](https://github.com/Shopify/hydrogen/pull/2866)) by [@balazsbajorics](https://github.com/balazsbajorics)
+
+## 5.0.22
+
+### Patch Changes
+
+- Bump skeleton @shopify/cli and @shopify/mini-oxygen ([#2883](https://github.com/Shopify/hydrogen/pull/2883)) by [@juanpprieto](https://github.com/juanpprieto)
+
 ## 5.0.21
 
 ### Patch Changes
@@ -374,7 +520,6 @@
 ### Patch Changes
 
 - (Unstable) server-side network request debug virtual route ([#1284](https://github.com/Shopify/hydrogen/pull/1284)) by [@wizardlyhel](https://github.com/wizardlyhel)
-
   1. Update your `server.ts` so that it also passes in the `waitUntil` and `env`.
 
      ```diff

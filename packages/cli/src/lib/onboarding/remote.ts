@@ -9,7 +9,6 @@ import {
   downloadExternalRepo,
   downloadMonorepoTemplates,
 } from '../template-downloader.js';
-import {applyTemplateDiff} from '../template-diff.js';
 import {getCliCommand} from '../shell.js';
 import {
   commitAll,
@@ -35,18 +34,24 @@ export async function setupRemoteTemplate(
   const appTemplate =
     options.template === 'demo-store' ? DEMO_STORE_REPO : options.template;
 
-  let abort = createAbortHandler(controller);
-
-  // Start downloading templates early.
-  const backgroundDownloadPromise = appTemplate.includes('/')
-    ? getExternalTemplate(appTemplate, controller.signal).catch(abort)
-    : getMonorepoTemplate(appTemplate, controller.signal).catch(abort);
-
+  // IMPORTANT: We must await handleProjectLocation BEFORE starting the template download.
+  // This ensures the abort handler has the project directory information needed for cleanup.
+  // Starting the download before having project info can cause a race condition where:
+  // 1. An unknown template throws an error
+  // 2. The abort handler tries to clean up but doesn't have the directory to delete
+  // 3. handleProjectLocation creates the directory
+  // 4. The abort handler (now with project info) deletes it
+  // 5. handleProjectLocation continues and tries to read the deleted directory -> ENOENT error
   const project = await handleProjectLocation({...options, controller});
 
   if (!project) return;
 
-  abort = createAbortHandler(controller, project);
+  const abort = createAbortHandler(controller, project);
+
+  // Start downloading templates after we have project location.
+  const backgroundDownloadPromise = appTemplate.includes('/')
+    ? getExternalTemplate(appTemplate, controller.signal).catch(abort)
+    : getMonorepoTemplate(appTemplate, controller.signal).catch(abort);
 
   const downloaded = await backgroundDownloadPromise;
   if (controller.signal.aborted) return;
@@ -57,16 +62,9 @@ export async function setupRemoteTemplate(
       // do not continue if it's already aborted
       if (controller.signal.aborted) return;
 
-      const {sourcePath, skeletonPath} = downloaded;
+      const {sourcePath} = downloaded;
 
-      const pkgJson = await readAndParsePackageJson(
-        joinPath(sourcePath, 'package.json'),
-      );
-
-      if (pkgJson.scripts?.dev?.includes('--diff')) {
-        return applyTemplateDiff(project.directory, sourcePath, skeletonPath);
-      }
-
+      // Always copy the entire template/example
       await copyFile(sourcePath, project.directory);
     })
     .catch(abort);

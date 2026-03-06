@@ -1,3 +1,6 @@
+// Import React Router type augmentations to ensure they're loaded
+/// <reference path="../react-router.d.ts" />
+
 export {
   Analytics,
   getShopAnalytics,
@@ -55,6 +58,8 @@ export {cartBuyerIdentityUpdateDefault} from './cart/queries/cartBuyerIdentityUp
 export {cartCreateDefault} from './cart/queries/cartCreateDefault';
 export {cartDiscountCodesUpdateDefault} from './cart/queries/cartDiscountCodesUpdateDefault';
 export {cartGetDefault} from './cart/queries/cartGetDefault';
+export {cartGiftCardCodesAddDefault} from './cart/queries/cartGiftCardCodesAddDefault';
+export {cartGiftCardCodesRemoveDefault} from './cart/queries/cartGiftCardCodesRemoveDefault';
 export {cartGiftCardCodesUpdateDefault} from './cart/queries/cartGiftCardCodeUpdateDefault';
 export {cartLinesAddDefault} from './cart/queries/cartLinesAddDefault';
 export {cartLinesRemoveDefault} from './cart/queries/cartLinesRemoveDefault';
@@ -64,11 +69,13 @@ export {cartMetafieldsSetDefault} from './cart/queries/cartMetafieldsSetDefault'
 export {cartNoteUpdateDefault} from './cart/queries/cartNoteUpdateDefault';
 export {cartSelectedDeliveryOptionsUpdateDefault} from './cart/queries/cartSelectedDeliveryOptionsUpdateDefault';
 export {changelogHandler} from './changelogHandler';
+export {hydrogenContext} from './context-keys';
 export {
   createHydrogenContext,
   type HydrogenContext,
 } from './createHydrogenContext';
-export {createContentSecurityPolicy, useNonce} from './csp/csp';
+export {createRequestHandler} from './createRequestHandler';
+export {createContentSecurityPolicy, NonceProvider, useNonce} from './csp/csp';
 export {Script} from './csp/Script';
 export {createCustomerAccountClient} from './customer/customer';
 export type {
@@ -103,6 +110,7 @@ export {
   getSelectedProductOptions,
   VariantSelector,
 } from './product/VariantSelector';
+export {hydrogenPreset} from './react-router-preset';
 export {RichText} from './RichText';
 export {graphiqlLoader} from './routing/graphiql';
 export {storefrontRedirect} from './routing/redirect';
@@ -113,7 +121,12 @@ export {Seo} from './seo/seo';
 export {ShopPayButton} from './shop/ShopPayButton';
 export {getSitemap, getSitemapIndex} from './sitemap/sitemap';
 export * from './storefront';
-export type {HydrogenEnv, HydrogenSession, HydrogenSessionData} from './types';
+export type {
+  HydrogenEnv,
+  HydrogenRouterContextProvider,
+  HydrogenSession,
+  HydrogenSessionData,
+} from './types';
 export type {
   ClientBrowserParameters,
   MappedProductOptions,
@@ -144,6 +157,7 @@ export {
   getClientBrowserParameters,
   getProductOptions,
   getShopifyCookies,
+  getTrackingValues,
   Image,
   IMAGE_FRAGMENT,
   isOptionValueCombinationInEncodedVariant,

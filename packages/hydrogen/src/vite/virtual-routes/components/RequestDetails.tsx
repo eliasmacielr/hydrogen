@@ -1,6 +1,6 @@
 import {useState, useRef, useEffect} from 'react';
 import {type ServerEvents} from '../lib/useDebugNetworkServer.js';
-import {Link} from '@remix-run/react';
+import {Link} from 'react-router';
 import {IconClose} from './IconClose.jsx';
 
 // Type is broken in use-resize-observer
@@ -167,11 +167,7 @@ function TabButtonsBar({children}: {children: React.ReactNode}) {
   }
 
   return (
-    <div
-      id="tab-buttons-wrapper"
-      // eslint-disable-next-line react/no-unknown-property
-      onResize={(event) => setFade(event.currentTarget)}
-    >
+    <div id="tab-buttons-wrapper">
       <div
         id="tabButtons"
         ref={scrollBarRef}

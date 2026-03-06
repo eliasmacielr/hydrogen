@@ -3,12 +3,9 @@ import {
   createCartHandler,
   cartGetIdDefault,
   cartSetIdDefault,
-} from '@shopify/hydrogen';
-import * as remixBuild from '@remix-run/dev/server-build';
-import {
   createRequestHandler,
-  getStorefrontHeaders,
-} from '@shopify/remix-oxygen';
+} from '@shopify/hydrogen';
+import * as reactRouterBuild from 'virtual:react-router/server-build';
 
 export default {
   async fetch(request, env, executionContext) {
@@ -24,7 +21,7 @@ export default {
     });
 
     const handleRequest = createRequestHandler({
-      build: remixBuild,
+      build: reactRouterBuild,
       mode: process.env.NODE_ENV,
       getLoadContext: () => ({
         storefront,

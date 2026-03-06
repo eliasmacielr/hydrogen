@@ -6,12 +6,13 @@ import {temporaryDirectory} from 'tempy';
 import {it, vi, describe, beforeEach, expect, afterEach} from 'vitest';
 import {EventSource} from 'eventsource';
 
-import {startServer, Response, type MiniOxygenOptions} from './index.js';
+import {startServer, Response, type MiniOxygenPreviewOptions} from './index.js';
 
 describe('start()', () => {
   let fixture: Fixture;
-  const defaultOptions: MiniOxygenOptions = {
+  const defaultOptions: MiniOxygenPreviewOptions = {
     log: vi.fn(),
+    port: 0, // Use port 0 to let OS assign a random available port
   };
 
   beforeEach(async () => {
@@ -98,19 +99,30 @@ describe('start()', () => {
       `http://localhost:${miniOxygen.port}/__minioxygen_events`,
     );
     const eventsCaught: MessageEvent[] = [];
-    eventStream.addEventListener('message', (event: MessageEvent) =>
-      eventsCaught.push(event),
-    );
-    fixture.updateWorker();
 
-    // we need a short timeout to allow the "reload" event on the MiniOxygen instance to fire
+    // Wait for the EventSource to connect and receive the first message
+    await new Promise<void>((resolve) => {
+      eventStream.addEventListener('message', (event: MessageEvent) => {
+        eventsCaught.push(event);
+        if (event.data === 'connected') {
+          resolve();
+        }
+      });
+    });
+
+    // Now that we're connected, update the worker
+    await fixture.updateWorker();
+
+    // Wait for the reload event
     await new Promise((resolve, _reject) => {
-      setTimeout(() => resolve(null), 500);
+      setTimeout(() => resolve(null), 1000); // Increased from 500ms to 1000ms for CI
     });
 
     expect(eventsCaught.length).toBe(2);
     expect(eventsCaught[0].data).toBe('connected');
     expect(eventsCaught[1].data).toBe('reload');
+
+    eventStream.close();
     await miniOxygen.close();
   });
 
@@ -164,8 +176,17 @@ describe('start()', () => {
 
   it('proxies requests to a proxy server', async () => {
     const mockLogger = vi.fn();
-    const proxyPort = 1338;
-    const proxyServer = createMockProxyServer(proxyPort);
+    const proxyServer = createMockProxyServer(0); // Use dynamic port
+
+    // Get the actual port after server starts
+    const proxyPort = await new Promise<number>((resolve) => {
+      proxyServer.on('listening', () => {
+        const addr = proxyServer.address();
+        if (addr && typeof addr === 'object') {
+          resolve(addr.port);
+        }
+      });
+    });
 
     proxyServer.on('connection', () => {
       mockLogger('Proxy request received');
@@ -231,7 +252,8 @@ describe('start()', () => {
     const miniOxygen = await startServer({
       ...defaultOptions,
       log: mockLogger,
-      script: 'export default { fetch: () => fetch("foo") }',
+      script:
+        'export default { fetch: () => fetch("https://example.com/foo") }',
       globalFetch: (url) => {
         return Promise.resolve(new Response(`${url}bar`));
       },
@@ -240,7 +262,7 @@ describe('start()', () => {
     const response = (await sendRequest(miniOxygen.port, '/')) as {
       data: string;
     };
-    expect(response.data).toEqual('foobar');
+    expect(response.data).toEqual('https://example.com/foobar');
 
     await miniOxygen.close();
   });

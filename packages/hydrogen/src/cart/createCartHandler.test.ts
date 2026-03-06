@@ -1,4 +1,5 @@
-import {describe, expect, expectTypeOf, it} from 'vitest';
+import {describe, expect, expectTypeOf, it, vi} from 'vitest';
+import type {CartBuyerIdentityInput} from '@shopify/hydrogen-react/storefront-api-types';
 import {
   HydrogenCart,
   HydrogenCartCustom,
@@ -7,14 +8,16 @@ import {
 import {
   mockCreateCustomerAccountClient,
   mockCreateStorefrontClient,
-  mockHeaders,
 } from './cart-test-helper';
+import {Storefront} from '../storefront';
 
 type MockCarthandler = {
   cartId?: string;
   cartQueryFragment?: string;
   cartMutateFragment?: string;
   customMethods?: Record<string, Function>;
+  buyerIdentity?: CartBuyerIdentityInput;
+  storefront?: Storefront;
 };
 
 function getCartHandler(options: MockCarthandler = {}) {
@@ -34,7 +37,7 @@ describe('createCartHandler', () => {
     const cart = getCartHandler();
 
     expectTypeOf(cart).toEqualTypeOf<HydrogenCart>;
-    expect(Object.keys(cart)).toHaveLength(18);
+    expect(Object.keys(cart)).toHaveLength(21);
     expect(cart).toHaveProperty('get');
     expect(cart).toHaveProperty('getCartId');
     expect(cart).toHaveProperty('setCartId');
@@ -44,12 +47,18 @@ describe('createCartHandler', () => {
     expect(cart).toHaveProperty('removeLines');
     expect(cart).toHaveProperty('updateDiscountCodes');
     expect(cart).toHaveProperty('updateGiftCardCodes');
+    expect(cart).toHaveProperty('addGiftCardCodes');
+    expect(cart).toHaveProperty('removeGiftCardCodes');
     expect(cart).toHaveProperty('updateBuyerIdentity');
     expect(cart).toHaveProperty('updateNote');
     expect(cart).toHaveProperty('updateSelectedDeliveryOption');
     expect(cart).toHaveProperty('updateAttributes');
     expect(cart).toHaveProperty('setMetafields');
     expect(cart).toHaveProperty('deleteMetafield');
+    expect(cart).toHaveProperty('addDeliveryAddresses');
+    expect(cart).toHaveProperty('removeDeliveryAddresses');
+    expect(cart).toHaveProperty('updateDeliveryAddresses');
+    expect(cart).toHaveProperty('replaceDeliveryAddresses');
   });
 
   it('can add custom methods', () => {
@@ -65,7 +74,7 @@ describe('createCartHandler', () => {
     });
 
     expectTypeOf(cart).toEqualTypeOf<HydrogenCartCustom<{foo: () => 'bar'}>>;
-    expect(Object.keys(cart)).toHaveLength(19);
+    expect(Object.keys(cart)).toHaveLength(22);
     expect(cart.foo()).toBe('bar');
   });
 
@@ -79,7 +88,7 @@ describe('createCartHandler', () => {
     });
 
     expectTypeOf(cart).toEqualTypeOf<HydrogenCart>;
-    expect(Object.keys(cart)).toHaveLength(18);
+    expect(Object.keys(cart)).toHaveLength(21);
     expect(await cart.get()).toBe('bar');
   });
 
@@ -143,6 +152,9 @@ describe('createCartHandler', () => {
 
     const result12 = await cart.updateGiftCardCodes([]);
     expect(result12.userErrors?.[0]).toContain(cartMutateFragment);
+
+    const result13 = await cart.removeGiftCardCodes([]);
+    expect(result13.userErrors?.[0]).toContain(cartMutateFragment);
   });
 
   it('function get has a working default implementation', async () => {
@@ -446,5 +458,102 @@ describe('createCartHandler', () => {
     ]);
 
     expect(await cart.get()).toHaveProperty('id', 'c1-new-cart-id');
+  });
+
+  it('passes default buyerIdentity to cartCreate when addLines is called', async () => {
+    const storefront = mockCreateStorefrontClient();
+
+    vi.spyOn(storefront, 'mutate');
+
+    const cart = getCartHandler({
+      buyerIdentity: {companyLocationId: 'someLocation'},
+      storefront,
+    });
+
+    await cart.addLines([
+      {
+        merchandiseId: '1',
+        quantity: 1,
+      },
+    ]);
+
+    expect(storefront.mutate).toHaveBeenCalledWith(expect.any(String), {
+      variables: {
+        input: {
+          buyerIdentity: {
+            companyLocationId: 'someLocation',
+            customerAccessToken: expect.any(String),
+          },
+          lines: expect.any(Array),
+        },
+      },
+    });
+  });
+
+  it('passes default buyerIdentity to cartCreate', async () => {
+    const storefront = mockCreateStorefrontClient();
+
+    vi.spyOn(storefront, 'mutate');
+
+    const cart = getCartHandler({
+      buyerIdentity: {companyLocationId: 'someLocation'},
+      storefront,
+    });
+
+    await cart.create({
+      lines: [
+        {
+          merchandiseId: '1',
+          quantity: 1,
+        },
+      ],
+    });
+
+    expect(storefront.mutate).toHaveBeenCalledWith(expect.any(String), {
+      variables: {
+        input: {
+          buyerIdentity: {
+            companyLocationId: 'someLocation',
+            customerAccessToken: expect.any(String),
+          },
+          lines: expect.any(Array),
+        },
+      },
+    });
+  });
+
+  it('overrides default buyerIdentity with buyerIdentity passed to cartCreate', async () => {
+    const storefront = mockCreateStorefrontClient();
+
+    vi.spyOn(storefront, 'mutate');
+
+    const cart = getCartHandler({
+      buyerIdentity: {companyLocationId: 'someLocation'},
+      storefront,
+    });
+
+    await cart.create({
+      lines: [
+        {
+          merchandiseId: '1',
+          quantity: 1,
+        },
+      ],
+      buyerIdentity: {
+        companyLocationId: 'newLocation',
+      },
+    });
+
+    expect(storefront.mutate).toHaveBeenCalledWith(expect.any(String), {
+      variables: {
+        input: {
+          buyerIdentity: {
+            companyLocationId: 'newLocation',
+            customerAccessToken: expect.any(String),
+          },
+          lines: expect.any(Array),
+        },
+      },
+    });
   });
 });

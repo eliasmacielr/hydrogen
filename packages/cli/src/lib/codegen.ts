@@ -1,7 +1,7 @@
 import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {formatCode, getCodeFormatOptions} from './format-code.js';
-import {renderWarning} from '@shopify/cli-kit/node/ui';
+import {renderWarning, renderInfo} from '@shopify/cli-kit/node/ui';
 import {
   joinPath,
   relativePath,
@@ -116,7 +116,7 @@ export function spawnCodegenProcess({
     // Skip banners output by ourselves:
     if (/─ (warning|info|success) ───/.test(message)) return;
 
-    console.log('');
+    renderInfo({body: ''});
     renderWarning({headline: message, body: details});
   });
 
@@ -143,8 +143,10 @@ type CodegenOptions = ProjectDirs & {
   forceSfapiVersion?: string;
 };
 
-export function codegen(options: CodegenOptions) {
-  return generateTypes(options).catch((error: Error) => {
+export async function codegen(options: CodegenOptions) {
+  await executeReactRouterCodegen(options);
+
+  return runGraphQLCodegen(options).catch((error: Error) => {
     if (error instanceof AbortError) throw error;
 
     const {message, details} = normalizeCodegenError(
@@ -156,7 +158,42 @@ export function codegen(options: CodegenOptions) {
   });
 }
 
-async function generateTypes({
+export async function executeReactRouterCodegen(options: {
+  rootDirectory: string;
+  watch?: boolean;
+}) {
+  /**
+   * NOTE: We should have never enforced running React Router typegen at build time, as this would have broken build on projects still on Remix.
+   * Check if react-router is available before trying to run typegen
+   */
+  const {execSync, exec} = await import('child_process');
+
+  try {
+    // Check if react-router CLI is available
+    execSync('npx react-router --version', {
+      cwd: options.rootDirectory,
+      stdio: 'ignore',
+    });
+  } catch {
+    // React Router not found, skip typegen
+    renderInfo({body: 'React Router not found, skipping typegen'});
+    return;
+  }
+
+  // React Router is available, run typegen
+  if (options.watch) {
+    exec('npx react-router typegen --watch', {
+      cwd: options.rootDirectory,
+    });
+  } else {
+    execSync('npx react-router typegen', {
+      cwd: options.rootDirectory,
+      stdio: 'inherit',
+    });
+  }
+}
+
+async function runGraphQLCodegen({
   watch,
   configFilePath,
   forceSfapiVersion,
@@ -272,7 +309,7 @@ export async function generateDefaultConfig(
 
     return Boolean(
       schema.endsWith(baseSfapiSchema) ||
-        (baseCaapiSchema && schema.endsWith(baseCaapiSchema)),
+      (baseCaapiSchema && schema.endsWith(baseCaapiSchema)),
     );
   };
 

@@ -1,7 +1,84 @@
 name: 🚀 CI
-on: [pull_request]
+on:
+  pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
+  check-node-version:
+    name: 🔧 Node version sync
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Validate .nvmrc matches dev.yml
+        run: |
+          NVMRC_VERSION=$(tr -d 'v\n' < .nvmrc)
+          # Expects dev.yml format:
+          #   - node:
+          #       version: vXX.YY.ZZ
+          DEV_YML_RAW=$(grep -A3 '^\s*- node:' dev.yml | grep 'version:' | grep -oE 'v?[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          DEV_YML_VERSION=$(echo "$DEV_YML_RAW" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+
+          if [ -z "$NVMRC_VERSION" ]; then
+            echo "::error::Could not parse version from .nvmrc"
+            echo "  .nvmrc contents: '$(cat .nvmrc)'"
+            echo "  dev.yml raw:     '$DEV_YML_RAW'"
+            exit 1
+          fi
+
+          if [ -z "$DEV_YML_RAW" ]; then
+            echo "::error::Could not find node version in dev.yml"
+            echo "  .nvmrc version:  '$NVMRC_VERSION'"
+            echo "  Searched for: '- node:' followed by 'version:' line in dev.yml"
+            echo "  Relevant dev.yml lines:"
+            grep -A3 'node:' dev.yml | sed 's/^/    /'
+            exit 1
+          fi
+
+          if [ -z "$DEV_YML_VERSION" ]; then
+            echo "::error::dev.yml must specify a FULL Node version (X.Y.Z format)"
+            echo ""
+            echo "Found: '$DEV_YML_RAW'"
+            echo ".nvmrc version: '$NVMRC_VERSION'"
+            echo "Expected format: 'vX.Y.Z' (e.g., 'v20.19.5')"
+            echo ""
+            echo "The Shopify 'dev' tool requires a specific installable version,"
+            echo "not just a major version like 'v20'. Nix needs the exact version"
+            echo "to fetch from its package cache."
+            exit 1
+          fi
+
+          NVMRC_MAJOR=$(echo "$NVMRC_VERSION" | cut -d. -f1)
+          DEV_YML_MAJOR=$(echo "$DEV_YML_VERSION" | cut -d. -f1)
+
+          if [ "$NVMRC_MAJOR" != "$DEV_YML_MAJOR" ]; then
+            echo "::error::Node version mismatch between .nvmrc and dev.yml"
+            echo ""
+            echo "┌─────────────────────────────────────────────────────────────────┐"
+            echo "│  IMPORTANT: This is NOT a configuration oversight!              │"
+            echo "│                                                                 │"
+            echo "│  The Shopify 'dev' tool CANNOT read from .nvmrc - it requires   │"
+            echo "│  an explicit version. These files serve different tools:        │"
+            echo "│    • .nvmrc  → used by nvm (flexible major version like 'v20')  │"
+            echo "│    • dev.yml → used by dev tool (needs exact version 'v20.x.x') │"
+            echo "│                                                                 │"
+            echo "│  Both files MUST be updated TOGETHER when changing Node version.│"
+            echo "└─────────────────────────────────────────────────────────────────┘"
+            echo ""
+            echo "Current state:"
+            echo "  .nvmrc major version:  v$NVMRC_MAJOR"
+            echo "  dev.yml major version: v$DEV_YML_MAJOR"
+            echo ""
+            echo "To fix: Update both files to use the same Node major version."
+            exit 1
+          fi
+
+          echo "✅ Node versions in sync (major version: v$NVMRC_MAJOR)"
+
   lint:
     name: ⬣ ESLint
     runs-on: ubuntu-latest
@@ -11,20 +88,26 @@ jobs:
       cancel-in-progress: true
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
+        with:
+          run_install: false
 
       - name: ⎔ Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: 'pnpm-lock.yaml'
 
       - name: 📥 Install dependencies
-        run: npm ci
+        run: |
+          pnpm install --frozen-lockfile
 
       - name: 🔬 Lint
-        run: npm run lint
+        run: pnpm run lint
 
   format:
     name: ⬣ Prettier
@@ -35,20 +118,26 @@ jobs:
       cancel-in-progress: true
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
+        with:
+          run_install: false
 
       - name: ⎔ Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: 'pnpm-lock.yaml'
 
       - name: 📥 Install dependencies
-        run: npm ci
+        run: |
+          pnpm install --frozen-lockfile
 
       - name: 🔬 Check Formatting
-        run: npm run format:check
+        run: pnpm run format:check
 
   typecheck:
     name: Typescript
@@ -59,17 +148,23 @@ jobs:
       cancel-in-progress: true
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
+        with:
+          run_install: false
 
       - name: ⎔ Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: 'pnpm-lock.yaml'
 
       - name: 📥 Install dependencies
-        run: npm ci
+        run: |
+          pnpm install --frozen-lockfile
 
       # Enabling the turbo cache causes deployments to fail intermittently.
       # The build step fails with dependency issues. More investigation needed.
@@ -84,16 +179,141 @@ jobs:
       #     restore-keys: |
       #       turbo-${{ github.job }}-${{ github.ref_name }}-
 
-      - name: 📦 Build packages, templates, and examples
-        run: SHOPIFY_HYDROGEN_FLAG_LOCKFILE_CHECK=false npm run build:all
+      - name: 📦 Build packages and templates
+        run: SHOPIFY_HYDROGEN_FLAG_LOCKFILE_CHECK=false pnpm run build:all
 
       - name: ✅ Typecheck
-        run: npm run typecheck
+        run: SHOPIFY_HYDROGEN_FLAG_LOCKFILE_CHECK=false pnpm run typecheck
 
       - name: 🧑‍💻 CLI manifest check
-        run: 'test -z "$(git status --porcelain "packages/cli/oclif.manifest.json" )" || { echo -e "Run npm generate:manifest in packages/cli before pushing new commands or flags. Diff here:\n\n$(git diff)" ; exit 1; }'
+        run: 'test -z "$(git status --porcelain "packages/cli/oclif.manifest.json" )" || { echo -e "Run pnpm --dir packages/cli run generate:manifest before pushing new commands or flags. Diff here:\n\n$(git diff)" ; exit 1; }'
 
-  test:
+  test_e2e:
+    name: ⬣ E2E tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: ci-e2e-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
+        with:
+          run_install: false
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: 'pnpm-lock.yaml'
+
+      - name: 📥 Install dependencies
+        run: |
+          pnpm install --frozen-lockfile
+
+      - name: 📦 Build packages and templates
+        run: SHOPIFY_HYDROGEN_FLAG_LOCKFILE_CHECK=false pnpm run build:all
+
+      - name: 🎭 Install Playwright Chromium
+        run: pnpm exec playwright install chromium --with-deps
+
+      - name: 🔐 Install ejson
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y golang-go
+          go install github.com/Shopify/ejson/cmd/ejson@latest
+          echo "$HOME/go/bin" >> $GITHUB_PATH
+
+      - name: 🧪 Run E2E tests
+        run: pnpm exec playwright test
+        env:
+          EJSON_PRIVATE_KEY: ${{ secrets.EJSON_PRIVATE_KEY }}
+
+      - name: 📤 Upload Playwright Report
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        if: ${{ always() && !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          if-no-files-found: warn
+          retention-days: 30
+
+  test_scaffolding:
+    name: ⬣ Scaffolding tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: ci-scaffolding-${{ matrix.pm }}-${{ github.ref }}
+      cancel-in-progress: true
+    strategy:
+      fail-fast: false
+      matrix:
+        # TODO: Re-enable bun once @shopify/cli releases with @shopify/cli-hydrogen that supports bun.lock
+        pm: [npm, pnpm, yarn]
+        include:
+          - pm: npm
+            lockfile: package-lock.json
+          - pm: pnpm
+            lockfile: pnpm-lock.yaml
+          - pm: yarn
+            lockfile: yarn.lock
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      # Explicit version required because pnpm/action-setup doesn't auto-detect
+      # from packageManager field in this context. The version must match
+      # engines.pnpm in package.json (>=10.16.1)
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
+        with:
+          version: 10.16.1
+          run_install: false
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+          cache-dependency-path: 'pnpm-lock.yaml'
+
+      - name: 📦 Setup ${{ matrix.pm }}
+        if: matrix.setup
+        run: ${{ matrix.setup }}
+
+      - name: 📥 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 📦 Build packages
+        run: SHOPIFY_HYDROGEN_FLAG_LOCKFILE_CHECK=false pnpm run build:pkg
+
+      - name: 🧪 Scaffold with ${{ matrix.pm }}
+        run: |
+          node packages/create-hydrogen/dist/create-app.js \
+            --path "$RUNNER_TEMP/h2-test-${{ matrix.pm }}" \
+            --language ts \
+            --mock-shop \
+            --install-deps \
+            --no-git \
+            --package-manager ${{ matrix.pm }} \
+            --no-shortcut \
+            --routes \
+            --markets none \
+            --styling none
+
+      - name: ✅ Verify lockfile
+        run: test -f "$RUNNER_TEMP/h2-test-${{ matrix.pm }}/${{ matrix.lockfile }}"
+
+      - name: ✅ Verify app builds
+        run: |
+          cd "$RUNNER_TEMP/h2-test-${{ matrix.pm }}"
+          ${{ matrix.pm }} run build
+
+  test_unit:
     name: ⬣ Unit tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -102,20 +322,64 @@ jobs:
       cancel-in-progress: true
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
+        with:
+          run_install: false
 
       - name: ⎔ Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: 'pnpm-lock.yaml'
 
       - name: 📥 Install dependencies
-        run: npm ci
+        run: |
+          pnpm install --frozen-lockfile
 
-      - name: 📦 Build packages, templates, and examples
-        run: SHOPIFY_HYDROGEN_FLAG_LOCKFILE_CHECK=false npm run build:all
+      - name: 📦 Build packages and templates
+        run: SHOPIFY_HYDROGEN_FLAG_LOCKFILE_CHECK=false pnpm run build:all
 
       - name: 🔬 Test
-        run: npm run test
+        run: SHOPIFY_HYDROGEN_FLAG_LOCKFILE_CHECK=false pnpm run test
+
+  validate_recipes:
+    name: ⬣ Validate Recipes
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: ci-validate-recipes-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
+        with:
+          run_install: false
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: 'pnpm-lock.yaml'
+
+      - name: 📥 Install dependencies
+        run: |
+          pnpm install --frozen-lockfile
+
+      - name: 📦 Build packages
+        run: SHOPIFY_HYDROGEN_FLAG_LOCKFILE_CHECK=false pnpm run build:pkg
+
+      - name: 📝 Validate schema
+        working-directory: cookbook
+        run: pnpm run cookbook -- schema && git diff --exit-code recipe.schema.json
+
+      - name: 🧐 Validate Recipes
+        working-directory: cookbook
+        run: SHOPIFY_HYDROGEN_FLAG_LOCKFILE_CHECK=false pnpm run cookbook -- validate

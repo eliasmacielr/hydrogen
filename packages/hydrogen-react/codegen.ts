@@ -4,8 +4,8 @@ import {
   customerAccountApiCustomScalars,
 } from './src/codegen.helpers';
 
-const SF_API_VERSION = '2025-01';
-const CA_API_VERSION = '2025-01';
+const SF_API_VERSION = '2026-01';
+const CA_API_VERSION = '2026-01';
 
 const storefrontAPISchema: CodegenConfig['schema'] = {
   [`https://hydrogen-preview.myshopify.com/api/${SF_API_VERSION}/graphql.json`]:
@@ -88,6 +88,8 @@ const config: CodegenConfig = {
             useImplementingTypes: true,
             enumsAsTypes: true,
             scalars: customerAccountApiCustomScalars,
+            // Generate separate enum types for Customer Account API
+            // These will be used in union types with Storefront API enums where needed
           },
         },
       ],
